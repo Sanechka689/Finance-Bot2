@@ -8,7 +8,9 @@ STATE_TARIFF_DETAIL = 2  # экран с описанием выбранного
 STATE_SHEET         = 3  # ожидание ссылки на Google Sheets
 
 # Этап 3: первоначальное заполнение банков
-STATE_BANK_CHOOSE   = 4  # меню выбора банка
-STATE_BANK_CUSTOM   = 5  # ввод собственного названия
-STATE_BANK_AMOUNT   = 6  # ввод суммы
-STATE_BANK_OPTION   = 7  # меню «Добавить ещё / Продолжить / Готово»
+STATE_BANK_MENU         = 4  # показ основного меню банков
+STATE_BANK_CUSTOM       = 5  # ввод своего названия банка
+STATE_BANK_AMOUNT       = 6  # ввод суммы (новой или редактируемой)
+STATE_BANK_OPTION       = 7  # кнопки «Добавить ещё» / «Изменить» / «Готово»
+STATE_BANK_EDIT_CHOICE  = 8  # выбор, что редактировать: банк или сумму
+STATE_BANK_EDIT_INPUT   = 9  # ввод нового значения поля для редактирования
