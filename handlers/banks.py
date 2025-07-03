@@ -252,23 +252,35 @@ async def handle_bank_edit_input(update: Update, context: ContextTypes.DEFAULT_T
     row = entry["row"]
 
     if field == "bank":
-        # Обновляем банк
+        # Обновляем только название банка
         entry["bank"] = text
         ws.update_cell(row, 3, text)
+
     elif field == "amount":
+        # Парсим новое значение
         try:
             amount = float(text.replace(",", "."))
         except ValueError:
             await update.message.reply_text("⚠️ Введите число, например: 1000 или -456,67")
             return STATE_BANK_EDIT_INPUT
-        entry["amount"] = amount
-        amt_str = f"{amount:.2f}"
-        ws.update_cell(row, 6, amt_str)
 
-    # Сбросим флаг редактирования
+        # Сохраняем в entry и в таблицу как число
+        entry["amount"] = amount
+        ws.update_cell(row, 6, amount)  # передаём float, Google Sheets сохранит число
+
+    # Дублируем изменения в списке new_banks, чтобы итоговый отчёт брал обновлённые данные
+    for e in context.user_data.get("new_banks", []):
+        if e.get("row") == row:
+            e["bank"]   = entry["bank"]
+            e["amount"] = entry["amount"]
+
+    # Форматируем сумму для показа пользователю
+    formatted_amount = f"{entry['amount']:.2f}".replace(".", ",")
+
+    # Убираем флаг редактирования
     context.user_data.pop("editing_field", None)
 
-    # Снова покажем опции
+    # Снова показываем опции
     keyboard = [
         [
             InlineKeyboardButton("➕ Добавить ещё банк",    callback_data="add_more"),
@@ -276,8 +288,9 @@ async def handle_bank_edit_input(update: Update, context: ContextTypes.DEFAULT_T
         ],
         [InlineKeyboardButton("✅ Готово",               callback_data="finish_setup")],
     ]
+    # Теперь показываем и банк, и актуальную сумму
     await update.message.reply_text(
-        f"✅ Запись обновлена: {field}",
+        f"✅ Запись обновлена: {entry['bank']} — {formatted_amount}"
     )
     await update.message.reply_text("Что дальше?", reply_markup=InlineKeyboardMarkup(keyboard))
     return STATE_BANK_OPTION
