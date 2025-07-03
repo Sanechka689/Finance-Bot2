@@ -24,11 +24,13 @@ async def show_tariff_menu(update: Update, context: ContextTypes.DEFAULT_TYPE) -
     keyboard = [
         [
             InlineKeyboardButton("Бесплатный", callback_data="tariff_free"),
-            InlineKeyboardButton("Тариф 1", callback_data="tariff_1"),
-            InlineKeyboardButton("Тариф 2", callback_data="tariff_2"),
+            InlineKeyboardButton("Тариф 1",    callback_data="tariff_1"),
+            InlineKeyboardButton("Тариф 2",    callback_data="tariff_2"),
         ],
-        [InlineKeyboardButton("Поддержка", callback_data="support"),
-         InlineKeyboardButton("Телеграмм канал", url="https://t.me/your_channel")],
+        [
+            InlineKeyboardButton("Поддержка",      callback_data="support"),
+            InlineKeyboardButton("Телеграмм канал", url="https://t.me/your_channel"),
+        ],
     ]
     await update.message.reply_text(text, reply_markup=InlineKeyboardMarkup(keyboard))
     return STATE_TARIFF_MENU
@@ -55,8 +57,8 @@ async def handle_menu_selection(update: Update, context: ContextTypes.DEFAULT_TY
         }[choice]
 
         keyboard = [
-            [InlineKeyboardButton("⬅️ Назад", callback_data="back_to_menu")],
-            [InlineKeyboardButton("Выбрать тариф", callback_data=f"select_{choice}")],
+            [InlineKeyboardButton("⬅️ Назад",        callback_data="back_to_menu")],
+            [InlineKeyboardButton("Выбрать тариф",  callback_data=f"select_{choice}")],
         ]
         await query.edit_message_text(desc, reply_markup=InlineKeyboardMarkup(keyboard))
         return STATE_TARIFF_DETAIL
@@ -79,14 +81,16 @@ async def handle_detail_selection(update: Update, context: ContextTypes.DEFAULT_
             "Пожалуйста, выберите тариф:"
         )
         keyboard = [
-        [
-            InlineKeyboardButton("Бесплатный", callback_data="tariff_free"),
-            InlineKeyboardButton("Тариф 1", callback_data="tariff_1"),
-            InlineKeyboardButton("Тариф 2", callback_data="tariff_2"),
-        ],
-        [InlineKeyboardButton("Поддержка", callback_data="support"),
-         InlineKeyboardButton("Телеграмм канал", url="https://t.me/your_channel")],
-    ]
+            [
+                InlineKeyboardButton("Бесплатный",        callback_data="tariff_free"),
+                InlineKeyboardButton("Тариф 1",           callback_data="tariff_1"),
+                InlineKeyboardButton("Тариф 2",           callback_data="tariff_2"),
+            ],
+            [
+                InlineKeyboardButton("Поддержка",         callback_data="support"),
+                InlineKeyboardButton("Телеграмм канал",   url="https://t.me/your_channel"),
+            ],
+        ]
         await query.edit_message_text(text, reply_markup=InlineKeyboardMarkup(keyboard))
         return STATE_TARIFF_MENU
 
@@ -95,29 +99,36 @@ async def handle_detail_selection(update: Update, context: ContextTypes.DEFAULT_
         context.user_data["tariff"] = tariff
 
         if tariff == "tariff_free":
+            # после выбора бесплатного — сразу /setup
             await query.edit_message_text(
                 "🎉 Вы выбрали _Бесплатный_ тариф и сразу переходите к подключению таблицы.",
                 parse_mode="Markdown"
+            )
+            await query.message.reply_text(
+                "📑 Теперь введите команду /setup для подключения Google Sheets."
             )
             return ConversationHandler.END
 
         # для платных тарифов — эмуляция оплаты
         keyboard = [
-            [InlineKeyboardButton("⬅️ Назад", callback_data="back_to_menu")],
-            [InlineKeyboardButton("Я оплатил ✅", callback_data="paid")],
+            [InlineKeyboardButton("⬅️ Назад",        callback_data="back_to_menu")],
+            [InlineKeyboardButton("Я оплатил ✅",    callback_data="paid")],
         ]
         await query.edit_message_text(
-            f"💳 Чтобы продолжить, нажмите «Я оплатил ✅» для подтверждения оплаты.",
+            "💳 Чтобы продолжить, нажмите «Я оплатил ✅» для подтверждения оплаты.",
             reply_markup=InlineKeyboardMarkup(keyboard)
         )
         return STATE_TARIFF_DETAIL
 
     if data == "paid":
         tariff = context.user_data.get("tariff")
+        # после подтверждения оплаты — /setup
         await query.edit_message_text(
-            f"🎉 Оплата тарифa *{tariff}* подтверждена!\n"
-            "Переходим к подключению Google Sheets...",
+            f"🎉 Оплата тарифa *{tariff}* подтверждена!",
             parse_mode="Markdown"
+        )
+        await query.message.reply_text(
+            "📑 Теперь введите команду /setup для подключения Google Sheets."
         )
         return ConversationHandler.END
 
