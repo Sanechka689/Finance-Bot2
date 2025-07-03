@@ -18,6 +18,19 @@ from services.sheets_service import open_finance_and_plans
 
 # 3.7 Показать меню банков
 async def show_banks_menu(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
+        # Проверяем, выбран ли тариф
+    if not context.user_data.get("tariff"):
+        await update.message.reply_text(
+            "⚠️ Сначала выберите тариф через /start и нажмите «Выбрать тариф»."
+        )
+        return ConversationHandler.END
+    # Проверяем, подключена ли таблица
+    if not context.user_data.get("sheet_url"):
+        await update.message.reply_text(
+            "⚠️ Сначала подключите Google Sheets через /setup."
+        )
+        return ConversationHandler.END
+        
     text = "🏦 Выберите банк для ввода стартового баланса:"
     keyboard = [
         [

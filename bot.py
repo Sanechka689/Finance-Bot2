@@ -15,6 +15,9 @@ def main():
     register_sheet_handlers(app)
     # Этап 3
     register_banks_handlers(app)  # ← регистрация /banks
+     # Этап 4: ловим всё остальное и подсказываем
+    from handlers.fallback import register_fallback_handler
+    register_fallback_handler(app)
 
     app.run_polling()
 

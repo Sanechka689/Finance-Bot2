@@ -13,6 +13,13 @@ from utils.constants           import STATE_SHEET
 from services.sheets_service   import open_finance_and_plans
 
 async def show_sheet_prompt(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
+        # Если тариф не выбран — не даём перейти на этот этап
+    if not context.user_data.get("tariff"):
+        await update.message.reply_text(
+            "⚠️ Сначала выберите тариф через /start и нажмите «Выбрать тариф»."
+        )
+        return ConversationHandler.END
+    
     """
     #6.2 Просим пользователя прислать ссылку на Google Sheets
     """
@@ -55,7 +62,7 @@ async def handle_sheet_url(update: Update, context: ContextTypes.DEFAULT_TYPE) -
     context.user_data["sheet_url"] = url
     await update.message.reply_text(
         "✅ Таблица успешно подключена и инициализирована!\n"
-        "Переходим к этапу первоначального заполнения банков."
+        "Переходим к этапу первоначального заполнения банков. Нажмите /banks"
     )
     return ConversationHandler.END
 
