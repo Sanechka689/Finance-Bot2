@@ -2,6 +2,7 @@
 
 from datetime import datetime
 import calendar
+import pytz  # для московского времени
 
 from telegram import InlineKeyboardMarkup, InlineKeyboardButton, Update
 from telegram.ext import (
@@ -63,40 +64,67 @@ async def handle_bank_choice(update: Update, context: ContextTypes.DEFAULT_TYPE)
 # 3.9 Обработать ввод суммы
 async def handle_bank_amount(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     text = update.message.text.strip()
+    # проверяем число и сохраняем с двумя десятичными
     try:
         amount = float(text.replace(",", "."))
     except ValueError:
-        await update.message.reply_text("⚠️ Введите число, например: 1000")
+        await update.message.reply_text(
+            "⚠️ Введите число, например: 1000 или 456,67"
+        )
         return STATE_BANK_AMOUNT
 
     bank = context.user_data["bank"]
     sheet_url = context.user_data.get("sheet_url")
     if not sheet_url:
-        await update.message.reply_text("❌ Ссылка на таблицу не найдена. Сначала выполните /setup.")
+        await update.message.reply_text(
+            "❌ Ссылка на таблицу не найдена. Сначала выполните /setup."
+        )
         return ConversationHandler.END
 
-    # Получаем лист «Финансы»
+    # Открываем лист «Финансы»
     finance_ws, _ = open_finance_and_plans(sheet_url)
 
-    now = datetime.now()
+    # текущее время по Москве
+    tz = pytz.timezone("Europe/Moscow")
+    now = datetime.now(tz)
     year = now.year
-    month = calendar.month_name[now.month]
+    # месяц на русском с заглавной буквы
+    month_names = {
+        1: "Январь",  2: "Февраль", 3: "Март",     4: "Апрель",
+        5: "Май",     6: "Июнь",    7: "Июль",     8: "Август",
+        9: "Сентябрь",10: "Октябрь",11: "Ноябрь",  12: "Декабрь"
+    }
+    month = month_names[now.month]
     date_str = now.strftime("%d.%m.%Y")
 
-    # Вставляем новую строку
-    row = [year, month, bank, "Первые данные", date_str, amount, "Первые данные", "-"]
+    # формат суммы для вставки (дробная часть через запятую)
+    amount_str = f"{amount:.2f}".replace(".", ",")
+
+    # строка для вставки
+    row = [
+        year,
+        month,
+        bank,
+        "Пополнение",   # операция
+        date_str,       # дата
+        amount_str,     # сумма
+        "Старт",        # классификация
+        "-",            # конкретика
+    ]
     finance_ws.append_row(row, value_input_option="USER_ENTERED")
 
     # Предлагаем добавить ещё или закончить
     keyboard = [
         [InlineKeyboardButton("Добавить ещё банк", callback_data="add_more")],
-        [InlineKeyboardButton("Завершить", callback_data="finish_setup")],
+        [InlineKeyboardButton("Завершить",         callback_data="finish_setup")],
     ]
     await update.message.reply_text(
-        f"✅ Банк <b>{bank}</b> добавлен с балансом <b>{amount}</b>.",
+        f"✅ Банк <b>{bank}</b> добавлен с балансом <b>{amount_str}</b>.",
         parse_mode="HTML"
     )
-    await update.message.reply_text("Что дальше?", reply_markup=InlineKeyboardMarkup(keyboard))
+    await update.message.reply_text(
+        "Что дальше?", reply_markup=InlineKeyboardMarkup(keyboard)
+    )
     return ConversationHandler.END
 
 # 3.10 Обработка «Добавить ещё» / «Завершить»
