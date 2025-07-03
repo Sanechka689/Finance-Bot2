@@ -62,7 +62,8 @@ async def handle_sheet_url(update: Update, context: ContextTypes.DEFAULT_TYPE) -
     context.user_data["sheet_url"] = url
     await update.message.reply_text(
         "✅ Таблица успешно подключена и инициализирована!\n"
-        "Переходим к этапу первоначального заполнения банков. Нажмите /banks"
+        "Переходим к этапу первоначального заполнения банков.\n"
+        "Нажмите /banks"
     )
     return ConversationHandler.END
 
