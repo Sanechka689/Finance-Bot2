@@ -64,9 +64,7 @@ def format_op(op: dict) -> str:
 async def start_op(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     tariff = context.user_data.get("tariff", "tariff_free")
     if tariff != "tariff_free":
-        return await update.message.reply_text(
-            "⚠️ Ручной ввод доступен только на бесплатном тарифе."
-        )
+        return await update.message.reply_text("⚠️ Ручной ввод доступен только на бесплатном тарифе.")
     init_user_state(context)
     await update.message.reply_text(
         "✏️ Этап добавления операции: выберите действие",
@@ -90,7 +88,6 @@ async def on_op_menu(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     q = update.callback_query; await q.answer()
     if q.data == "op_start_add":
         return await show_fields_menu(update, context)
-    # op_start_menu
     init_user_state(context)
     await q.edit_message_text("Вы в главном меню.", reply_markup=main_menu_kb())
     return STATE_OP_MENU
@@ -98,17 +95,15 @@ async def on_op_menu(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
 # 4.3 — меню полей, учёт Перевод
 async def show_fields_menu(update_or_query, context: ContextTypes.DEFAULT_TYPE) -> int:
     op = context.user_data["pending_op"]
-    # для Перевод отдельная расстановка кнопок
     if op.get("Операция") == "Перевод":
         keyboard = [
-            [InlineKeyboardButton("📅 Дата",           callback_data="field|Дата"),
-             InlineKeyboardButton("🏦 Отправитель",    callback_data="field|БанкОтправитель")],
-            [InlineKeyboardButton("🏦 Получатель",     callback_data="field|БанкПолучатель"),
-             InlineKeyboardButton("➖ Сумма",          callback_data="field|Сумма")],
-            [InlineKeyboardButton("❌ Отмена",         callback_data="op_cancel")],
+            [InlineKeyboardButton("📅 Дата",            callback_data="field|Дата"),
+             InlineKeyboardButton("🏦 Отправитель",     callback_data="field|Банк Отправитель")],
+            [InlineKeyboardButton("🏦 Получатель",      callback_data="field|Банк Получатель"),
+             InlineKeyboardButton("➖ Сумма",           callback_data="field|Сумма")],
+            [InlineKeyboardButton("❌ Отмена",          callback_data="op_cancel")],
         ]
-        # показать «Подтвердить» когда все 4 заполнены
-        if all(op.get(k) is not None for k in ["Дата","БанкОтправитель","БанкПолучатель","Сумма"]):
+        if all(op.get(k) is not None for k in ["Дата","Банк Отправитель","Банк Получатель","Сумма"]):
             keyboard.append([InlineKeyboardButton("✅ Подтвердить", callback_data="confirm_op")])
     else:
         keyboard = [
@@ -133,16 +128,14 @@ async def show_fields_menu(update_or_query, context: ContextTypes.DEFAULT_TYPE) 
 # 4.4 — обработка выбора поля / confirm / cancel
 async def choose_field(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     q = update.callback_query; await q.answer()
-    data = q.data
-    if data == "op_cancel":
+    if q.data == "op_cancel":
         return await go_main_menu(update, context)
-    if data == "confirm_op":
+    if q.data == "confirm_op":
         return await handle_confirm(update, context)
 
-    field = data.split("|",1)[1]
+    field = q.data.split("|",1)[1]
     context.user_data["current_field"] = field
 
-    # перенаправляем на нужный ввод
     if field == "Дата":
         return await ask_date(update, context)
     if field == "Банк":
@@ -157,24 +150,23 @@ async def choose_field(update: Update, context: ContextTypes.DEFAULT_TYPE) -> in
     if field == "Конкретика":
         await q.edit_message_text("🔍 Введите конкретику:")
         return STATE_ENTER_SPECIFIC
-    # новые поля для Перевод
-    if field == "БанкОтправитель":
+    if field == "Банк Отправитель":
         return await ask_bank(update, context)
-    if field == "БанкПолучатель":
+    if field == "Банк Получатель":
         return await ask_bank(update, context)
 
 # 4.5 — календарь с RU_MONTHS
-def get_prev_year_month(y,m):
-    return (y-1,12) if m==1 else (y,m-1)
-def get_next_year_month(y,m):
-    return (y+1,1) if m==12 else (y,m+1)
+def get_prev_year_month(y,m): return (y-1,12) if m==1 else (y,m-1)
+def get_next_year_month(y,m): return (y+1,1) if m==12 else (y,m+1)
 
 def create_calendar(year:int,month:int)->InlineKeyboardMarkup:
     today = datetime.now(pytz.timezone("Europe/Moscow")).date()
     markup=[]; py,pm=get_prev_year_month(year,month); ny,nm=get_next_year_month(year,month)
-    markup.append([InlineKeyboardButton("<",callback_data=f"calendar|{py}|{pm}"),
-                   InlineKeyboardButton(f"{RU_MONTHS[month]} {year}",callback_data="ignore"),
-                   InlineKeyboardButton(">",callback_data=f"calendar|{ny}|{nm}")])
+    markup.append([
+        InlineKeyboardButton("<",callback_data=f"calendar|{py}|{pm}"),
+        InlineKeyboardButton(f"{RU_MONTHS[month]} {year}",callback_data="ignore"),
+        InlineKeyboardButton(">",callback_data=f"calendar|{ny}|{nm}")
+    ])
     markup.append([InlineKeyboardButton(d,callback_data="ignore") for d in ["Пн","Вт","Ср","Чт","Пт","Сб","Вс"]])
     for week in calendar.monthcalendar(year,month):
         row=[]
@@ -206,7 +198,7 @@ async def handle_calendar_callback(update: Update, context: ContextTypes.DEFAULT
         _,ds=data.split("|"); context.user_data["pending_op"]["Дата"]=ds
         return await show_fields_menu(update, context)
 
-# 4.6 — выбор банка (одинаково для всех полей банков)
+# 4.6 — выбор банка
 async def ask_bank(update_or_query, context: ContextTypes.DEFAULT_TYPE) -> int:
     ws,_=open_finance_and_plans(context.user_data["sheet_url"])
     banks=sorted(set(ws.col_values(3)[1:]))
@@ -221,15 +213,15 @@ async def handle_bank_selection(update: Update, context: ContextTypes.DEFAULT_TY
     q=update.callback_query; await q.answer()
     bank=q.data.split("|",1)[1]
     field=context.user_data["current_field"]
-    if field=="БанкОтправитель":
-        context.user_data["pending_op"]["БанкОтправитель"]=bank
-    elif field=="БанкПолучатель":
-        context.user_data["pending_op"]["БанкПолучатель"]=bank
+    if field=="Банк Отправитель":
+        context.user_data["pending_op"]["Банк Отправитель"]=bank
+    elif field=="Банк Получатель":
+        context.user_data["pending_op"]["Банк Получатель"]=bank
     else:
         context.user_data["pending_op"]["Банк"]=bank
     return await show_fields_menu(update, context)
 
-# 4.7 — выбор операции, при Перевод задаём classification
+# 4.7 — выбор операции + возвращаем жёсткую валидацию суммы если уже введена
 async def ask_operation(update_or_query, context: ContextTypes.DEFAULT_TYPE) -> int:
     kb=InlineKeyboardMarkup([[
         InlineKeyboardButton("Пополнение",callback_data="select_op|Пополнение"),
@@ -249,9 +241,21 @@ async def handle_operation_selection(update: Update, context: ContextTypes.DEFAU
     pending["Операция"]=op_type
     if op_type=="Перевод":
         pending["Классификация"]="Перевод"
+    # жёсткая проверка уже введённой суммы
+    amt=pending.get("Сумма")
+    if amt is not None:
+        if op_type=="Пополнение" and amt<0:
+            await q.message.reply_text("⚠️ Для пополнения введите ≥0.")
+            return await ask_amount(update, context)
+        if op_type=="Трата" and amt>=0:
+            await q.message.reply_text("⚠️ Для траты введите отрицательное число.")
+            return await ask_amount(update, context)
+        if op_type=="Перевод" and amt<=0:
+            await q.message.reply_text("⚠️ Для перевода введите >0.")
+            return await ask_amount(update, context)
     return await show_fields_menu(update, context)
 
-# 4.8 — ввод суммы + валидация
+# 4.8 — ввод суммы + жёсткая валидация
 async def ask_amount(update_or_query, context: ContextTypes.DEFAULT_TYPE) -> int:
     msg="➖ Введите сумму (только число):"
     if update_or_query.callback_query:
@@ -262,16 +266,17 @@ async def ask_amount(update_or_query, context: ContextTypes.DEFAULT_TYPE) -> int
 
 async def handle_amount_input(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     text=update.message.text.strip().replace(",",".")
-    try: amt=float(text)
-    except: 
-        await update.message.reply_text("⚠️ Введите число.")
+    try:
+        amt=float(text)
+    except:
+        await update.message.reply_text("⚠️ Введите корректное число.")
         return STATE_ENTER_AMOUNT
-    op=context.user_data["pending_op"]["Операция"]
-    if op=="Трата" and amt>=0:
-        await update.message.reply_text("⚠️ Для траты введите <0.")
-        return STATE_ENTER_AMOUNT
+    op=context.user_data["pending_op"].get("Операция")
     if op=="Пополнение" and amt<0:
         await update.message.reply_text("⚠️ Для пополнения введите ≥0.")
+        return STATE_ENTER_AMOUNT
+    if op=="Трата" and amt>=0:
+        await update.message.reply_text("⚠️ Для траты введите отрицательное число.")
         return STATE_ENTER_AMOUNT
     if op=="Перевод" and amt<=0:
         await update.message.reply_text("⚠️ Для перевода введите >0.")
@@ -299,10 +304,8 @@ async def handle_confirm(update: Update, context: ContextTypes.DEFAULT_TYPE) -> 
     ws, _ = open_finance_and_plans(context.user_data["sheet_url"])
 
     if op["Операция"]=="Перевод":
-        src=op["БанкОтправитель"]; dst=op["БанкПолучатель"]; amt=op["Сумма"]
-        # первая строка
+        src=op["Банк Отправитель"]; dst=op["Банк Получатель"]; amt=op["Сумма"]
         ws.append_row([year,month,src,"Перевод",date_str,-amt,"Перевод",dst], value_input_option="USER_ENTERED")
-        # вторая строка
         ws.append_row([year,month,dst,"Перевод",date_str,amt,"Перевод",src],  value_input_option="USER_ENTERED")
     else:
         cls=op["Классификация"]; spec=op.get("Конкретика") or "-"
