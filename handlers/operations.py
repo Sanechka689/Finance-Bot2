@@ -23,30 +23,25 @@ async def start_op(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
 # 4.2 — меню полей для заполнения
 async def show_fields_menu(update_or_query, context: ContextTypes.DEFAULT_TYPE) -> int:
     keyboard = [
-        [
-            InlineKeyboardButton("📅 Дата",       callback_data="field|Дата"),
-            InlineKeyboardButton("🏦 Банк",       callback_data="field|Банк"),
-        ],
-        [
-            InlineKeyboardButton("⚙️ Операция",   callback_data="field|Операция"),
-            InlineKeyboardButton("➖ Сумма",      callback_data="field|Сумма"),
-        ],
-        [
-            InlineKeyboardButton("🏷️ Классификация", callback_data="field|Классификация"),
-            InlineKeyboardButton("🔍 Конкретика",     callback_data="field|Конкретика"),
-        ],
-        [
-            InlineKeyboardButton("❌ Отмена",      callback_data="cancel_op"),
-        ],
+        [InlineKeyboardButton("📅 Дата", callback_data="field|Дата"),
+         InlineKeyboardButton("🏦 Банк", callback_data="field|Банк")],
+        [InlineKeyboardButton("⚙️ Операция", callback_data="field|Операция"),
+         InlineKeyboardButton("➖ Сумма", callback_data="field|Сумма")],
+        [InlineKeyboardButton("🏷️ Классификация", callback_data="field|Классификация"),
+         InlineKeyboardButton("🔍 Конкретика", callback_data="field|Конкретика")],
+        [InlineKeyboardButton("❌ Отмена", callback_data="cancel_op")],
     ]
     text = render_pending_op(context.user_data["pending_op"])
 
-    if hasattr(update_or_query, "callback_query"):
+    # ← ЗДЕСЬ была ошибка: hasattr всегда True, нужно проверять не None
+    if update_or_query.callback_query:
+        # Это реальный CallbackQuery
         await update_or_query.callback_query.edit_message_text(
             text or "✏️ Добавление операции: выберите поле",
             reply_markup=InlineKeyboardMarkup(keyboard),
         )
     else:
+        # Это обычное сообщение /add
         await update_or_query.message.reply_text(
             text or "✏️ Добавление операции: выберите поле",
             reply_markup=InlineKeyboardMarkup(keyboard),
