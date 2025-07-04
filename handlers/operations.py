@@ -1,5 +1,5 @@
 # handlers/operations.py
-# Этап 4: ручной ввод операций (бесплатный тариф)
+# — Этап 4: ручной ввод операций (бесплатный тариф)
 
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup, Update
 from telegram.ext import (
@@ -15,12 +15,12 @@ from utils.state import init_user_state
 
 # 4.1 Точка входа — команда /add
 async def start_op(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
-    # 4.1.1: сброс всех предыдущих данных
+    # 4.1.1 Сбросим предыдущие данные
     init_user_state(context)
-    # 4.1.2: показываем меню полей
+    # 4.1.2 Покажем меню полей
     return await show_fields_menu(update, context)
 
-# 4.2 Меню полей для заполнения
+# 4.2 Показываем меню полей
 async def show_fields_menu(update_or_query, context: ContextTypes.DEFAULT_TYPE) -> int:
     keyboard = [
         [
@@ -39,10 +39,10 @@ async def show_fields_menu(update_or_query, context: ContextTypes.DEFAULT_TYPE) 
             InlineKeyboardButton("❌ Отмена",      callback_data="cancel_op"),
         ],
     ]
-    # 4.2.1 Собираем текст черновика (еще пустого при первом вызове)
+    # 4.2.1 Текущее содержимое черновика
     text = render_pending_op(context.user_data.get("pending_op", {}))
 
-    # 4.2.2 Если это callback — редактируем сообщение, иначе — шлём новое
+    # 4.2.2 Если это callback — редактируем, иначе — отправляем
     if hasattr(update_or_query, "callback_query"):
         await update_or_query.callback_query.edit_message_text(
             text or "✏️ Добавление операции: выберите поле",
@@ -54,7 +54,7 @@ async def show_fields_menu(update_or_query, context: ContextTypes.DEFAULT_TYPE) 
             reply_markup=InlineKeyboardMarkup(keyboard),
         )
 
-    # 4.2.3 Устанавливаем состояние
+    # 4.2.3 Устанавливаем FSM-состояние
     context.user_data["state"] = STATE_OP_FIELD_CHOOSE
     return STATE_OP_FIELD_CHOOSE
 
@@ -65,21 +65,21 @@ def render_pending_op(op: dict) -> str:
         lines.append(f"{k}: {v if v is not None else '—'}")
     return "\n".join(lines)
 
-# 4.4 Обработка выбора поля
+# 4.4 Обработка нажатия на поле
 async def choose_field(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     await update.callback_query.answer()
     data = update.callback_query.data
 
-    # 4.4.1 Если «Отмена» — завершаем диалог
+    # 4.4.1 «Отмена»
     if data == "cancel_op":
         await update.callback_query.edit_message_text("❌ Операция отменена.")
         return ConversationHandler.END
 
-    # 4.4.2 Иначе сохраняем, какое поле будем заполнять
+    # 4.4.2 Сохраняем, какое поле выбрано
     _, field = data.split("|", 1)
     context.user_data["current_field"] = field
 
-    # 4.4.3 Просим пользователя ввести значение
+    # 4.4.3 Просим ввести значение
     prompts = {
         "Дата":          "📅 Введите дату в формате ДД.MM.ГГГГ",
         "Банк":          "🏦 Введите или выберите название банка",
@@ -92,14 +92,16 @@ async def choose_field(update: Update, context: ContextTypes.DEFAULT_TYPE) -> in
     context.user_data["state"] = STATE_OP_FIELD_INPUT
     return STATE_OP_FIELD_INPUT
 
-# 4.5 Сбор введённого значения поля
+# 4.5 Приём введённого значения
 async def input_field(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     field = context.user_data.get("current_field")
     value = update.message.text.strip()
+
     # 4.5.1 Сохраняем в черновик
     context.user_data["pending_op"][field] = value
     context.user_data["current_field"] = None
-    # 4.5.2 Возвращаемся к меню полей
+
+    # 4.5.2 Возвращаем меню полей
     return await show_fields_menu(update, context)
 
 # 4.6 Регистрация ConversationHandler
