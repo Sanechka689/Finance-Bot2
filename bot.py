@@ -1,26 +1,31 @@
+# bot.py
+
 import os
 from telegram.ext import ApplicationBuilder
+
+# Этап 1: выбор тарифа
 from handlers.tariff import register_tariff_handlers
+# Этап 2: подключение таблицы
 from handlers.sheet import register_sheet_handlers
+# Этап 3: первоначальное заполнение банков
 from handlers.banks import register_banks_handlers
-# === Этап 4: регистрация ручного ввода операций ===
+
+# Этап 4: ручной ввод операций (/add и меню полей)
 from handlers.operations import register_operations_handlers
+
+# Ловим всё остальное
 from handlers.fallback import register_fallback_handler
 
 def main():
     token = os.getenv("TELEGRAM_TOKEN")
     app = ApplicationBuilder().token(token).build()
 
-    # Этап 1: выбор тарифа
-    register_tariff_handlers(app)
-    # Этап 2: подключение таблицы
-    register_sheet_handlers(app)
-    # Этап 3: добавление банков
-    register_banks_handlers(app)
-    # Этап 4: ручной ввод операций через /add и меню полей
-    register_operations_handlers(app)
-    # Этап 4bis: fallback для всего остального
-    register_fallback_handler(app)
+    # === Регистрируем этапы ===
+    register_tariff_handlers(app)       # /start и выбор тарифа
+    register_sheet_handlers(app)        # /setup и подключение таблицы
+    register_banks_handlers(app)        # /banks и ввод банков
+    register_operations_handlers(app)   # /add и весь ручной ввод операций
+    register_fallback_handler(app)      # fallback на все остальные сообщения
 
     app.run_polling()
 
