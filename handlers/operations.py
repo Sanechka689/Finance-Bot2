@@ -23,7 +23,6 @@ from utils.constants import (
     STATE_ENTER_AMOUNT,
     STATE_ENTER_CLASSIFICATION,
     STATE_ENTER_SPECIFIC,
-    STATE_CONFIRM,
 )
 from utils.state import init_user_state
 from services.sheets_service import open_finance_and_plans
@@ -47,6 +46,13 @@ def format_op(op: dict) -> str:
         lines.append(f"{k}: {disp}")
     return "\n".join(lines)
 
+# Главная клавиатура "Добавить/Меню"
+def main_menu_kb():
+    return InlineKeyboardMarkup([[
+        InlineKeyboardButton("➕ Добавить", callback_data="op_start_add"),
+        InlineKeyboardButton("📋 Меню",     callback_data="op_start_menu"),
+    ]])
+
 # 4.1 — команда /add
 async def start_op(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     tariff = context.user_data.get("tariff", "tariff_free")
@@ -55,13 +61,20 @@ async def start_op(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
             "⚠️ Ручной ввод доступен только на бесплатном тарифе."
         )
     init_user_state(context)
-    kb = InlineKeyboardMarkup([[
-        InlineKeyboardButton("➕ Добавить", callback_data="op_start_add"),
-        InlineKeyboardButton("📋 Меню",     callback_data="op_start_menu"),
-    ]])
     await update.message.reply_text(
         "✏️ Этап добавления операции: выберите действие",
-        reply_markup=kb
+        reply_markup=main_menu_kb()
+    )
+    return STATE_OP_MENU
+
+# общий хэндлер для возврата в главное меню (и очистки черновика)
+async def go_main_menu(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
+    query = update.callback_query
+    await query.answer()
+    init_user_state(context)
+    await query.edit_message_text(
+        "✏️ Этап добавления операции: выберите действие",
+        reply_markup=main_menu_kb()
     )
     return STATE_OP_MENU
 
@@ -71,10 +84,12 @@ async def on_op_menu(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     await q.answer()
     if q.data == "op_start_add":
         return await show_fields_menu(update, context)
-    await q.edit_message_text("Вы в главном меню.")
+    # op_start_menu
+    init_user_state(context)
+    await q.edit_message_text("Вы в главном меню.", reply_markup=main_menu_kb())
     return STATE_OP_MENU
 
-# 4.3 — меню полей + кнопка «✅ Подтвердить» + «❌ Отмена»
+# 4.3 — меню полей + «✅ Подтвердить» + «❌ Отмена»
 async def show_fields_menu(update_or_query, context: ContextTypes.DEFAULT_TYPE) -> int:
     keyboard = [
         [InlineKeyboardButton("📅 Дата",       callback_data="field|Дата"),
@@ -92,13 +107,9 @@ async def show_fields_menu(update_or_query, context: ContextTypes.DEFAULT_TYPE) 
 
     text = format_op(op)
     if update_or_query.callback_query:
-        await update_or_query.callback_query.edit_message_text(
-            text, reply_markup=InlineKeyboardMarkup(keyboard)
-        )
+        await update_or_query.callback_query.edit_message_text(text, reply_markup=InlineKeyboardMarkup(keyboard))
     else:
-        await update_or_query.message.reply_text(
-            text, reply_markup=InlineKeyboardMarkup(keyboard)
-        )
+        await update_or_query.message.reply_text(text, reply_markup=InlineKeyboardMarkup(keyboard))
 
     return STATE_OP_FIELD_CHOOSE
 
@@ -108,11 +119,12 @@ async def choose_field(update: Update, context: ContextTypes.DEFAULT_TYPE) -> in
     await q.answer()
     data = q.data
     if data == "op_cancel":
-        return await start_op(update, context)
+        return await go_main_menu(update, context)
     if data == "confirm_op":
         return await handle_confirm(update, context)
     field = data.split("|", 1)[1]
     context.user_data["current_field"] = field
+
     if field == "Дата":
         return await ask_date(update, context)
     if field == "Банк":
@@ -128,11 +140,11 @@ async def choose_field(update: Update, context: ContextTypes.DEFAULT_TYPE) -> in
         await q.edit_message_text("🔍 Введите конкретику:")
         return STATE_ENTER_SPECIFIC
 
-# 4.5 — календарь с русскими месяцами
-def get_prev_year_month(year: int, month: int):
-    return (year-1,12) if month==1 else (year,month-1)
-def get_next_year_month(year: int, month: int):
-    return (year+1,1) if month==12 else (year,month+1)
+# 4.5 — календарь с RU_MONTHS, ДД.MM.ГГГГ
+def get_prev_year_month(y, m):
+    return (y-1,12) if m==1 else (y,m-1)
+def get_next_year_month(y, m):
+    return (y+1,1) if m==12 else (y,m+1)
 
 def create_calendar(year: int, month: int) -> InlineKeyboardMarkup:
     today = datetime.now(pytz.timezone("Europe/Moscow")).date()
@@ -146,13 +158,13 @@ def create_calendar(year: int, month: int) -> InlineKeyboardMarkup:
     ])
     markup.append([InlineKeyboardButton(d, callback_data="ignore") for d in ["Пн","Вт","Ср","Чт","Пт","Сб","Вс"]])
     for week in calendar.monthcalendar(year, month):
-        row=[]
+        row = []
         for day in week:
-            if day==0:
+            if day == 0:
                 row.append(InlineKeyboardButton(" ", callback_data="ignore"))
             else:
-                ds=f"{year}-{month:02d}-{day:02d}"
-                label=f"🔴{day}" if (year,month,day)==(today.year,today.month,today.day) else str(day)
+                ds = f"{year}-{month:02d}-{day:02d}"
+                label = f"🔴{day}" if (year,month,day)==(today.year,today.month,today.day) else str(day)
                 row.append(InlineKeyboardButton(label, callback_data=f"select_date|{ds}"))
         markup.append(row)
     return InlineKeyboardMarkup(markup)
@@ -168,14 +180,13 @@ async def ask_date(update_or_query, context: ContextTypes.DEFAULT_TYPE) -> int:
 
 async def handle_calendar_callback(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     q = update.callback_query; await q.answer()
-    data = q.data
-    if data.startswith("calendar|"):
-        _, y, m = data.split("|")
+    if q.data.startswith("calendar|"):
+        _, y, m = q.data.split("|")
         cal = create_calendar(int(y), int(m))
         await q.edit_message_reply_markup(cal)
         return STATE_SELECT_DATE
-    if data.startswith("select_date|"):
-        _, ds = data.split("|")
+    if q.data.startswith("select_date|"):
+        _, ds = q.data.split("|")
         context.user_data["pending_op"]["Дата"] = ds
         return await show_fields_menu(update, context)
 
@@ -266,16 +277,11 @@ async def handle_confirm(update: Update, context: ContextTypes.DEFAULT_TYPE) -> 
     ws, _ = open_finance_and_plans(context.user_data["sheet_url"])
     ws.append_row(row, value_input_option="USER_ENTERED")
     await q.edit_message_text("✅ Операция добавлена в таблицу.")
-    # очищаем предыдущую операцию
-    init_user_state(context)
+    init_user_state(context)  # очищаем предыдущие данные
     # возвращаем главное меню
-    kb = InlineKeyboardMarkup([[
-        InlineKeyboardButton("➕ Добавить", callback_data="op_start_add"),
-        InlineKeyboardButton("📋 Меню",     callback_data="op_start_menu"),
-    ]])
     await q.message.reply_text(
-        "✏️ Выберите действие:",
-        reply_markup=kb
+        "✏️ Этап добавления операции: выберите действие",
+        reply_markup=main_menu_kb()
     )
     return STATE_OP_MENU
 
@@ -310,7 +316,7 @@ def register_operations_handlers(app):
             ],
         },
         fallbacks=[
-            CallbackQueryHandler(on_op_menu, pattern="^op_cancel$"),
+            CallbackQueryHandler(go_main_menu, pattern="^op_cancel$"),
         ],
         allow_reentry=True,
     )
