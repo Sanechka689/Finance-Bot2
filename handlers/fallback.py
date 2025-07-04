@@ -8,9 +8,12 @@ async def unknown(update: Update, context: ContextTypes.DEFAULT_TYPE):
         "❓ Я не понял. Доступные команды:\n"
         "/start  — выбор тарифа\n"
         "/setup  — подключение таблицы (после оплаты)\n"
-        "/banks  — ввод стартовых банков (после подключения таблицы)"
+        "/banks  — ввод стартовых банков (после подключения таблицы)\n"
+        "/add    — добавление новой операции"
     )
 
 def register_fallback_handler(app):
-    # Нужен после всех других хендлеров
-    app.add_handler(MessageHandler(filters.ALL, unknown))
+    # ловим только обычный текст, не начинающийся с “/”
+    app.add_handler(
+        MessageHandler(filters.TEXT & ~filters.COMMAND, unknown)
+    )
