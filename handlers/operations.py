@@ -67,12 +67,12 @@ async def start_op(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     )
     return STATE_OP_MENU
 
-# общий хэндлер для возврата в главное меню (и очистки черновика)
+# общий хэндлер для отмены и возврата в главное меню
 async def go_main_menu(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
-    query = update.callback_query
-    await query.answer()
+    q = update.callback_query
+    await q.answer()
     init_user_state(context)
-    await query.edit_message_text(
+    await q.edit_message_text(
         "✏️ Этап добавления операции: выберите действие",
         reply_markup=main_menu_kb()
     )
@@ -89,16 +89,22 @@ async def on_op_menu(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     await q.edit_message_text("Вы в главном меню.", reply_markup=main_menu_kb())
     return STATE_OP_MENU
 
-# 4.3 — меню полей + «✅ Подтвердить» + «❌ Отмена»
+# 4.3 — меню полей + кнопки «❌ Отмена» и «✅ Подтвердить»
 async def show_fields_menu(update_or_query, context: ContextTypes.DEFAULT_TYPE) -> int:
     keyboard = [
-        [InlineKeyboardButton("📅 Дата",       callback_data="field|Дата"),
-         InlineKeyboardButton("🏦 Банк",       callback_data="field|Банк")],
-        [InlineKeyboardButton("⚙️ Операция",   callback_data="field|Операция"),
-         InlineKeyboardButton("➖ Сумма",      callback_data="field|Сумма")],
-        [InlineKeyboardButton("🏷️ Классификация", callback_data="field|Классификация"),
-         InlineKeyboardButton("🔍 Конкретика",     callback_data="field|Конкретика")],
-        [InlineKeyboardButton("❌ Отмена",      callback_data="op_cancel")],
+        [
+            InlineKeyboardButton("📅 Дата",       callback_data="field|Дата"),
+            InlineKeyboardButton("🏦 Банк",       callback_data="field|Банк"),
+        ],
+        [
+            InlineKeyboardButton("⚙️ Операция",   callback_data="field|Операция"),
+            InlineKeyboardButton("➖ Сумма",      callback_data="field|Сумма"),
+        ],
+        [
+            InlineKeyboardButton("🏷️ Классификация", callback_data="field|Классификация"),
+            InlineKeyboardButton("🔍 Конкретика",     callback_data="field|Конкретика"),
+        ],
+        [InlineKeyboardButton("❌ Отмена", callback_data="op_cancel")],
     ]
     op = context.user_data["pending_op"]
     required = ["Дата", "Банк", "Операция", "Сумма", "Классификация"]
@@ -117,12 +123,12 @@ async def show_fields_menu(update_or_query, context: ContextTypes.DEFAULT_TYPE) 
 async def choose_field(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     q = update.callback_query
     await q.answer()
-    data = q.data
-    if data == "op_cancel":
+    if q.data == "op_cancel":
         return await go_main_menu(update, context)
-    if data == "confirm_op":
+    if q.data == "confirm_op":
         return await handle_confirm(update, context)
-    field = data.split("|", 1)[1]
+
+    field = q.data.split("|", 1)[1]
     context.user_data["current_field"] = field
 
     if field == "Дата":
@@ -140,7 +146,7 @@ async def choose_field(update: Update, context: ContextTypes.DEFAULT_TYPE) -> in
         await q.edit_message_text("🔍 Введите конкретику:")
         return STATE_ENTER_SPECIFIC
 
-# 4.5 — календарь с RU_MONTHS, ДД.MM.ГГГГ
+# 4.5 — календарь с русскими месяцами
 def get_prev_year_month(y, m):
     return (y-1,12) if m==1 else (y,m-1)
 def get_next_year_month(y, m):
@@ -207,7 +213,7 @@ async def handle_bank_selection(update: Update, context: ContextTypes.DEFAULT_TY
     context.user_data["pending_op"]["Банк"] = q.data.split("|",1)[1]
     return await show_fields_menu(update, context)
 
-# 4.7 — выбор операции
+# 4.7 — выбор операции + жёсткая проверка предыдущей суммы
 async def ask_operation(update_or_query, context: ContextTypes.DEFAULT_TYPE) -> int:
     kb = InlineKeyboardMarkup([[
         InlineKeyboardButton("Пополнение", callback_data="select_op|Пополнение"),
@@ -221,11 +227,24 @@ async def ask_operation(update_or_query, context: ContextTypes.DEFAULT_TYPE) -> 
     return STATE_SELECT_OPERATION
 
 async def handle_operation_selection(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
-    q = update.callback_query; await q.answer()
-    context.user_data["pending_op"]["Операция"] = q.data.split("|",1)[1]
+    q = update.callback_query
+    await q.answer()
+    operation = q.data.split("|",1)[1]
+    context.user_data["pending_op"]["Операция"] = operation
+
+    # если пользователь уже ввёл сумму,—проверяем
+    amt = context.user_data["pending_op"].get("Сумма")
+    if amt is not None:
+        if operation == "Пополнение" and amt < 0:
+            await q.message.reply_text("⚠️ Для пополнения введите ≥0.")
+            return await ask_amount(update, context)
+        if operation == "Трата" and amt >= 0:
+            await q.message.reply_text("⚠️ Для траты введите <0.")
+            return await ask_amount(update, context)
+
     return await show_fields_menu(update, context)
 
-# 4.8 — ввод суммы (без «Отмена»)
+# 4.8 — ввод суммы (без «Отмена») + жёсткая валидация по знаку
 async def ask_amount(update_or_query, context: ContextTypes.DEFAULT_TYPE) -> int:
     msg = "➖ Введите сумму (только число):"
     if update_or_query.callback_query:
@@ -235,16 +254,22 @@ async def ask_amount(update_or_query, context: ContextTypes.DEFAULT_TYPE) -> int
     return STATE_ENTER_AMOUNT
 
 async def handle_amount_input(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
-    text = update.message.text.strip().replace(",",".")
+    text = update.message.text.strip().replace(",", ".")
     try:
         amt = float(text)
     except ValueError:
-        return await update.message.reply_text("⚠️ Введите корректное число.")
-    opv = context.user_data["pending_op"].get("Операция")
-    if opv == "Трата" and amt >= 0:
-        return await update.message.reply_text("⚠️ Для траты введите >0.")
-    if opv == "Пополнение" and amt < 0:
-        return await update.message.reply_text("⚠️ Для пополнения введите ≥0.")
+        await update.message.reply_text("⚠️ Введите корректное число.")
+        return STATE_ENTER_AMOUNT
+
+    operation = context.user_data["pending_op"].get("Операция")
+    # жёсткие условия
+    if operation == "Трата" and amt >= 0:
+        await update.message.reply_text("⚠️ Для траты введите отрицательное число.")
+        return STATE_ENTER_AMOUNT
+    if operation == "Пополнение" and amt < 0:
+        await update.message.reply_text("⚠️ Для пополнения введите ≥0.")
+        return STATE_ENTER_AMOUNT
+
     context.user_data["pending_op"]["Сумма"] = amt
     return await show_fields_menu(update, context)
 
@@ -277,7 +302,7 @@ async def handle_confirm(update: Update, context: ContextTypes.DEFAULT_TYPE) -> 
     ws, _ = open_finance_and_plans(context.user_data["sheet_url"])
     ws.append_row(row, value_input_option="USER_ENTERED")
     await q.edit_message_text("✅ Операция добавлена в таблицу.")
-    init_user_state(context)  # очищаем предыдущие данные
+    init_user_state(context)
     # возвращаем главное меню
     await q.message.reply_text(
         "✏️ Этап добавления операции: выберите действие",
