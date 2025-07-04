@@ -3,22 +3,22 @@
 import os
 from telegram.ext import ApplicationBuilder
 
-# — Этап 1: выбор тарифа
+# Этап 1 — выбор тарифа (/start)
 from handlers.tariff import register_tariff_handlers
-# — Этап 2: подключение таблицы
+# Этап 2 — подключение Google Sheets (/setup)
 from handlers.sheet import register_sheet_handlers
-# — Этап 3: первоначальное заполнение банков
+# Этап 3 — первоначальное заполнение банков (/banks)
 from handlers.banks import register_banks_handlers
-# — Этап 4: ручной ввод операций (бесплатный тариф)
+# Этап 4 — ручной ввод операций (/add и меню полей)
 from handlers.operations import register_operations_handlers
-# — Ловим всё остальное
+# Фоллбэк — всё остальное
 from handlers.fallback import register_fallback_handler
 
 def main():
     token = os.getenv("TELEGRAM_TOKEN")
     app = ApplicationBuilder().token(token).build()
 
-    # Регистрируем все этапы
+    # Регистрируем этапы в порядке их выполнения
     register_tariff_handlers(app)       # /start и выбор тарифа
     register_sheet_handlers(app)        # /setup и подключение таблицы
     register_banks_handlers(app)        # /banks и ввод банков
