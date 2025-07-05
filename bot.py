@@ -11,6 +11,8 @@ from handlers.sheet import register_sheet_handlers
 from handlers.banks import register_banks_handlers
 # Этап 4 — ручной ввод операций (/add)
 from handlers.operations import register_operations_handlers
+# Этап 5 - работа кнопки меню (/menu)
+from handlers.menu import register_menu_handlers
 # Ловим всё остальное
 from handlers.fallback import register_fallback_handler
 
@@ -23,6 +25,7 @@ def main():
     register_sheet_handlers(app)        # /setup
     register_banks_handlers(app)        # /banks
     register_operations_handlers(app)   # /add
+    register_menu_handlers(app)         # /menu
     register_fallback_handler(app)      # всё остальное
 
     app.run_polling()

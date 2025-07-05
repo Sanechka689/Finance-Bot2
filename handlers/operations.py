@@ -5,7 +5,8 @@ from datetime import datetime
 import calendar
 import pytz
 
-from telegram import InlineKeyboardButton, InlineKeyboardMarkup, Update
+from telegram import InlineKeyboardButton, InlineKeyboardMarkup
+from telegram import Update
 from telegram.ext import (
     ConversationHandler,
     CallbackQueryHandler,
@@ -14,6 +15,7 @@ from telegram.ext import (
     MessageHandler,
     filters,
 )
+
 from utils.constants import (
     STATE_OP_MENU,
     STATE_OP_FIELD_CHOOSE,
@@ -38,7 +40,7 @@ RU_MONTHS = {
 def main_menu_kb():
     return InlineKeyboardMarkup([[
         InlineKeyboardButton("➕ Добавить", callback_data="op_start_add"),
-        InlineKeyboardButton("📋 Меню",     callback_data="op_start_menu"),
+        InlineKeyboardButton("📋 Меню",     callback_data="menu:open"),
     ]])
 
 # 1. Формат текста черновика, учитываем Перевод
