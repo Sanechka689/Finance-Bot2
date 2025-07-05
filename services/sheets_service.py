@@ -3,6 +3,9 @@
 import os
 from gspread import service_account
 
+import gspread
+from oauth2client.service_account import ServiceAccountCredentials
+
 def open_finance_and_plans(url: str):
     """
     Открывает документ по URL, настраивает листы и возвращает объекты worksheets.
@@ -51,4 +54,32 @@ def open_finance_and_plans(url: str):
     except Exception:
         pass
 
+    # —————— Автодополнение строк и расширение фильтра ——————
+    _ensure_capacity_and_filter(finance_ws, min_remaining=20, add_rows=500, max_col='H')
+    _ensure_capacity_and_filter(plans_ws,   min_remaining=20, add_rows=500, max_col='I')
+
     return finance_ws, plans_ws
+
+def _ensure_capacity_and_filter(ws, min_remaining: int = 20, add_rows: int = 500, max_col: str = 'H'):
+    """
+    У листа ws:
+     - если (ws.row_count - фактическое_количество_строк) < min_remaining
+       — добавить add_rows пустых строк;
+     - затем установить BasicFilter на диапазон от A1 до <max_col><новое_количество_строк>.
+    """
+    # текущее количество строк в листе
+    total_rows = ws.row_count
+    # сколько уже занято (по первой колонке, пропуская заголовок)
+    used_rows  = len(ws.col_values(1))
+
+    if total_rows - used_rows < min_remaining:
+        # ДОБАВЛЯЕМ пустые строки
+        ws.add_rows(add_rows)
+        total_rows += add_rows
+
+    # ПЕРЕПРИМЕНИТЬ фильтр на весь диапазон
+    filter_range = f"A1:{max_col}{total_rows}"
+    try:
+        ws.set_basic_filter(filter_range)
+    except Exception:
+        pass
