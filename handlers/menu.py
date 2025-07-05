@@ -58,14 +58,9 @@ async def handle_menu_selection(update: Update, context: ContextTypes.DEFAULT_TY
 
     # — Финансы
     if data == "menu:finance":
-        logger.debug("🏷 Branch FINANCE start")
         await query.answer(text="Получаю баланс…", show_alert=False)
-
         url = context.user_data.get("sheet_url")
-        logger.debug("🏷 sheet_url = %r", url)
-
         if not url:
-            logger.debug("⚠️ sheet_url пуст, рисуем меню заново")
             await query.edit_message_text(
                 "⚠️ Сначала подключите таблицу: /setup и вставьте ссылку.",
                 reply_markup=_build_main_kb()
@@ -74,37 +69,38 @@ async def handle_menu_selection(update: Update, context: ContextTypes.DEFAULT_TY
 
         try:
             ws, _ = open_finance_and_plans(url)
-            records = ws.get_all_records()
-            logger.debug("🏷 Получено %d записей из Sheets", len(records))
+
+            # --- здесь реальная вставка вместо get_all_records ---
+            # тянем из столбца C (3-я) — банки, и из F (6-я) — суммы, пропуская заголовок
+            bank_list = ws.col_values(3)[1:]
+            sum_list  = ws.col_values(6)[1:]
+
+            balances = {}
+            for bank, raw in zip(bank_list, sum_list):
+                if not bank:
+                    # пропускаем пустые строки
+                    continue
+                # приводим «1 234,56» → «1234.56»
+                s = str(raw).replace("\xa0", "").replace(" ", "").replace(",", ".")
+                try:
+                    amt = float(s)
+                except ValueError:
+                    # если вдруг не число — пропускаем
+                    continue
+                balances[bank] = balances.get(bank, 0.0) + amt
+            # ------------------------------------------------------------
+
         except Exception as e:
-            logger.exception("❌ Ошибка при open_finance_and_plans")
             await query.edit_message_text(
                 f"❌ Ошибка при получении данных:\n{e}",
                 reply_markup=_build_main_kb()
             )
             return STATE_OP_MENU
 
-        # Группируем
-        balances = {}
-        for row in records:
-            bank = row.get("Банк") or "Неизвестно"
-            raw = row.get("Сумма", 0)
-            # Убираем все пробелы (в том числе неразрывные) и заменяем запятую на точку
-            s = str(raw).replace('\xa0', '').replace(' ', '').replace(',', '.')
-            try:
-                amt = float(s)
-            except ValueError:
-                # на всякий случай пропускаем неконвертируемое значение
-                continue
-            balances[bank] = balances.get(bank, 0.0) + amt
-        logger.debug("🏷 balances = %r", balances)
-
         total = sum(balances.values())
         lines = [f"• {b}: {balances[b]:.2f}" for b in balances]
         text = "💰 *Текущий баланс по банкам:*\n" + "\n".join(lines)
         text += f"\n\n*Общая сумма:* {total:.2f}"
-
-        logger.debug("🏷 Финальная строка текста: %r", text)
 
         await query.edit_message_text(
             text,
@@ -113,7 +109,6 @@ async def handle_menu_selection(update: Update, context: ContextTypes.DEFAULT_TY
                 [InlineKeyboardButton("🔙 Назад", callback_data="menu:open")]
             ])
         )
-        logger.debug("🏷 FINANCE branch finished")
         return STATE_OP_MENU
 
     # остальные пункты — заглушки
