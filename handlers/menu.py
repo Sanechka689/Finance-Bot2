@@ -5,6 +5,10 @@ from telegram.ext import CommandHandler, CallbackQueryHandler, ContextTypes
 from services.sheets_service import open_finance_and_plans
 from utils.constants import STATE_OP_MENU  # ваше состояние после /add
 
+import logging
+logger = logging.getLogger(__name__)
+
+
 def _build_main_kb() -> InlineKeyboardMarkup:
     return InlineKeyboardMarkup([
         [InlineKeyboardButton("💰 Финансы",         callback_data="menu:finance"),
@@ -34,63 +38,74 @@ async def show_main_menu(update: Update, context: ContextTypes.DEFAULT_TYPE) -> 
     return STATE_OP_MENU
 
 async def handle_menu_selection(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
-    """Обрабатывает все menu:* коллбэки, в том числе Финансы."""
     query = update.callback_query
-    await query.answer()  # скрываем «часики»
-
+    await query.answer()
+    
     data = query.data  # например "menu:finance"
+    logger.debug("🏷 handle_menu_selection called, data=%r", data)
 
-    # открыть/перерисовать меню
+    # — Открыть / перерисовать меню
     if data == "menu:open":
+        logger.debug("🏷 Branch OPEN")
         await show_main_menu(update, context)
         return STATE_OP_MENU
 
-    # назад — вернуть на этап /add
+    # — Назад
     if data == "menu:back":
+        logger.debug("🏷 Branch BACK")
         from handlers.operations import go_main_menu
         return await go_main_menu(update, context)
 
-    # финансы — посчитать и показать баланс
+    # — Финансы
     if data == "menu:finance":
+        logger.debug("🏷 Branch FINANCE start")
         await query.answer(text="Получаю баланс…", show_alert=False)
 
         url = context.user_data.get("sheet_url")
+        logger.debug("🏷 sheet_url = %r", url)
+
         if not url:
-            # если не подключена таблица — перерисовать меню
+            logger.debug("⚠️ sheet_url пуст, рисуем меню заново")
             await query.edit_message_text(
-                "⚠️ Сначала подключите таблицу: отправьте /setup и вставьте ссылку.",
+                "⚠️ Сначала подключите таблицу: /setup и вставьте ссылку.",
                 reply_markup=_build_main_kb()
             )
             return STATE_OP_MENU
 
-        # попробуем считать записи
         try:
             ws, _ = open_finance_and_plans(url)
             records = ws.get_all_records()
+            logger.debug("🏷 Получено %d записей из Sheets", len(records))
         except Exception as e:
+            logger.exception("❌ Ошибка при open_finance_and_plans")
             await query.edit_message_text(
                 f"❌ Ошибка при получении данных:\n{e}",
                 reply_markup=_build_main_kb()
             )
             return STATE_OP_MENU
 
-        # группировка по банкам
+        # Группируем
         balances = {}
         for row in records:
             bank = row.get("Банк") or "Неизвестно"
-            raw  = row.get("Сумма", 0)
+            raw = row.get("Сумма", 0)
+            # Убираем все пробелы (в том числе неразрывные) и заменяем запятую на точку
+            s = str(raw).replace('\xa0', '').replace(' ', '').replace(',', '.')
             try:
-                amt = float(raw)
-            except (TypeError, ValueError):
-                amt = float(str(raw).replace(",", "."))
+                amt = float(s)
+            except ValueError:
+                # на всякий случай пропускаем неконвертируемое значение
+                continue
             balances[bank] = balances.get(bank, 0.0) + amt
+        logger.debug("🏷 balances = %r", balances)
 
         total = sum(balances.values())
         lines = [f"• {b}: {balances[b]:.2f}" for b in balances]
         text = "💰 *Текущий баланс по банкам:*\n" + "\n".join(lines)
         text += f"\n\n*Общая сумма:* {total:.2f}"
 
-        # выводим в том же сообщении с кнопкой «Назад»
+        logger.debug("🏷 Финальная строка текста: %r", text)
+
         await query.edit_message_text(
             text,
             parse_mode="Markdown",
@@ -98,9 +113,11 @@ async def handle_menu_selection(update: Update, context: ContextTypes.DEFAULT_TY
                 [InlineKeyboardButton("🔙 Назад", callback_data="menu:open")]
             ])
         )
+        logger.debug("🏷 FINANCE branch finished")
         return STATE_OP_MENU
 
     # остальные пункты — заглушки
+    logger.debug("🏷 Branch OTHER: %r", data)
     responses = {
         "menu:operations":    "📝 Раздел «Операции» в разработке…",
         "menu:classification":"🏷 Раздел «Классификация» в разработке…",
