@@ -16,6 +16,8 @@ from telegram.ext import (
     filters,
 )
 
+from handlers.menu import show_main_menu
+
 from utils.constants import (
     STATE_OP_MENU,
     STATE_OP_FIELD_CHOOSE,

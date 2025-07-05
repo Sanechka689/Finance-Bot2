@@ -32,6 +32,19 @@ async def show_main_menu(update: Update, context: ContextTypes.DEFAULT_TYPE) -> 
         "Выберите раздел меню:",
         reply_markup=InlineKeyboardMarkup(keyboard)
     )
+    # если вызов из коллбэка — редактируем существующее сообщение,
+    # иначе — отправляем новое
+    if update.callback_query:
+        await update.callback_query.edit_message_text(
+            "Выберите раздел меню:",
+            reply_markup=InlineKeyboardMarkup(keyboard)
+        )
+    else:
+        await update.message.reply_text(
+            "Выберите раздел меню:",
+            reply_markup=InlineKeyboardMarkup(keyboard)
+        )
+
     return STATE_MAIN_MENU
 
 async def handle_menu_selection(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
@@ -46,9 +59,9 @@ async def handle_menu_selection(update: Update, context: ContextTypes.DEFAULT_TY
 
     # 2.3 — «Назад» возвращает на этап добавления операции
     if choice == "back":
-        # здесь нужно вызвать вашу функцию, которая рисует клавиатуру /add
-        from handlers.operations import show_add_menu
-        return await show_add_menu(update, context)
+        # Возвращаемся к экрану операций (/add)
+        from handlers.operations import go_main_menu
+        return await go_main_menu(update, context)
 
     # 2.4 — Финансы
     if choice == "finance":
