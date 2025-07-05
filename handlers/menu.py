@@ -27,13 +27,6 @@ async def show_main_menu(update: Update, context: ContextTypes.DEFAULT_TYPE) -> 
 
     # вместо update.message используем effective_message,
     # чтобы работало и при callback_query
-    target = update.effective_message  
-    await target.reply_text(
-        "Выберите раздел меню:",
-        reply_markup=InlineKeyboardMarkup(keyboard)
-    )
-    # если вызов из коллбэка — редактируем существующее сообщение,
-    # иначе — отправляем новое
     if update.callback_query:
         await update.callback_query.edit_message_text(
             "Выберите раздел меню:",
@@ -80,7 +73,7 @@ async def handle_menu_selection(update: Update, context: ContextTypes.DEFAULT_TY
             raw = row.get("Сумма", 0)
             try:
                 amt = float(raw)
-            except (TypeError, ValueError):
+            except:
                 amt = float(str(raw).replace(",", "."))
             balances[bank] = balances.get(bank, 0.0) + amt
 
