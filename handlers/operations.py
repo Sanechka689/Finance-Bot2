@@ -16,7 +16,7 @@ from telegram.ext import (
     filters,
 )
 
-from handlers.menu import show_main_menu
+from handlers.menu import show_main_menu, handle_menu_selection
 
 from utils.constants import (
     STATE_OP_MENU,
@@ -329,7 +329,10 @@ def register_operations_handlers(app):
         entry_points=[CommandHandler("add", start_op)],
         states={
             STATE_OP_MENU: [
-                CallbackQueryHandler(on_op_menu, pattern="^op_"),
+                # 1) Все menu:* коллбэки обрабатываем в handlers.menu
+                CallbackQueryHandler(handle_menu_selection, pattern="^menu:"),
+                # 2) Далее — ваша логика «➕ Добавить / Меню»  
+                CallbackQueryHandler(on_op_menu,        pattern="^op_"),
             ],
             STATE_OP_FIELD_CHOOSE: [
                 CallbackQueryHandler(choose_field, pattern="^(field\\||confirm_op|op_cancel)"),
