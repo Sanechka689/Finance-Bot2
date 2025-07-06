@@ -315,6 +315,29 @@ async def handle_confirm(update: Update, context: ContextTypes.DEFAULT_TYPE) -> 
         cls=op["Классификация"]; spec=op.get("Конкретика") or "-"
         ws.append_row([year,month,op["Банк"],op["Операция"],date_str,op["Сумма"],cls,spec], value_input_option="USER_ENTERED")
 
+    # ←————— СОРТИРОВКИ ПО ДАТЕ —————→
+    # 1. Получаем ID листа
+    sheet_id = ws._properties['sheetId']
+    # 2. Формируем запрос
+    sort_request = {
+        "requests": [{
+            "sortRange": {
+                "range": {
+                    "sheetId":           sheet_id,
+                    "startRowIndex":     1,  # пропускаем заголовок
+                    "startColumnIndex":  0,  # А начинаес с столбца
+                    "endColumnIndex":    8,  # до H не включительно → столбец H имеет индекс 7, но endColumnIndex = 8
+                },
+                "sortSpecs": [{
+                    "dimensionIndex": 4,     # колонка E (нулевой индекс A=0, B=1, … E=4)
+                    "sortOrder":      "DESCENDING"
+                }]
+            }
+        }]
+    }
+    # 3. Отправляем запрос в API
+    ws.spreadsheet.batch_update(sort_request)
+
     await q.edit_message_text("✅ Операция добавлена в таблицу.")
     init_user_state(context)
     await q.message.reply_text(

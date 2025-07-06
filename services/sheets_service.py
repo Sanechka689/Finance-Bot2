@@ -57,6 +57,30 @@ def open_finance_and_plans(url: str):
     # —————— Автодополнение строк и расширение фильтра ——————
     _ensure_capacity_and_filter(finance_ws, min_remaining=20, add_rows=500, max_col='H')
     _ensure_capacity_and_filter(plans_ws,   min_remaining=20, add_rows=500, max_col='I')
+    
+    # —————— Новая часть: выравнивание колонок ——————
+    max_row = finance_ws.row_count  # общее число строк
+    # A–D и G–H: слева по горизонтали, по центру по вертикали
+    finance_ws.format(f"A1:D{max_row}", {
+        "horizontalAlignment": "LEFT",
+        "verticalAlignment":   "MIDDLE",
+    })
+    finance_ws.format(f"G1:H{max_row}", {
+        "horizontalAlignment": "LEFT",
+        "verticalAlignment":   "MIDDLE",
+    })
+    # E–F: по центру горизонтально и вертикально
+    finance_ws.format(f"E1:F{max_row}", {
+        "horizontalAlignment": "CENTER",
+        "verticalAlignment":   "MIDDLE",
+    })
+    # — форматирование даты в колонке E:
+    finance_ws.format(f"E2:E{max_row}", {
+        "numberFormat": {
+            "type":    "DATE",
+            "pattern": "d mmmm, ddd"
+        }
+    })
 
     return finance_ws, plans_ws
 
