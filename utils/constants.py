@@ -27,3 +27,9 @@ STATE_ENTER_AMOUNT           = 16  # ввод суммы
 STATE_ENTER_CLASSIFICATION   = 17  # ввод классификации
 STATE_ENTER_SPECIFIC         = 18  # ввод конкретики
 STATE_CONFIRM                = 19  # подтверждение перед записью
+STATE_OP_LIST                = 20   # показ списка последних операций
+STATE_OP_SELECT              = 21   # пользователь выбрал номер операции
+STATE_OP_CONFIRM             = 22   # пользователь нажал «Подтвердить» / «Изменить» / «Удалить»
+STATE_OP_EDIT_CHOICE         = 23   # пользователь выбрал, какое поле править
+STATE_OP_EDIT_INPUT          = 24   # ввод нового значения поля
+

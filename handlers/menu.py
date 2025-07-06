@@ -4,6 +4,7 @@ from telegram import InlineKeyboardMarkup, InlineKeyboardButton, Update
 from telegram.ext import CommandHandler, CallbackQueryHandler, ContextTypes
 from services.sheets_service import open_finance_and_plans
 from utils.constants import STATE_OP_MENU  # ваше состояние после /add
+from handlers.men_oper import start_men_oper
 
 import logging
 logger = logging.getLogger(__name__)
@@ -12,7 +13,7 @@ logger = logging.getLogger(__name__)
 def _build_main_kb() -> InlineKeyboardMarkup:
     return InlineKeyboardMarkup([
         [InlineKeyboardButton("💰 Финансы",         callback_data="menu:finance"),
-         InlineKeyboardButton("📝 Операции",        callback_data="menu:operations")],
+         InlineKeyboardButton("📝 Операции",        callback_data="menu:men_oper")],
         [InlineKeyboardButton("🏷 Классификация",   callback_data="menu:classification"),
          InlineKeyboardButton("🗓 Планы",           callback_data="menu:plans")],
         [InlineKeyboardButton("➕ Добавить Банк",   callback_data="menu:add_bank"),
@@ -111,10 +112,13 @@ async def handle_menu_selection(update: Update, context: ContextTypes.DEFAULT_TY
         )
         return STATE_OP_MENU
 
+    if data == "menu:men_oper":
+        return await start_men_oper(update, context)
+
     # остальные пункты — заглушки
     logger.debug("🏷 Branch OTHER: %r", data)
+    
     responses = {
-        "menu:operations":    "📝 Раздел «Операции» в разработке…",
         "menu:classification":"🏷 Раздел «Классификация» в разработке…",
         "menu:plans":         "🗓 Раздел «Планы» в разработке…",
         "menu:add_bank":      "➕ Раздел «Добавить Банк» в разработке…",

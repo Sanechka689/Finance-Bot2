@@ -20,6 +20,8 @@ from handlers.banks import register_banks_handlers
 from handlers.operations import register_operations_handlers
 # Этап 5 - работа кнопки меню (/menu)
 from handlers.menu import register_menu_handlers
+# Этап 5.1 - Меню - Операции
+from handlers.men_oper import start_men_oper, register_men_oper_handlers
 # Ловим всё остальное
 from handlers.fallback import register_fallback_handler
 
@@ -30,9 +32,10 @@ def main():
     # Регистрируем этапы в порядке выполнения
     register_tariff_handlers(app)       # /start
     register_sheet_handlers(app)        # /setup
-    register_banks_handlers(app)        # /banks
-    register_operations_handlers(app)   # /add    
+    register_banks_handlers(app)        # /banks   
     register_menu_handlers(app)         # /menu
+    register_men_oper_handlers(app)     # /Операции
+    register_operations_handlers(app)   # /add  
     register_fallback_handler(app)      # всё остальное
 
     app.run_polling()
