@@ -1,29 +1,31 @@
 # handlers/menu.py
 
+import logging
 from telegram import InlineKeyboardMarkup, InlineKeyboardButton, Update
 from telegram.ext import CommandHandler, CallbackQueryHandler, ContextTypes
+
 from services.sheets_service import open_finance_and_plans
 from utils.constants import STATE_OP_MENU  # ваше состояние после /add
-from handlers.men_oper import start_men_oper
+from handlers.men_oper import start_men_oper  # импорт ветки «Операции»
 
-import logging
 logger = logging.getLogger(__name__)
 
 
 def _build_main_kb() -> InlineKeyboardMarkup:
     return InlineKeyboardMarkup([
-        [InlineKeyboardButton("💰 Финансы",         callback_data="menu:finance"),
-         InlineKeyboardButton("📝 Операции",        callback_data="menu:men_oper")],
-        [InlineKeyboardButton("🏷 Классификация",   callback_data="menu:classification"),
-         InlineKeyboardButton("🗓 Планы",           callback_data="menu:plans")],
-        [InlineKeyboardButton("➕ Добавить Банк",   callback_data="menu:add_bank"),
-         InlineKeyboardButton("➖ Удалить Банк",    callback_data="menu:del_bank")],
+        [InlineKeyboardButton("💰 Финансы",       callback_data="menu:finance"),
+         InlineKeyboardButton("📝 Операции",      callback_data="menu:men_oper")],
+        [InlineKeyboardButton("🏷 Классификация", callback_data="menu:classification"),
+         InlineKeyboardButton("🗓 Планы",         callback_data="menu:plans")],
+        [InlineKeyboardButton("➕ Добавить Банк", callback_data="menu:add_bank"),
+         InlineKeyboardButton("➖ Удалить Банк",  callback_data="menu:del_bank")],
         [InlineKeyboardButton("✏️ Изменить таблицу", callback_data="menu:edit_table"),
          InlineKeyboardButton("💳 Поменять тариф",   callback_data="menu:change_tariff")],
         [InlineKeyboardButton("🔗 Показать таблицу", callback_data="menu:show_sheet"),
          InlineKeyboardButton("💬 Поддержка",        callback_data="menu:support")],
         [InlineKeyboardButton("🔙 Назад",            callback_data="menu:back")],
     ])
+
 
 async def show_main_menu(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     """Отображает главное меню (новым или редактирует текущее сообщение)."""
@@ -38,10 +40,10 @@ async def show_main_menu(update: Update, context: ContextTypes.DEFAULT_TYPE) -> 
         )
     return STATE_OP_MENU
 
+
 async def handle_menu_selection(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     query = update.callback_query
     await query.answer()
-    
     data = query.data  # например "menu:finance"
     logger.debug("🏷 handle_menu_selection called, data=%r", data)
 
@@ -99,9 +101,20 @@ async def handle_menu_selection(update: Update, context: ContextTypes.DEFAULT_TY
             return STATE_OP_MENU
 
         total = sum(balances.values())
-        lines = [f"• {b}: {balances[b]:.2f}" for b in balances]
+        # helper-функция для форматирования
+        def fmt(x: float) -> str:
+            s = f"{x:,.2f}"  # e.g. "33,400.00" или "-654.00"
+            s = s.replace(",", "X").replace(".", ",").replace("X", " ")
+            # результат: "33 400,00" или "-654,00"
+            return s
+
+        # сортируем банки по алфавиту
+        lines = [
+            f"• {bank}: {fmt(balances[bank])}"
+            for bank in sorted(balances)
+        ]
         text = "💰 *Текущий баланс по банкам:*\n" + "\n".join(lines)
-        text += f"\n\n*Общая сумма:* {total:.2f}"
+        text += f"\n\n*Общая сумма:* {fmt(total)}"
 
         await query.edit_message_text(
             text,
@@ -112,27 +125,32 @@ async def handle_menu_selection(update: Update, context: ContextTypes.DEFAULT_TY
         )
         return STATE_OP_MENU
 
+    # — Операции
     if data == "menu:men_oper":
+        logger.debug("🏷 Branch OPERATIONS")
         return await start_men_oper(update, context)
 
     # остальные пункты — заглушки
     logger.debug("🏷 Branch OTHER: %r", data)
-    
     responses = {
-        "menu:classification":"🏷 Раздел «Классификация» в разработке…",
-        "menu:plans":         "🗓 Раздел «Планы» в разработке…",
-        "menu:add_bank":      "➕ Раздел «Добавить Банк» в разработке…",
-        "menu:del_bank":      "➖ Раздел «Удалить Банк» в разработке…",
-        "menu:edit_table":    "✏️ Раздел «Изменить таблицу» в разработке…",
-        "menu:change_tariff": "💳 Раздел «Поменять тариф» в разработке…",
-        "menu:show_sheet":    "🔗 Раздел «Показать таблицу» в разработке…",
-        "menu:support":       "💬 Раздел «Поддержка» в разработке…",
+        "menu:classification": "🏷 Раздел «Классификация» в разработке…",
+        "menu:plans":          "🗓 Раздел «Планы» в разработке…",
+        "menu:add_bank":       "➕ Раздел «Добавить Банк» в разработке…",
+        "menu:del_bank":       "➖ Раздел «Удалить Банк» в разработке…",
+        "menu:edit_table":     "✏️ Раздел «Изменить таблицу» в разработке…",
+        "menu:change_tariff":  "💳 Раздел «Поменять тариф» в разработке…",
+        "menu:show_sheet":     "🔗 Раздел «Показать таблицу» в разработке…",
+        "menu:support":        "💬 Раздел «Поддержка» в разработке…",
     }
     text = responses.get(data, "⚠️ Неизвестный пункт меню.")
     await query.edit_message_text(text, reply_markup=_build_main_kb())
     return STATE_OP_MENU
 
+
 def register_menu_handlers(app):
     """Регистрирует глобальный /menu и все menu:* коллбэки."""
     app.add_handler(CommandHandler("menu", show_main_menu))
+    # сначала обрабатываем именно «Операции»
+    app.add_handler(CallbackQueryHandler(start_men_oper, pattern=r"^menu:men_oper$"))
+    # потом — общий хэндлер для всех остальных menu:*
     app.add_handler(CallbackQueryHandler(handle_menu_selection, pattern=r"^menu:"))

@@ -32,9 +32,9 @@ def main():
     # Регистрируем этапы в порядке выполнения
     register_tariff_handlers(app)       # /start
     register_sheet_handlers(app)        # /setup
-    register_banks_handlers(app)        # /banks   
-    register_menu_handlers(app)         # /menu
+    register_banks_handlers(app)        # /banks
     register_men_oper_handlers(app)     # /Операции
+    register_menu_handlers(app)         # /menu
     register_operations_handlers(app)   # /add  
     register_fallback_handler(app)      # всё остальное
 

@@ -1,0 +1,687 @@
+2025-07-06 23:47:45,153 DEBUG:httpx: load_ssl_context verify=True cert=None trust_env=True http2=False
+2025-07-06 23:47:45,155 DEBUG:httpx: load_verify_locations cafile='/usr/local/lib/python3.11/dist-packages/certifi/cacert.pem'
+2025-07-06 23:47:45,252 DEBUG:httpx: load_ssl_context verify=True cert=None trust_env=True http2=False
+2025-07-06 23:47:45,253 DEBUG:httpx: load_verify_locations cafile='/usr/local/lib/python3.11/dist-packages/certifi/cacert.pem'
+/content/Finance-Bot2/handlers/tariff.py:149: PTBUserWarning: If 'per_message=False', 'CallbackQueryHandler' will not be tracked for every message. Read this FAQ entry to learn more about the per_* settings: https://github.com/python-telegram-bot/python-telegram-bot/wiki/Frequently-Asked-Questions#what-do-the-per_-settings-in-conversationhandler-do.
+  conv = ConversationHandler(
+/content/Finance-Bot2/handlers/banks.py:254: PTBUserWarning: If 'per_message=False', 'CallbackQueryHandler' will not be tracked for every message. Read this FAQ entry to learn more about the per_* settings: https://github.com/python-telegram-bot/python-telegram-bot/wiki/Frequently-Asked-Questions#what-do-the-per_-settings-in-conversationhandler-do.
+  conv = ConversationHandler(
+/content/Finance-Bot2/handlers/men_oper.py:212: PTBUserWarning: If 'per_message=False', 'CallbackQueryHandler' will not be tracked for every message. Read this FAQ entry to learn more about the per_* settings: https://github.com/python-telegram-bot/python-telegram-bot/wiki/Frequently-Asked-Questions#what-do-the-per_-settings-in-conversationhandler-do.
+  conv = ConversationHandler(
+/content/Finance-Bot2/handlers/operations.py:351: PTBUserWarning: If 'per_message=False', 'CallbackQueryHandler' will not be tracked for every message. Read this FAQ entry to learn more about the per_* settings: https://github.com/python-telegram-bot/python-telegram-bot/wiki/Frequently-Asked-Questions#what-do-the-per_-settings-in-conversationhandler-do.
+  conv = ConversationHandler(
+2025-07-06 23:47:45,342 DEBUG:asyncio: Using selector: EpollSelector
+2025-07-06 23:47:45,343 DEBUG:telegram.ext.ExtBot: Entering: get_me
+2025-07-06 23:47:45,350 DEBUG:httpcore.connection: connect_tcp.started host='api.telegram.org' port=443 local_address=None timeout=5.0 socket_options=None
+2025-07-06 23:47:45,526 DEBUG:httpcore.connection: connect_tcp.complete return_value=<httpcore._backends.anyio.AnyIOStream object at 0x7f6727a599d0>
+2025-07-06 23:47:45,526 DEBUG:httpcore.connection: start_tls.started ssl_context=<ssl.SSLContext object at 0x7f6727303f50> server_hostname='api.telegram.org' timeout=5.0
+2025-07-06 23:47:45,618 DEBUG:httpcore.connection: start_tls.complete return_value=<httpcore._backends.anyio.AnyIOStream object at 0x7f67275b3a10>
+2025-07-06 23:47:45,619 DEBUG:httpcore.http11: send_request_headers.started request=<Request [b'POST']>
+2025-07-06 23:47:45,619 DEBUG:httpcore.http11: send_request_headers.complete
+2025-07-06 23:47:45,620 DEBUG:httpcore.http11: send_request_body.started request=<Request [b'POST']>
+2025-07-06 23:47:45,620 DEBUG:httpcore.http11: send_request_body.complete
+2025-07-06 23:47:45,620 DEBUG:httpcore.http11: receive_response_headers.started request=<Request [b'POST']>
+2025-07-06 23:47:45,710 DEBUG:httpcore.http11: receive_response_headers.complete return_value=(b'HTTP/1.1', 200, b'OK', [(b'Server', b'nginx/1.18.0'), (b'Date', b'Sun, 06 Jul 2025 23:47:45 GMT'), (b'Content-Type', b'application/json'), (b'Content-Length', b'254'), (b'Connection', b'keep-alive'), (b'Strict-Transport-Security', b'max-age=31536000; includeSubDomains; preload'), (b'Access-Control-Allow-Origin', b'*'), (b'Access-Control-Allow-Methods', b'GET, POST, OPTIONS'), (b'Access-Control-Expose-Headers', b'Content-Length,Content-Type,Date,Server,Connection')])
+2025-07-06 23:47:45,711 INFO:httpx: HTTP Request: POST https://api.telegram.org/bot8194517570:AAHG80QPShNLSkCCIk15W0BKZw25GSDh610/getMe "HTTP/1.1 200 OK"
+2025-07-06 23:47:45,711 DEBUG:httpcore.http11: receive_response_body.started request=<Request [b'POST']>
+2025-07-06 23:47:45,712 DEBUG:httpcore.http11: receive_response_body.complete
+2025-07-06 23:47:45,712 DEBUG:httpcore.http11: response_closed.started
+2025-07-06 23:47:45,712 DEBUG:httpcore.http11: response_closed.complete
+2025-07-06 23:47:45,713 DEBUG:telegram.ext.ExtBot: User(api_kwargs={'can_connect_to_business': False, 'has_main_web_app': False}, can_join_groups=True, can_read_all_group_messages=False, first_name='MyFinance', id=8194517570, is_bot=True, supports_inline_queries=False, username='My689FinanceBot')
+2025-07-06 23:47:45,714 DEBUG:telegram.ext.ExtBot: Exiting: get_me
+2025-07-06 23:47:45,714 DEBUG:telegram.ext.ExtBot: This Bot is already initialized.
+2025-07-06 23:47:45,714 DEBUG:telegram.ext.Updater: Updater started (polling)
+2025-07-06 23:47:45,714 DEBUG:telegram.ext.Updater: Start network loop retry bootstrap del webhook
+2025-07-06 23:47:45,714 DEBUG:telegram.ext.Updater: Deleting webhook
+2025-07-06 23:47:45,714 DEBUG:telegram.ext.ExtBot: Entering: delete_webhook
+2025-07-06 23:47:45,715 DEBUG:httpcore.http11: send_request_headers.started request=<Request [b'POST']>
+2025-07-06 23:47:45,716 DEBUG:httpcore.http11: send_request_headers.complete
+2025-07-06 23:47:45,716 DEBUG:httpcore.http11: send_request_body.started request=<Request [b'POST']>
+2025-07-06 23:47:45,716 DEBUG:httpcore.http11: send_request_body.complete
+2025-07-06 23:47:45,716 DEBUG:httpcore.http11: receive_response_headers.started request=<Request [b'POST']>
+2025-07-06 23:47:45,805 DEBUG:httpcore.http11: receive_response_headers.complete return_value=(b'HTTP/1.1', 200, b'OK', [(b'Server', b'nginx/1.18.0'), (b'Date', b'Sun, 06 Jul 2025 23:47:45 GMT'), (b'Content-Type', b'application/json'), (b'Content-Length', b'68'), (b'Connection', b'keep-alive'), (b'Strict-Transport-Security', b'max-age=31536000; includeSubDomains; preload'), (b'Access-Control-Allow-Origin', b'*'), (b'Access-Control-Allow-Methods', b'GET, POST, OPTIONS'), (b'Access-Control-Expose-Headers', b'Content-Length,Content-Type,Date,Server,Connection')])
+2025-07-06 23:47:45,805 INFO:httpx: HTTP Request: POST https://api.telegram.org/bot8194517570:AAHG80QPShNLSkCCIk15W0BKZw25GSDh610/deleteWebhook "HTTP/1.1 200 OK"
+2025-07-06 23:47:45,805 DEBUG:httpcore.http11: receive_response_body.started request=<Request [b'POST']>
+2025-07-06 23:47:45,806 DEBUG:httpcore.http11: receive_response_body.complete
+2025-07-06 23:47:45,806 DEBUG:httpcore.http11: response_closed.started
+2025-07-06 23:47:45,806 DEBUG:httpcore.http11: response_closed.complete
+2025-07-06 23:47:45,807 DEBUG:telegram.ext.ExtBot: True
+2025-07-06 23:47:45,807 DEBUG:telegram.ext.ExtBot: Exiting: delete_webhook
+2025-07-06 23:47:45,807 DEBUG:telegram.ext.Updater: Bootstrap done
+2025-07-06 23:47:45,807 DEBUG:telegram.ext.Updater: Waiting for polling to start
+2025-07-06 23:47:45,807 DEBUG:telegram.ext.Updater: Polling updates from Telegram started
+2025-07-06 23:47:45,807 DEBUG:telegram.ext.Updater: Start network loop retry getting Updates
+2025-07-06 23:47:45,807 DEBUG:telegram.ext.ExtBot: Entering: get_updates
+2025-07-06 23:47:45,808 DEBUG:httpcore.connection: connect_tcp.started host='api.telegram.org' port=443 local_address=None timeout=5.0 socket_options=None
+2025-07-06 23:47:45,808 INFO:telegram.ext.Application: Application started
+2025-07-06 23:47:45,898 DEBUG:httpcore.connection: connect_tcp.complete return_value=<httpcore._backends.anyio.AnyIOStream object at 0x7f6727636590>
+2025-07-06 23:47:45,898 DEBUG:httpcore.connection: start_tls.started ssl_context=<ssl.SSLContext object at 0x7f6727303ec0> server_hostname='api.telegram.org' timeout=5.0
+2025-07-06 23:47:45,990 DEBUG:httpcore.connection: start_tls.complete return_value=<httpcore._backends.anyio.AnyIOStream object at 0x7f6727637c50>
+2025-07-06 23:47:45,991 DEBUG:httpcore.http11: send_request_headers.started request=<Request [b'POST']>
+2025-07-06 23:47:45,992 DEBUG:httpcore.http11: send_request_headers.complete
+2025-07-06 23:47:45,992 DEBUG:httpcore.http11: send_request_body.started request=<Request [b'POST']>
+2025-07-06 23:47:45,992 DEBUG:httpcore.http11: send_request_body.complete
+2025-07-06 23:47:45,992 DEBUG:httpcore.http11: receive_response_headers.started request=<Request [b'POST']>
+2025-07-06 23:47:48,079 DEBUG:httpcore.http11: receive_response_headers.complete return_value=(b'HTTP/1.1', 200, b'OK', [(b'Server', b'nginx/1.18.0'), (b'Date', b'Sun, 06 Jul 2025 23:47:48 GMT'), (b'Content-Type', b'application/json'), (b'Content-Length', b'455'), (b'Connection', b'keep-alive'), (b'Strict-Transport-Security', b'max-age=31536000; includeSubDomains; preload'), (b'Access-Control-Allow-Origin', b'*'), (b'Access-Control-Allow-Methods', b'GET, POST, OPTIONS'), (b'Access-Control-Expose-Headers', b'Content-Length,Content-Type,Date,Server,Connection')])
+2025-07-06 23:47:48,080 INFO:httpx: HTTP Request: POST https://api.telegram.org/bot8194517570:AAHG80QPShNLSkCCIk15W0BKZw25GSDh610/getUpdates "HTTP/1.1 200 OK"
+2025-07-06 23:47:48,080 DEBUG:httpcore.http11: receive_response_body.started request=<Request [b'POST']>
+2025-07-06 23:47:48,080 DEBUG:httpcore.http11: receive_response_body.complete
+2025-07-06 23:47:48,081 DEBUG:httpcore.http11: response_closed.started
+2025-07-06 23:47:48,081 DEBUG:httpcore.http11: response_closed.complete
+2025-07-06 23:47:48,081 DEBUG:telegram.ext.ExtBot: Getting updates: [10516351]
+2025-07-06 23:47:48,082 DEBUG:telegram.ext.ExtBot: (Update(message=Message(channel_chat_created=False, chat=Chat(first_name='Александр', id=5840537467, type=<ChatType.PRIVATE>, username='CheAAlex'), date=datetime.datetime(2025, 7, 6, 23, 47, 48, tzinfo=<UTC>), delete_chat_photo=False, entities=(MessageEntity(length=6, offset=0, type=<MessageEntityType.BOT_COMMAND>),), from_user=User(first_name='Александр', id=5840537467, is_bot=False, language_code='ru', username='CheAAlex'), group_chat_created=False, message_id=5849, supergroup_chat_created=False, text='/start'), update_id=10516351),)
+2025-07-06 23:47:48,085 DEBUG:telegram.ext.ExtBot: Exiting: get_updates
+2025-07-06 23:47:48,085 DEBUG:telegram.ext.ExtBot: Entering: get_updates
+2025-07-06 23:47:48,086 DEBUG:telegram.ext.Application: Processing update Update(message=Message(channel_chat_created=False, chat=Chat(first_name='Александр', id=5840537467, type=<ChatType.PRIVATE>, username='CheAAlex'), date=datetime.datetime(2025, 7, 6, 23, 47, 48, tzinfo=<UTC>), delete_chat_photo=False, entities=(MessageEntity(length=6, offset=0, type=<MessageEntityType.BOT_COMMAND>),), from_user=User(first_name='Александр', id=5840537467, is_bot=False, language_code='ru', username='CheAAlex'), group_chat_created=False, message_id=5849, supergroup_chat_created=False, text='/start'), update_id=10516351)
+2025-07-06 23:47:48,086 DEBUG:telegram.ext.ConversationHandler: Selecting conversation (5840537467, 5840537467) with state None
+2025-07-06 23:47:48,087 DEBUG:telegram.ext.ExtBot: Entering: send_message
+2025-07-06 23:47:48,088 DEBUG:httpcore.http11: send_request_headers.started request=<Request [b'POST']>
+2025-07-06 23:47:48,088 DEBUG:httpcore.http11: send_request_headers.started request=<Request [b'POST']>
+2025-07-06 23:47:48,088 DEBUG:httpcore.http11: send_request_headers.complete
+2025-07-06 23:47:48,088 DEBUG:httpcore.http11: send_request_body.started request=<Request [b'POST']>
+2025-07-06 23:47:48,089 DEBUG:httpcore.http11: send_request_headers.complete
+2025-07-06 23:47:48,089 DEBUG:httpcore.http11: send_request_body.started request=<Request [b'POST']>
+2025-07-06 23:47:48,089 DEBUG:httpcore.http11: send_request_body.complete
+2025-07-06 23:47:48,089 DEBUG:httpcore.http11: receive_response_headers.started request=<Request [b'POST']>
+2025-07-06 23:47:48,089 DEBUG:httpcore.http11: send_request_body.complete
+2025-07-06 23:47:48,089 DEBUG:httpcore.http11: receive_response_headers.started request=<Request [b'POST']>
+2025-07-06 23:47:48,200 DEBUG:httpcore.http11: receive_response_headers.complete return_value=(b'HTTP/1.1', 200, b'OK', [(b'Server', b'nginx/1.18.0'), (b'Date', b'Sun, 06 Jul 2025 23:47:48 GMT'), (b'Content-Type', b'application/json'), (b'Content-Length', b'1416'), (b'Connection', b'keep-alive'), (b'Strict-Transport-Security', b'max-age=31536000; includeSubDomains; preload'), (b'Access-Control-Allow-Origin', b'*'), (b'Access-Control-Allow-Methods', b'GET, POST, OPTIONS'), (b'Access-Control-Expose-Headers', b'Content-Length,Content-Type,Date,Server,Connection')])
+2025-07-06 23:47:48,201 INFO:httpx: HTTP Request: POST https://api.telegram.org/bot8194517570:AAHG80QPShNLSkCCIk15W0BKZw25GSDh610/sendMessage "HTTP/1.1 200 OK"
+2025-07-06 23:47:48,201 DEBUG:httpcore.http11: receive_response_body.started request=<Request [b'POST']>
+2025-07-06 23:47:48,201 DEBUG:httpcore.http11: receive_response_body.complete
+2025-07-06 23:47:48,202 DEBUG:httpcore.http11: response_closed.started
+2025-07-06 23:47:48,202 DEBUG:httpcore.http11: response_closed.complete
+2025-07-06 23:47:48,203 DEBUG:telegram.ext.ExtBot: Message(channel_chat_created=False, chat=Chat(first_name='Александр', id=5840537467, type=<ChatType.PRIVATE>, username='CheAAlex'), date=datetime.datetime(2025, 7, 6, 23, 47, 48, tzinfo=<UTC>), delete_chat_photo=False, from_user=User(first_name='MyFinance', id=8194517570, is_bot=True, username='My689FinanceBot'), group_chat_created=False, message_id=5850, reply_markup=InlineKeyboardMarkup(inline_keyboard=((InlineKeyboardButton(callback_data='tariff_free', text='Бесплатный'), InlineKeyboardButton(callback_data='tariff_1', text='Тариф 1'), InlineKeyboardButton(callback_data='tariff_2', text='Тариф 2')), (InlineKeyboardButton(callback_data='support', text='Поддержка'), InlineKeyboardButton(text='Телеграмм канал', url='https://t.me/your_channel')))), supergroup_chat_created=False, text='👋 Добро пожаловать в ФинБот!\n\nЯ помогу вам автоматизировать ввод финансовых операций в Google Sheets.\nПожалуйста, выберите тариф:')
+2025-07-06 23:47:48,203 DEBUG:telegram.ext.ExtBot: Exiting: send_message
+2025-07-06 23:47:50,329 DEBUG:httpcore.http11: receive_response_headers.complete return_value=(b'HTTP/1.1', 200, b'OK', [(b'Server', b'nginx/1.18.0'), (b'Date', b'Sun, 06 Jul 2025 23:47:50 GMT'), (b'Content-Type', b'application/json'), (b'Content-Length', b'1710'), (b'Connection', b'keep-alive'), (b'Strict-Transport-Security', b'max-age=31536000; includeSubDomains; preload'), (b'Access-Control-Allow-Origin', b'*'), (b'Access-Control-Allow-Methods', b'GET, POST, OPTIONS'), (b'Access-Control-Expose-Headers', b'Content-Length,Content-Type,Date,Server,Connection')])
+2025-07-06 23:47:50,329 INFO:httpx: HTTP Request: POST https://api.telegram.org/bot8194517570:AAHG80QPShNLSkCCIk15W0BKZw25GSDh610/getUpdates "HTTP/1.1 200 OK"
+2025-07-06 23:47:50,330 DEBUG:httpcore.http11: receive_response_body.started request=<Request [b'POST']>
+2025-07-06 23:47:50,330 DEBUG:httpcore.http11: receive_response_body.complete
+2025-07-06 23:47:50,330 DEBUG:httpcore.http11: response_closed.started
+2025-07-06 23:47:50,330 DEBUG:httpcore.http11: response_closed.complete
+2025-07-06 23:47:50,331 DEBUG:telegram.ext.ExtBot: Getting updates: [10516352]
+2025-07-06 23:47:50,331 DEBUG:telegram.ext.ExtBot: (Update(callback_query=CallbackQuery(chat_instance='-197365410636071226', data='tariff_free', from_user=User(first_name='Александр', id=5840537467, is_bot=False, language_code='ru', username='CheAAlex'), id='6638173338410714308', message=Message(channel_chat_created=False, chat=Chat(first_name='Александр', id=5840537467, type=<ChatType.PRIVATE>, username='CheAAlex'), date=datetime.datetime(2025, 7, 6, 23, 47, 48, tzinfo=<UTC>), delete_chat_photo=False, from_user=User(first_name='MyFinance', id=8194517570, is_bot=True, username='My689FinanceBot'), group_chat_created=False, message_id=5850, reply_markup=InlineKeyboardMarkup(inline_keyboard=((InlineKeyboardButton(callback_data='tariff_free', text='Бесплатный'), InlineKeyboardButton(callback_data='tariff_1', text='Тариф 1'), InlineKeyboardButton(callback_data='tariff_2', text='Тариф 2')), (InlineKeyboardButton(callback_data='support', text='Поддержка'), InlineKeyboardButton(text='Телеграмм канал', url='https://t.me/your_channel')))), supergroup_chat_created=False, text='👋 Добро пожаловать в ФинБот!\n\nЯ помогу вам автоматизировать ввод финансовых операций в Google Sheets.\nПожалуйста, выберите тариф:')), update_id=10516352),)
+2025-07-06 23:47:50,332 DEBUG:telegram.ext.ExtBot: Exiting: get_updates
+2025-07-06 23:47:50,332 DEBUG:telegram.ext.ExtBot: Entering: get_updates
+2025-07-06 23:47:50,333 DEBUG:telegram.ext.Application: Processing update Update(callback_query=CallbackQuery(chat_instance='-197365410636071226', data='tariff_free', from_user=User(first_name='Александр', id=5840537467, is_bot=False, language_code='ru', username='CheAAlex'), id='6638173338410714308', message=Message(channel_chat_created=False, chat=Chat(first_name='Александр', id=5840537467, type=<ChatType.PRIVATE>, username='CheAAlex'), date=datetime.datetime(2025, 7, 6, 23, 47, 48, tzinfo=<UTC>), delete_chat_photo=False, from_user=User(first_name='MyFinance', id=8194517570, is_bot=True, username='My689FinanceBot'), group_chat_created=False, message_id=5850, reply_markup=InlineKeyboardMarkup(inline_keyboard=((InlineKeyboardButton(callback_data='tariff_free', text='Бесплатный'), InlineKeyboardButton(callback_data='tariff_1', text='Тариф 1'), InlineKeyboardButton(callback_data='tariff_2', text='Тариф 2')), (InlineKeyboardButton(callback_data='support', text='Поддержка'), InlineKeyboardButton(text='Телеграмм канал', url='https://t.me/your_channel')))), supergroup_chat_created=False, text='👋 Добро пожаловать в ФинБот!\n\nЯ помогу вам автоматизировать ввод финансовых операций в Google Sheets.\nПожалуйста, выберите тариф:')), update_id=10516352)
+2025-07-06 23:47:50,333 DEBUG:telegram.ext.ConversationHandler: Selecting conversation (5840537467, 5840537467) with state 1
+2025-07-06 23:47:50,333 DEBUG:telegram.ext.ExtBot: Entering: answer_callback_query
+2025-07-06 23:47:50,334 DEBUG:httpcore.http11: send_request_headers.started request=<Request [b'POST']>
+2025-07-06 23:47:50,334 DEBUG:httpcore.http11: send_request_headers.started request=<Request [b'POST']>
+2025-07-06 23:47:50,335 DEBUG:httpcore.http11: send_request_headers.complete
+2025-07-06 23:47:50,335 DEBUG:httpcore.http11: send_request_body.started request=<Request [b'POST']>
+2025-07-06 23:47:50,335 DEBUG:httpcore.http11: send_request_headers.complete
+2025-07-06 23:47:50,335 DEBUG:httpcore.http11: send_request_body.started request=<Request [b'POST']>
+2025-07-06 23:47:50,335 DEBUG:httpcore.http11: send_request_body.complete
+2025-07-06 23:47:50,335 DEBUG:httpcore.http11: receive_response_headers.started request=<Request [b'POST']>
+2025-07-06 23:47:50,336 DEBUG:httpcore.http11: send_request_body.complete
+2025-07-06 23:47:50,336 DEBUG:httpcore.http11: receive_response_headers.started request=<Request [b'POST']>
+2025-07-06 23:47:50,431 DEBUG:httpcore.http11: receive_response_headers.complete return_value=(b'HTTP/1.1', 200, b'OK', [(b'Server', b'nginx/1.18.0'), (b'Date', b'Sun, 06 Jul 2025 23:47:50 GMT'), (b'Content-Type', b'application/json'), (b'Content-Length', b'25'), (b'Connection', b'keep-alive'), (b'Strict-Transport-Security', b'max-age=31536000; includeSubDomains; preload'), (b'Access-Control-Allow-Origin', b'*'), (b'Access-Control-Allow-Methods', b'GET, POST, OPTIONS'), (b'Access-Control-Expose-Headers', b'Content-Length,Content-Type,Date,Server,Connection')])
+2025-07-06 23:47:50,432 INFO:httpx: HTTP Request: POST https://api.telegram.org/bot8194517570:AAHG80QPShNLSkCCIk15W0BKZw25GSDh610/answerCallbackQuery "HTTP/1.1 200 OK"
+2025-07-06 23:47:50,432 DEBUG:httpcore.http11: receive_response_body.started request=<Request [b'POST']>
+2025-07-06 23:47:50,432 DEBUG:httpcore.http11: receive_response_body.complete
+2025-07-06 23:47:50,432 DEBUG:httpcore.http11: response_closed.started
+2025-07-06 23:47:50,432 DEBUG:httpcore.http11: response_closed.complete
+2025-07-06 23:47:50,433 DEBUG:telegram.ext.ExtBot: True
+2025-07-06 23:47:50,433 DEBUG:telegram.ext.ExtBot: Exiting: answer_callback_query
+2025-07-06 23:47:50,433 DEBUG:telegram.ext.ExtBot: Entering: edit_message_text
+2025-07-06 23:47:50,434 DEBUG:httpcore.http11: send_request_headers.started request=<Request [b'POST']>
+2025-07-06 23:47:50,434 DEBUG:httpcore.http11: send_request_headers.complete
+2025-07-06 23:47:50,434 DEBUG:httpcore.http11: send_request_body.started request=<Request [b'POST']>
+2025-07-06 23:47:50,435 DEBUG:httpcore.http11: send_request_body.complete
+2025-07-06 23:47:50,435 DEBUG:httpcore.http11: receive_response_headers.started request=<Request [b'POST']>
+2025-07-06 23:47:50,537 DEBUG:httpcore.http11: receive_response_headers.complete return_value=(b'HTTP/1.1', 200, b'OK', [(b'Server', b'nginx/1.18.0'), (b'Date', b'Sun, 06 Jul 2025 23:47:50 GMT'), (b'Content-Type', b'application/json'), (b'Content-Length', b'867'), (b'Connection', b'keep-alive'), (b'Strict-Transport-Security', b'max-age=31536000; includeSubDomains; preload'), (b'Access-Control-Allow-Origin', b'*'), (b'Access-Control-Allow-Methods', b'GET, POST, OPTIONS'), (b'Access-Control-Expose-Headers', b'Content-Length,Content-Type,Date,Server,Connection')])
+2025-07-06 23:47:50,538 INFO:httpx: HTTP Request: POST https://api.telegram.org/bot8194517570:AAHG80QPShNLSkCCIk15W0BKZw25GSDh610/editMessageText "HTTP/1.1 200 OK"
+2025-07-06 23:47:50,538 DEBUG:httpcore.http11: receive_response_body.started request=<Request [b'POST']>
+2025-07-06 23:47:50,538 DEBUG:httpcore.http11: receive_response_body.complete
+2025-07-06 23:47:50,538 DEBUG:httpcore.http11: response_closed.started
+2025-07-06 23:47:50,539 DEBUG:httpcore.http11: response_closed.complete
+2025-07-06 23:47:50,539 DEBUG:telegram.ext.ExtBot: Message(channel_chat_created=False, chat=Chat(first_name='Александр', id=5840537467, type=<ChatType.PRIVATE>, username='CheAAlex'), date=datetime.datetime(2025, 7, 6, 23, 47, 48, tzinfo=<UTC>), delete_chat_photo=False, edit_date=datetime.datetime(2025, 7, 6, 23, 47, 50, tzinfo=<UTC>), from_user=User(first_name='MyFinance', id=8194517570, is_bot=True, username='My689FinanceBot'), group_chat_created=False, message_id=5850, reply_markup=InlineKeyboardMarkup(inline_keyboard=((InlineKeyboardButton(callback_data='back_to_menu', text='⬅️ Назад'),), (InlineKeyboardButton(callback_data='select_tariff_free', text='Выбрать тариф'),))), supergroup_chat_created=False, text='✅ Бесплатный тариф: ручной ввод через кнопки, текст и голос.')
+2025-07-06 23:47:50,540 DEBUG:telegram.ext.ExtBot: Exiting: edit_message_text
+2025-07-06 23:47:51,260 DEBUG:httpcore.http11: receive_response_headers.complete return_value=(b'HTTP/1.1', 200, b'OK', [(b'Server', b'nginx/1.18.0'), (b'Date', b'Sun, 06 Jul 2025 23:47:51 GMT'), (b'Content-Type', b'application/json'), (b'Content-Length', b'1168'), (b'Connection', b'keep-alive'), (b'Strict-Transport-Security', b'max-age=31536000; includeSubDomains; preload'), (b'Access-Control-Allow-Origin', b'*'), (b'Access-Control-Allow-Methods', b'GET, POST, OPTIONS'), (b'Access-Control-Expose-Headers', b'Content-Length,Content-Type,Date,Server,Connection')])
+2025-07-06 23:47:51,261 INFO:httpx: HTTP Request: POST https://api.telegram.org/bot8194517570:AAHG80QPShNLSkCCIk15W0BKZw25GSDh610/getUpdates "HTTP/1.1 200 OK"
+2025-07-06 23:47:51,261 DEBUG:httpcore.http11: receive_response_body.started request=<Request [b'POST']>
+2025-07-06 23:47:51,261 DEBUG:httpcore.http11: receive_response_body.complete
+2025-07-06 23:47:51,261 DEBUG:httpcore.http11: response_closed.started
+2025-07-06 23:47:51,261 DEBUG:httpcore.http11: response_closed.complete
+2025-07-06 23:47:51,262 DEBUG:telegram.ext.ExtBot: Getting updates: [10516353]
+2025-07-06 23:47:51,262 DEBUG:telegram.ext.ExtBot: (Update(callback_query=CallbackQuery(chat_instance='-197365410636071226', data='select_tariff_free', from_user=User(first_name='Александр', id=5840537467, is_bot=False, language_code='ru', username='CheAAlex'), id='6638173338769185317', message=Message(channel_chat_created=False, chat=Chat(first_name='Александр', id=5840537467, type=<ChatType.PRIVATE>, username='CheAAlex'), date=datetime.datetime(2025, 7, 6, 23, 47, 48, tzinfo=<UTC>), delete_chat_photo=False, edit_date=datetime.datetime(2025, 7, 6, 23, 47, 50, tzinfo=<UTC>), from_user=User(first_name='MyFinance', id=8194517570, is_bot=True, username='My689FinanceBot'), group_chat_created=False, message_id=5850, reply_markup=InlineKeyboardMarkup(inline_keyboard=((InlineKeyboardButton(callback_data='back_to_menu', text='⬅️ Назад'),), (InlineKeyboardButton(callback_data='select_tariff_free', text='Выбрать тариф'),))), supergroup_chat_created=False, text='✅ Бесплатный тариф: ручной ввод через кнопки, текст и голос.')), update_id=10516353),)
+2025-07-06 23:47:51,263 DEBUG:telegram.ext.ExtBot: Exiting: get_updates
+2025-07-06 23:47:51,263 DEBUG:telegram.ext.ExtBot: Entering: get_updates
+2025-07-06 23:47:51,263 DEBUG:telegram.ext.Application: Processing update Update(callback_query=CallbackQuery(chat_instance='-197365410636071226', data='select_tariff_free', from_user=User(first_name='Александр', id=5840537467, is_bot=False, language_code='ru', username='CheAAlex'), id='6638173338769185317', message=Message(channel_chat_created=False, chat=Chat(first_name='Александр', id=5840537467, type=<ChatType.PRIVATE>, username='CheAAlex'), date=datetime.datetime(2025, 7, 6, 23, 47, 48, tzinfo=<UTC>), delete_chat_photo=False, edit_date=datetime.datetime(2025, 7, 6, 23, 47, 50, tzinfo=<UTC>), from_user=User(first_name='MyFinance', id=8194517570, is_bot=True, username='My689FinanceBot'), group_chat_created=False, message_id=5850, reply_markup=InlineKeyboardMarkup(inline_keyboard=((InlineKeyboardButton(callback_data='back_to_menu', text='⬅️ Назад'),), (InlineKeyboardButton(callback_data='select_tariff_free', text='Выбрать тариф'),))), supergroup_chat_created=False, text='✅ Бесплатный тариф: ручной ввод через кнопки, текст и голос.')), update_id=10516353)
+2025-07-06 23:47:51,264 DEBUG:telegram.ext.ConversationHandler: Selecting conversation (5840537467, 5840537467) with state 2
+2025-07-06 23:47:51,264 DEBUG:telegram.ext.ExtBot: Entering: answer_callback_query
+2025-07-06 23:47:51,264 DEBUG:httpcore.http11: send_request_headers.started request=<Request [b'POST']>
+2025-07-06 23:47:51,265 DEBUG:httpcore.http11: send_request_headers.started request=<Request [b'POST']>
+2025-07-06 23:47:51,265 DEBUG:httpcore.http11: send_request_headers.complete
+2025-07-06 23:47:51,265 DEBUG:httpcore.http11: send_request_body.started request=<Request [b'POST']>
+2025-07-06 23:47:51,265 DEBUG:httpcore.http11: send_request_headers.complete
+2025-07-06 23:47:51,265 DEBUG:httpcore.http11: send_request_body.started request=<Request [b'POST']>
+2025-07-06 23:47:51,266 DEBUG:httpcore.http11: send_request_body.complete
+2025-07-06 23:47:51,266 DEBUG:httpcore.http11: receive_response_headers.started request=<Request [b'POST']>
+2025-07-06 23:47:51,266 DEBUG:httpcore.http11: send_request_body.complete
+2025-07-06 23:47:51,266 DEBUG:httpcore.http11: receive_response_headers.started request=<Request [b'POST']>
+2025-07-06 23:47:51,357 DEBUG:httpcore.http11: receive_response_headers.complete return_value=(b'HTTP/1.1', 200, b'OK', [(b'Server', b'nginx/1.18.0'), (b'Date', b'Sun, 06 Jul 2025 23:47:51 GMT'), (b'Content-Type', b'application/json'), (b'Content-Length', b'25'), (b'Connection', b'keep-alive'), (b'Strict-Transport-Security', b'max-age=31536000; includeSubDomains; preload'), (b'Access-Control-Allow-Origin', b'*'), (b'Access-Control-Allow-Methods', b'GET, POST, OPTIONS'), (b'Access-Control-Expose-Headers', b'Content-Length,Content-Type,Date,Server,Connection')])
+2025-07-06 23:47:51,357 INFO:httpx: HTTP Request: POST https://api.telegram.org/bot8194517570:AAHG80QPShNLSkCCIk15W0BKZw25GSDh610/answerCallbackQuery "HTTP/1.1 200 OK"
+2025-07-06 23:47:51,358 DEBUG:httpcore.http11: receive_response_body.started request=<Request [b'POST']>
+2025-07-06 23:47:51,358 DEBUG:httpcore.http11: receive_response_body.complete
+2025-07-06 23:47:51,358 DEBUG:httpcore.http11: response_closed.started
+2025-07-06 23:47:51,358 DEBUG:httpcore.http11: response_closed.complete
+2025-07-06 23:47:51,358 DEBUG:telegram.ext.ExtBot: True
+2025-07-06 23:47:51,358 DEBUG:telegram.ext.ExtBot: Exiting: answer_callback_query
+2025-07-06 23:47:51,358 DEBUG:telegram.ext.ExtBot: Entering: edit_message_text
+2025-07-06 23:47:51,359 DEBUG:httpcore.http11: send_request_headers.started request=<Request [b'POST']>
+2025-07-06 23:47:51,360 DEBUG:httpcore.http11: send_request_headers.complete
+2025-07-06 23:47:51,360 DEBUG:httpcore.http11: send_request_body.started request=<Request [b'POST']>
+2025-07-06 23:47:51,360 DEBUG:httpcore.http11: send_request_body.complete
+2025-07-06 23:47:51,360 DEBUG:httpcore.http11: receive_response_headers.started request=<Request [b'POST']>
+2025-07-06 23:47:51,462 DEBUG:httpcore.http11: receive_response_headers.complete return_value=(b'HTTP/1.1', 200, b'OK', [(b'Server', b'nginx/1.18.0'), (b'Date', b'Sun, 06 Jul 2025 23:47:51 GMT'), (b'Content-Type', b'application/json'), (b'Content-Length', b'750'), (b'Connection', b'keep-alive'), (b'Strict-Transport-Security', b'max-age=31536000; includeSubDomains; preload'), (b'Access-Control-Allow-Origin', b'*'), (b'Access-Control-Allow-Methods', b'GET, POST, OPTIONS'), (b'Access-Control-Expose-Headers', b'Content-Length,Content-Type,Date,Server,Connection')])
+2025-07-06 23:47:51,462 INFO:httpx: HTTP Request: POST https://api.telegram.org/bot8194517570:AAHG80QPShNLSkCCIk15W0BKZw25GSDh610/editMessageText "HTTP/1.1 200 OK"
+2025-07-06 23:47:51,462 DEBUG:httpcore.http11: receive_response_body.started request=<Request [b'POST']>
+2025-07-06 23:47:51,463 DEBUG:httpcore.http11: receive_response_body.complete
+2025-07-06 23:47:51,463 DEBUG:httpcore.http11: response_closed.started
+2025-07-06 23:47:51,463 DEBUG:httpcore.http11: response_closed.complete
+2025-07-06 23:47:51,463 DEBUG:telegram.ext.ExtBot: Message(channel_chat_created=False, chat=Chat(first_name='Александр', id=5840537467, type=<ChatType.PRIVATE>, username='CheAAlex'), date=datetime.datetime(2025, 7, 6, 23, 47, 48, tzinfo=<UTC>), delete_chat_photo=False, edit_date=datetime.datetime(2025, 7, 6, 23, 47, 51, tzinfo=<UTC>), entities=(MessageEntity(length=10, offset=14, type=<MessageEntityType.ITALIC>),), from_user=User(first_name='MyFinance', id=8194517570, is_bot=True, username='My689FinanceBot'), group_chat_created=False, message_id=5850, supergroup_chat_created=False, text='🎉 Вы выбрали Бесплатный тариф и сразу переходите к подключению таблицы.')
+2025-07-06 23:47:51,464 DEBUG:telegram.ext.ExtBot: Exiting: edit_message_text
+2025-07-06 23:47:51,464 DEBUG:telegram.ext.ExtBot: Entering: send_message
+2025-07-06 23:47:51,464 DEBUG:httpcore.http11: send_request_headers.started request=<Request [b'POST']>
+2025-07-06 23:47:51,465 DEBUG:httpcore.http11: send_request_headers.complete
+2025-07-06 23:47:51,465 DEBUG:httpcore.http11: send_request_body.started request=<Request [b'POST']>
+2025-07-06 23:47:51,465 DEBUG:httpcore.http11: send_request_body.complete
+2025-07-06 23:47:51,465 DEBUG:httpcore.http11: receive_response_headers.started request=<Request [b'POST']>
+2025-07-06 23:47:51,574 DEBUG:httpcore.http11: receive_response_headers.complete return_value=(b'HTTP/1.1', 200, b'OK', [(b'Server', b'nginx/1.18.0'), (b'Date', b'Sun, 06 Jul 2025 23:47:51 GMT'), (b'Content-Type', b'application/json'), (b'Content-Length', b'597'), (b'Connection', b'keep-alive'), (b'Strict-Transport-Security', b'max-age=31536000; includeSubDomains; preload'), (b'Access-Control-Allow-Origin', b'*'), (b'Access-Control-Allow-Methods', b'GET, POST, OPTIONS'), (b'Access-Control-Expose-Headers', b'Content-Length,Content-Type,Date,Server,Connection')])
+2025-07-06 23:47:51,575 INFO:httpx: HTTP Request: POST https://api.telegram.org/bot8194517570:AAHG80QPShNLSkCCIk15W0BKZw25GSDh610/sendMessage "HTTP/1.1 200 OK"
+2025-07-06 23:47:51,575 DEBUG:httpcore.http11: receive_response_body.started request=<Request [b'POST']>
+2025-07-06 23:47:51,575 DEBUG:httpcore.http11: receive_response_body.complete
+2025-07-06 23:47:51,575 DEBUG:httpcore.http11: response_closed.started
+2025-07-06 23:47:51,575 DEBUG:httpcore.http11: response_closed.complete
+2025-07-06 23:47:51,576 DEBUG:telegram.ext.ExtBot: Message(channel_chat_created=False, chat=Chat(first_name='Александр', id=5840537467, type=<ChatType.PRIVATE>, username='CheAAlex'), date=datetime.datetime(2025, 7, 6, 23, 47, 51, tzinfo=<UTC>), delete_chat_photo=False, entities=(MessageEntity(length=6, offset=26, type=<MessageEntityType.BOT_COMMAND>),), from_user=User(first_name='MyFinance', id=8194517570, is_bot=True, username='My689FinanceBot'), group_chat_created=False, message_id=5851, supergroup_chat_created=False, text='📑 Теперь введите команду /setup для подключения Google Sheets.')
+2025-07-06 23:47:51,576 DEBUG:telegram.ext.ExtBot: Exiting: send_message
+2025-07-06 23:47:52,674 DEBUG:httpcore.http11: receive_response_headers.complete return_value=(b'HTTP/1.1', 200, b'OK', [(b'Server', b'nginx/1.18.0'), (b'Date', b'Sun, 06 Jul 2025 23:47:52 GMT'), (b'Content-Type', b'application/json'), (b'Content-Length', b'455'), (b'Connection', b'keep-alive'), (b'Strict-Transport-Security', b'max-age=31536000; includeSubDomains; preload'), (b'Access-Control-Allow-Origin', b'*'), (b'Access-Control-Allow-Methods', b'GET, POST, OPTIONS'), (b'Access-Control-Expose-Headers', b'Content-Length,Content-Type,Date,Server,Connection')])
+2025-07-06 23:47:52,675 INFO:httpx: HTTP Request: POST https://api.telegram.org/bot8194517570:AAHG80QPShNLSkCCIk15W0BKZw25GSDh610/getUpdates "HTTP/1.1 200 OK"
+2025-07-06 23:47:52,675 DEBUG:httpcore.http11: receive_response_body.started request=<Request [b'POST']>
+2025-07-06 23:47:52,675 DEBUG:httpcore.http11: receive_response_body.complete
+2025-07-06 23:47:52,675 DEBUG:httpcore.http11: response_closed.started
+2025-07-06 23:47:52,676 DEBUG:httpcore.http11: response_closed.complete
+2025-07-06 23:47:52,676 DEBUG:telegram.ext.ExtBot: Getting updates: [10516354]
+2025-07-06 23:47:52,676 DEBUG:telegram.ext.ExtBot: (Update(message=Message(channel_chat_created=False, chat=Chat(first_name='Александр', id=5840537467, type=<ChatType.PRIVATE>, username='CheAAlex'), date=datetime.datetime(2025, 7, 6, 23, 47, 52, tzinfo=<UTC>), delete_chat_photo=False, entities=(MessageEntity(length=6, offset=0, type=<MessageEntityType.BOT_COMMAND>),), from_user=User(first_name='Александр', id=5840537467, is_bot=False, language_code='ru', username='CheAAlex'), group_chat_created=False, message_id=5852, supergroup_chat_created=False, text='/setup'), update_id=10516354),)
+2025-07-06 23:47:52,676 DEBUG:telegram.ext.ExtBot: Exiting: get_updates
+2025-07-06 23:47:52,677 DEBUG:telegram.ext.ExtBot: Entering: get_updates
+2025-07-06 23:47:52,677 DEBUG:telegram.ext.Application: Processing update Update(message=Message(channel_chat_created=False, chat=Chat(first_name='Александр', id=5840537467, type=<ChatType.PRIVATE>, username='CheAAlex'), date=datetime.datetime(2025, 7, 6, 23, 47, 52, tzinfo=<UTC>), delete_chat_photo=False, entities=(MessageEntity(length=6, offset=0, type=<MessageEntityType.BOT_COMMAND>),), from_user=User(first_name='Александр', id=5840537467, is_bot=False, language_code='ru', username='CheAAlex'), group_chat_created=False, message_id=5852, supergroup_chat_created=False, text='/setup'), update_id=10516354)
+2025-07-06 23:47:52,677 DEBUG:telegram.ext.ConversationHandler: Selecting conversation (5840537467, 5840537467) with state None
+2025-07-06 23:47:52,678 DEBUG:telegram.ext.ConversationHandler: Selecting conversation (5840537467, 5840537467) with state None
+2025-07-06 23:47:52,678 DEBUG:telegram.ext.ExtBot: Entering: send_message
+2025-07-06 23:47:52,678 DEBUG:httpcore.http11: send_request_headers.started request=<Request [b'POST']>
+2025-07-06 23:47:52,679 DEBUG:httpcore.http11: send_request_headers.started request=<Request [b'POST']>
+2025-07-06 23:47:52,679 DEBUG:httpcore.http11: send_request_headers.complete
+2025-07-06 23:47:52,679 DEBUG:httpcore.http11: send_request_body.started request=<Request [b'POST']>
+2025-07-06 23:47:52,679 DEBUG:httpcore.http11: send_request_headers.complete
+2025-07-06 23:47:52,679 DEBUG:httpcore.http11: send_request_body.started request=<Request [b'POST']>
+2025-07-06 23:47:52,679 DEBUG:httpcore.http11: send_request_body.complete
+2025-07-06 23:47:52,680 DEBUG:httpcore.http11: receive_response_headers.started request=<Request [b'POST']>
+2025-07-06 23:47:52,680 DEBUG:httpcore.http11: send_request_body.complete
+2025-07-06 23:47:52,680 DEBUG:httpcore.http11: receive_response_headers.started request=<Request [b'POST']>
+2025-07-06 23:47:52,783 DEBUG:httpcore.http11: receive_response_headers.complete return_value=(b'HTTP/1.1', 200, b'OK', [(b'Server', b'nginx/1.18.0'), (b'Date', b'Sun, 06 Jul 2025 23:47:52 GMT'), (b'Content-Type', b'application/json'), (b'Content-Length', b'2466'), (b'Connection', b'keep-alive'), (b'Strict-Transport-Security', b'max-age=31536000; includeSubDomains; preload'), (b'Access-Control-Allow-Origin', b'*'), (b'Access-Control-Allow-Methods', b'GET, POST, OPTIONS'), (b'Access-Control-Expose-Headers', b'Content-Length,Content-Type,Date,Server,Connection')])
+2025-07-06 23:47:52,784 INFO:httpx: HTTP Request: POST https://api.telegram.org/bot8194517570:AAHG80QPShNLSkCCIk15W0BKZw25GSDh610/sendMessage "HTTP/1.1 200 OK"
+2025-07-06 23:47:52,784 DEBUG:httpcore.http11: receive_response_body.started request=<Request [b'POST']>
+2025-07-06 23:47:52,784 DEBUG:httpcore.http11: receive_response_body.complete
+2025-07-06 23:47:52,784 DEBUG:httpcore.http11: response_closed.started
+2025-07-06 23:47:52,784 DEBUG:httpcore.http11: response_closed.complete
+2025-07-06 23:47:52,785 DEBUG:telegram.ext.ExtBot: Message(channel_chat_created=False, chat=Chat(first_name='Александр', id=5840537467, type=<ChatType.PRIVATE>, username='CheAAlex'), date=datetime.datetime(2025, 7, 6, 23, 47, 52, tzinfo=<UTC>), delete_chat_photo=False, from_user=User(first_name='MyFinance', id=8194517570, is_bot=True, username='My689FinanceBot'), group_chat_created=False, message_id=5853, supergroup_chat_created=False, text="📑 Пожалуйста, отправьте мне ссылку на вашу пустую Google Sheets-таблицу.\n\nБот автоматически удалит лист 'Лист1', создаст в ней два листа —\n• 'Финансы' с колонками Год, Месяц, Банк, Операция, Дата, Сумма, Классификация, Конкретика\n• 'Планы'   с колонками Год, Месяц, Банк, Операция, Дата, Сумма, Остаток, Классификация, Конкретика\n\nИ установит фильтр и зафиксирует шапку на обоих листах.\nНе забудьте дать права на редактирование сервисному аккаунту.")
+2025-07-06 23:47:52,785 DEBUG:telegram.ext.ExtBot: Exiting: send_message
+2025-07-06 23:47:53,634 DEBUG:httpcore.http11: receive_response_headers.complete return_value=(b'HTTP/1.1', 200, b'OK', [(b'Server', b'nginx/1.18.0'), (b'Date', b'Sun, 06 Jul 2025 23:47:53 GMT'), (b'Content-Type', b'application/json'), (b'Content-Length', b'670'), (b'Connection', b'keep-alive'), (b'Strict-Transport-Security', b'max-age=31536000; includeSubDomains; preload'), (b'Access-Control-Allow-Origin', b'*'), (b'Access-Control-Allow-Methods', b'GET, POST, OPTIONS'), (b'Access-Control-Expose-Headers', b'Content-Length,Content-Type,Date,Server,Connection')])
+2025-07-06 23:47:53,635 INFO:httpx: HTTP Request: POST https://api.telegram.org/bot8194517570:AAHG80QPShNLSkCCIk15W0BKZw25GSDh610/getUpdates "HTTP/1.1 200 OK"
+2025-07-06 23:47:53,635 DEBUG:httpcore.http11: receive_response_body.started request=<Request [b'POST']>
+2025-07-06 23:47:53,635 DEBUG:httpcore.http11: receive_response_body.complete
+2025-07-06 23:47:53,635 DEBUG:httpcore.http11: response_closed.started
+2025-07-06 23:47:53,635 DEBUG:httpcore.http11: response_closed.complete
+2025-07-06 23:47:53,635 DEBUG:telegram.ext.ExtBot: Getting updates: [10516355]
+2025-07-06 23:47:53,636 DEBUG:telegram.ext.ExtBot: (Update(message=Message(api_kwargs={'link_preview_options': {'url': 'https://docs.google.com/spreadsheets/d/15T_gMKgXM5IYO3ty5dQ890tcy4_6tNMnLpysgq1LbOU/edit?usp=shar'}}, channel_chat_created=False, chat=Chat(first_name='Александр', id=5840537467, type=<ChatType.PRIVATE>, username='CheAAlex'), date=datetime.datetime(2025, 7, 6, 23, 47, 53, tzinfo=<UTC>), delete_chat_photo=False, entities=(MessageEntity(length=97, offset=0, type=<MessageEntityType.URL>),), from_user=User(first_name='Александр', id=5840537467, is_bot=False, language_code='ru', username='CheAAlex'), group_chat_created=False, message_id=5854, supergroup_chat_created=False, text='https://docs.google.com/spreadsheets/d/15T_gMKgXM5IYO3ty5dQ890tcy4_6tNMnLpysgq1LbOU/edit?usp=shar'), update_id=10516355),)
+2025-07-06 23:47:53,637 DEBUG:telegram.ext.ExtBot: Exiting: get_updates
+2025-07-06 23:47:53,637 DEBUG:telegram.ext.ExtBot: Entering: get_updates
+2025-07-06 23:47:53,637 DEBUG:telegram.ext.Application: Processing update Update(message=Message(api_kwargs={'link_preview_options': {'url': 'https://docs.google.com/spreadsheets/d/15T_gMKgXM5IYO3ty5dQ890tcy4_6tNMnLpysgq1LbOU/edit?usp=shar'}}, channel_chat_created=False, chat=Chat(first_name='Александр', id=5840537467, type=<ChatType.PRIVATE>, username='CheAAlex'), date=datetime.datetime(2025, 7, 6, 23, 47, 53, tzinfo=<UTC>), delete_chat_photo=False, entities=(MessageEntity(length=97, offset=0, type=<MessageEntityType.URL>),), from_user=User(first_name='Александр', id=5840537467, is_bot=False, language_code='ru', username='CheAAlex'), group_chat_created=False, message_id=5854, supergroup_chat_created=False, text='https://docs.google.com/spreadsheets/d/15T_gMKgXM5IYO3ty5dQ890tcy4_6tNMnLpysgq1LbOU/edit?usp=shar'), update_id=10516355)
+2025-07-06 23:47:53,638 DEBUG:telegram.ext.ConversationHandler: Selecting conversation (5840537467, 5840537467) with state None
+2025-07-06 23:47:53,638 DEBUG:telegram.ext.ConversationHandler: Selecting conversation (5840537467, 5840537467) with state 3
+2025-07-06 23:47:53,689 DEBUG:urllib3.util.retry: Converted retries value: 3 -> Retry(total=3, connect=None, read=None, redirect=None, status=None)
+2025-07-06 23:47:53,692 DEBUG:google.auth.transport.requests: Making request: POST https://oauth2.googleapis.com/token
+2025-07-06 23:47:53,694 DEBUG:urllib3.connectionpool: Starting new HTTPS connection (1): oauth2.googleapis.com:443
+2025-07-06 23:47:53,720 DEBUG:urllib3.connectionpool: https://oauth2.googleapis.com:443 "POST /token HTTP/1.1" 200 None
+2025-07-06 23:47:53,722 DEBUG:urllib3.connectionpool: Starting new HTTPS connection (1): sheets.googleapis.com:443
+2025-07-06 23:47:53,989 DEBUG:urllib3.connectionpool: https://sheets.googleapis.com:443 "GET /v4/spreadsheets/15T_gMKgXM5IYO3ty5dQ890tcy4_6tNMnLpysgq1LbOU?includeGridData=false HTTP/1.1" 200 None
+2025-07-06 23:47:54,098 DEBUG:urllib3.connectionpool: https://sheets.googleapis.com:443 "GET /v4/spreadsheets/15T_gMKgXM5IYO3ty5dQ890tcy4_6tNMnLpysgq1LbOU?includeGridData=false HTTP/1.1" 200 None
+2025-07-06 23:47:54,195 DEBUG:urllib3.connectionpool: https://sheets.googleapis.com:443 "GET /v4/spreadsheets/15T_gMKgXM5IYO3ty5dQ890tcy4_6tNMnLpysgq1LbOU?includeGridData=false HTTP/1.1" 200 None
+2025-07-06 23:47:54,314 DEBUG:urllib3.connectionpool: https://sheets.googleapis.com:443 "GET /v4/spreadsheets/15T_gMKgXM5IYO3ty5dQ890tcy4_6tNMnLpysgq1LbOU?includeGridData=false HTTP/1.1" 200 None
+2025-07-06 23:47:54,416 DEBUG:urllib3.connectionpool: https://sheets.googleapis.com:443 "GET /v4/spreadsheets/15T_gMKgXM5IYO3ty5dQ890tcy4_6tNMnLpysgq1LbOU?includeGridData=false HTTP/1.1" 200 None
+2025-07-06 23:47:54,567 DEBUG:urllib3.connectionpool: https://sheets.googleapis.com:443 "POST /v4/spreadsheets/15T_gMKgXM5IYO3ty5dQ890tcy4_6tNMnLpysgq1LbOU:batchUpdate HTTP/1.1" 200 None
+2025-07-06 23:47:54,689 DEBUG:urllib3.connectionpool: https://sheets.googleapis.com:443 "POST /v4/spreadsheets/15T_gMKgXM5IYO3ty5dQ890tcy4_6tNMnLpysgq1LbOU:batchUpdate HTTP/1.1" 200 None
+2025-07-06 23:47:55,294 DEBUG:urllib3.connectionpool: https://sheets.googleapis.com:443 "POST /v4/spreadsheets/15T_gMKgXM5IYO3ty5dQ890tcy4_6tNMnLpysgq1LbOU:batchUpdate HTTP/1.1" 200 None
+2025-07-06 23:47:55,441 DEBUG:urllib3.connectionpool: https://sheets.googleapis.com:443 "POST /v4/spreadsheets/15T_gMKgXM5IYO3ty5dQ890tcy4_6tNMnLpysgq1LbOU:batchUpdate HTTP/1.1" 200 None
+2025-07-06 23:47:55,578 DEBUG:urllib3.connectionpool: https://sheets.googleapis.com:443 "GET /v4/spreadsheets/15T_gMKgXM5IYO3ty5dQ890tcy4_6tNMnLpysgq1LbOU/values/%27%D0%A4%D0%B8%D0%BD%D0%B0%D0%BD%D1%81%D1%8B%27%21A1%3AA?valueRenderOption=FORMATTED_VALUE&majorDimension=COLUMNS HTTP/1.1" 200 None
+2025-07-06 23:47:55,699 DEBUG:urllib3.connectionpool: https://sheets.googleapis.com:443 "POST /v4/spreadsheets/15T_gMKgXM5IYO3ty5dQ890tcy4_6tNMnLpysgq1LbOU:batchUpdate HTTP/1.1" 200 None
+2025-07-06 23:47:55,833 DEBUG:urllib3.connectionpool: https://sheets.googleapis.com:443 "GET /v4/spreadsheets/15T_gMKgXM5IYO3ty5dQ890tcy4_6tNMnLpysgq1LbOU/values/%27%D0%9F%D0%BB%D0%B0%D0%BD%D1%8B%27%21A1%3AA?valueRenderOption=FORMATTED_VALUE&majorDimension=COLUMNS HTTP/1.1" 200 None
+2025-07-06 23:47:55,955 DEBUG:urllib3.connectionpool: https://sheets.googleapis.com:443 "POST /v4/spreadsheets/15T_gMKgXM5IYO3ty5dQ890tcy4_6tNMnLpysgq1LbOU:batchUpdate HTTP/1.1" 200 None
+2025-07-06 23:47:56,087 DEBUG:urllib3.connectionpool: https://sheets.googleapis.com:443 "POST /v4/spreadsheets/15T_gMKgXM5IYO3ty5dQ890tcy4_6tNMnLpysgq1LbOU:batchUpdate HTTP/1.1" 200 None
+2025-07-06 23:47:56,215 DEBUG:urllib3.connectionpool: https://sheets.googleapis.com:443 "POST /v4/spreadsheets/15T_gMKgXM5IYO3ty5dQ890tcy4_6tNMnLpysgq1LbOU:batchUpdate HTTP/1.1" 200 None
+2025-07-06 23:47:56,339 DEBUG:urllib3.connectionpool: https://sheets.googleapis.com:443 "POST /v4/spreadsheets/15T_gMKgXM5IYO3ty5dQ890tcy4_6tNMnLpysgq1LbOU:batchUpdate HTTP/1.1" 200 None
+2025-07-06 23:47:56,490 DEBUG:urllib3.connectionpool: https://sheets.googleapis.com:443 "POST /v4/spreadsheets/15T_gMKgXM5IYO3ty5dQ890tcy4_6tNMnLpysgq1LbOU:batchUpdate HTTP/1.1" 200 None
+2025-07-06 23:47:56,491 DEBUG:telegram.ext.ExtBot: Entering: send_message
+2025-07-06 23:47:56,492 DEBUG:httpcore.http11: send_request_headers.started request=<Request [b'POST']>
+2025-07-06 23:47:56,493 DEBUG:httpcore.http11: send_request_headers.started request=<Request [b'POST']>
+2025-07-06 23:47:56,493 DEBUG:httpcore.http11: send_request_headers.complete
+2025-07-06 23:47:56,493 DEBUG:httpcore.http11: send_request_body.started request=<Request [b'POST']>
+2025-07-06 23:47:56,494 DEBUG:httpcore.http11: send_request_headers.complete
+2025-07-06 23:47:56,494 DEBUG:httpcore.http11: send_request_body.started request=<Request [b'POST']>
+2025-07-06 23:47:56,494 DEBUG:httpcore.http11: send_request_body.complete
+2025-07-06 23:47:56,495 DEBUG:httpcore.http11: receive_response_headers.started request=<Request [b'POST']>
+2025-07-06 23:47:56,495 DEBUG:httpcore.http11: send_request_body.complete
+2025-07-06 23:47:56,495 DEBUG:httpcore.http11: receive_response_headers.started request=<Request [b'POST']>
+2025-07-06 23:47:56,581 DEBUG:httpcore.http11: receive_response_headers.complete return_value=(b'HTTP/1.1', 200, b'OK', [(b'Server', b'nginx/1.18.0'), (b'Date', b'Sun, 06 Jul 2025 23:47:56 GMT'), (b'Content-Type', b'application/json'), (b'Content-Length', b'453'), (b'Connection', b'keep-alive'), (b'Strict-Transport-Security', b'max-age=31536000; includeSubDomains; preload'), (b'Access-Control-Allow-Origin', b'*'), (b'Access-Control-Allow-Methods', b'GET, POST, OPTIONS'), (b'Access-Control-Expose-Headers', b'Content-Length,Content-Type,Date,Server,Connection')])
+2025-07-06 23:47:56,582 INFO:httpx: HTTP Request: POST https://api.telegram.org/bot8194517570:AAHG80QPShNLSkCCIk15W0BKZw25GSDh610/getUpdates "HTTP/1.1 200 OK"
+2025-07-06 23:47:56,582 DEBUG:httpcore.http11: receive_response_body.started request=<Request [b'POST']>
+2025-07-06 23:47:56,582 DEBUG:httpcore.http11: receive_response_body.complete
+2025-07-06 23:47:56,582 DEBUG:httpcore.http11: response_closed.started
+2025-07-06 23:47:56,583 DEBUG:httpcore.http11: response_closed.complete
+2025-07-06 23:47:56,583 DEBUG:telegram.ext.ExtBot: Getting updates: [10516356]
+2025-07-06 23:47:56,583 DEBUG:telegram.ext.ExtBot: (Update(message=Message(channel_chat_created=False, chat=Chat(first_name='Александр', id=5840537467, type=<ChatType.PRIVATE>, username='CheAAlex'), date=datetime.datetime(2025, 7, 6, 23, 47, 55, tzinfo=<UTC>), delete_chat_photo=False, entities=(MessageEntity(length=4, offset=0, type=<MessageEntityType.BOT_COMMAND>),), from_user=User(first_name='Александр', id=5840537467, is_bot=False, language_code='ru', username='CheAAlex'), group_chat_created=False, message_id=5855, supergroup_chat_created=False, text='/add'), update_id=10516356),)
+2025-07-06 23:47:56,584 DEBUG:telegram.ext.ExtBot: Exiting: get_updates
+2025-07-06 23:47:56,584 DEBUG:telegram.ext.ExtBot: Entering: get_updates
+2025-07-06 23:47:56,585 DEBUG:httpcore.http11: send_request_headers.started request=<Request [b'POST']>
+2025-07-06 23:47:56,585 DEBUG:httpcore.http11: send_request_headers.complete
+2025-07-06 23:47:56,585 DEBUG:httpcore.http11: send_request_body.started request=<Request [b'POST']>
+2025-07-06 23:47:56,585 DEBUG:httpcore.http11: send_request_body.complete
+2025-07-06 23:47:56,585 DEBUG:httpcore.http11: receive_response_headers.started request=<Request [b'POST']>
+2025-07-06 23:47:56,602 DEBUG:httpcore.http11: receive_response_headers.complete return_value=(b'HTTP/1.1', 200, b'OK', [(b'Server', b'nginx/1.18.0'), (b'Date', b'Sun, 06 Jul 2025 23:47:56 GMT'), (b'Content-Type', b'application/json'), (b'Content-Length', b'948'), (b'Connection', b'keep-alive'), (b'Strict-Transport-Security', b'max-age=31536000; includeSubDomains; preload'), (b'Access-Control-Allow-Origin', b'*'), (b'Access-Control-Allow-Methods', b'GET, POST, OPTIONS'), (b'Access-Control-Expose-Headers', b'Content-Length,Content-Type,Date,Server,Connection')])
+2025-07-06 23:47:56,603 INFO:httpx: HTTP Request: POST https://api.telegram.org/bot8194517570:AAHG80QPShNLSkCCIk15W0BKZw25GSDh610/sendMessage "HTTP/1.1 200 OK"
+2025-07-06 23:47:56,603 DEBUG:httpcore.http11: receive_response_body.started request=<Request [b'POST']>
+2025-07-06 23:47:56,603 DEBUG:httpcore.http11: receive_response_body.complete
+2025-07-06 23:47:56,603 DEBUG:httpcore.http11: response_closed.started
+2025-07-06 23:47:56,603 DEBUG:httpcore.http11: response_closed.complete
+2025-07-06 23:47:56,604 DEBUG:telegram.ext.ExtBot: Message(channel_chat_created=False, chat=Chat(first_name='Александр', id=5840537467, type=<ChatType.PRIVATE>, username='CheAAlex'), date=datetime.datetime(2025, 7, 6, 23, 47, 56, tzinfo=<UTC>), delete_chat_photo=False, entities=(MessageEntity(length=6, offset=110, type=<MessageEntityType.BOT_COMMAND>),), from_user=User(first_name='MyFinance', id=8194517570, is_bot=True, username='My689FinanceBot'), group_chat_created=False, message_id=5856, supergroup_chat_created=False, text='✅ Таблица успешно подключена и инициализирована!\nПереходим к этапу первоначального заполнения банков.\nНажмите /banks')
+2025-07-06 23:47:56,604 DEBUG:telegram.ext.ExtBot: Exiting: send_message
+2025-07-06 23:47:56,605 DEBUG:telegram.ext.Application: Processing update Update(message=Message(channel_chat_created=False, chat=Chat(first_name='Александр', id=5840537467, type=<ChatType.PRIVATE>, username='CheAAlex'), date=datetime.datetime(2025, 7, 6, 23, 47, 55, tzinfo=<UTC>), delete_chat_photo=False, entities=(MessageEntity(length=4, offset=0, type=<MessageEntityType.BOT_COMMAND>),), from_user=User(first_name='Александр', id=5840537467, is_bot=False, language_code='ru', username='CheAAlex'), group_chat_created=False, message_id=5855, supergroup_chat_created=False, text='/add'), update_id=10516356)
+2025-07-06 23:47:56,606 DEBUG:telegram.ext.ConversationHandler: Selecting conversation (5840537467, 5840537467) with state None
+2025-07-06 23:47:56,606 DEBUG:telegram.ext.ConversationHandler: Selecting conversation (5840537467, 5840537467) with state None
+2025-07-06 23:47:56,606 DEBUG:telegram.ext.ConversationHandler: Selecting conversation (5840537467, 5840537467) with state None
+2025-07-06 23:47:56,606 DEBUG:telegram.ext.ConversationHandler: Selecting conversation (5840537467, 5840537467) with state None
+2025-07-06 23:47:56,606 DEBUG:telegram.ext.ConversationHandler: Selecting conversation (5840537467, 5840537467) with state None
+2025-07-06 23:47:56,606 DEBUG:telegram.ext.ExtBot: Entering: send_message
+2025-07-06 23:47:56,607 DEBUG:httpcore.http11: send_request_headers.started request=<Request [b'POST']>
+2025-07-06 23:47:56,607 DEBUG:httpcore.http11: send_request_headers.complete
+2025-07-06 23:47:56,608 DEBUG:httpcore.http11: send_request_body.started request=<Request [b'POST']>
+2025-07-06 23:47:56,608 DEBUG:httpcore.http11: send_request_body.complete
+2025-07-06 23:47:56,608 DEBUG:httpcore.http11: receive_response_headers.started request=<Request [b'POST']>
+2025-07-06 23:47:56,712 DEBUG:httpcore.http11: receive_response_headers.complete return_value=(b'HTTP/1.1', 200, b'OK', [(b'Server', b'nginx/1.18.0'), (b'Date', b'Sun, 06 Jul 2025 23:47:56 GMT'), (b'Content-Type', b'application/json'), (b'Content-Length', b'755'), (b'Connection', b'keep-alive'), (b'Strict-Transport-Security', b'max-age=31536000; includeSubDomains; preload'), (b'Access-Control-Allow-Origin', b'*'), (b'Access-Control-Allow-Methods', b'GET, POST, OPTIONS'), (b'Access-Control-Expose-Headers', b'Content-Length,Content-Type,Date,Server,Connection')])
+2025-07-06 23:47:56,712 INFO:httpx: HTTP Request: POST https://api.telegram.org/bot8194517570:AAHG80QPShNLSkCCIk15W0BKZw25GSDh610/sendMessage "HTTP/1.1 200 OK"
+2025-07-06 23:47:56,713 DEBUG:httpcore.http11: receive_response_body.started request=<Request [b'POST']>
+2025-07-06 23:47:56,713 DEBUG:httpcore.http11: receive_response_body.complete
+2025-07-06 23:47:56,713 DEBUG:httpcore.http11: response_closed.started
+2025-07-06 23:47:56,713 DEBUG:httpcore.http11: response_closed.complete
+2025-07-06 23:47:56,714 DEBUG:telegram.ext.ExtBot: Message(channel_chat_created=False, chat=Chat(first_name='Александр', id=5840537467, type=<ChatType.PRIVATE>, username='CheAAlex'), date=datetime.datetime(2025, 7, 6, 23, 47, 56, tzinfo=<UTC>), delete_chat_photo=False, from_user=User(first_name='MyFinance', id=8194517570, is_bot=True, username='My689FinanceBot'), group_chat_created=False, message_id=5857, reply_markup=InlineKeyboardMarkup(inline_keyboard=((InlineKeyboardButton(callback_data='op_start_add', text='➕ Добавить'), InlineKeyboardButton(callback_data='menu:open', text='📋 Меню')),)), supergroup_chat_created=False, text='✏️ Этап добавления операции: выберите действие')
+2025-07-06 23:47:56,714 DEBUG:telegram.ext.ExtBot: Exiting: send_message
+2025-07-06 23:47:57,825 DEBUG:httpcore.http11: receive_response_headers.complete return_value=(b'HTTP/1.1', 200, b'OK', [(b'Server', b'nginx/1.18.0'), (b'Date', b'Sun, 06 Jul 2025 23:47:57 GMT'), (b'Content-Type', b'application/json'), (b'Content-Length', b'1047'), (b'Connection', b'keep-alive'), (b'Strict-Transport-Security', b'max-age=31536000; includeSubDomains; preload'), (b'Access-Control-Allow-Origin', b'*'), (b'Access-Control-Allow-Methods', b'GET, POST, OPTIONS'), (b'Access-Control-Expose-Headers', b'Content-Length,Content-Type,Date,Server,Connection')])
+2025-07-06 23:47:57,825 INFO:httpx: HTTP Request: POST https://api.telegram.org/bot8194517570:AAHG80QPShNLSkCCIk15W0BKZw25GSDh610/getUpdates "HTTP/1.1 200 OK"
+2025-07-06 23:47:57,825 DEBUG:httpcore.http11: receive_response_body.started request=<Request [b'POST']>
+2025-07-06 23:47:57,825 DEBUG:httpcore.http11: receive_response_body.complete
+2025-07-06 23:47:57,825 DEBUG:httpcore.http11: response_closed.started
+2025-07-06 23:47:57,826 DEBUG:httpcore.http11: response_closed.complete
+2025-07-06 23:47:57,826 DEBUG:telegram.ext.ExtBot: Getting updates: [10516357]
+2025-07-06 23:47:57,826 DEBUG:telegram.ext.ExtBot: (Update(callback_query=CallbackQuery(chat_instance='-197365410636071226', data='menu:open', from_user=User(first_name='Александр', id=5840537467, is_bot=False, language_code='ru', username='CheAAlex'), id='6638173341489435278', message=Message(channel_chat_created=False, chat=Chat(first_name='Александр', id=5840537467, type=<ChatType.PRIVATE>, username='CheAAlex'), date=datetime.datetime(2025, 7, 6, 23, 47, 56, tzinfo=<UTC>), delete_chat_photo=False, from_user=User(first_name='MyFinance', id=8194517570, is_bot=True, username='My689FinanceBot'), group_chat_created=False, message_id=5857, reply_markup=InlineKeyboardMarkup(inline_keyboard=((InlineKeyboardButton(callback_data='op_start_add', text='➕ Добавить'), InlineKeyboardButton(callback_data='menu:open', text='📋 Меню')),)), supergroup_chat_created=False, text='✏️ Этап добавления операции: выберите действие')), update_id=10516357),)
+2025-07-06 23:47:57,827 DEBUG:telegram.ext.ExtBot: Exiting: get_updates
+2025-07-06 23:47:57,827 DEBUG:telegram.ext.ExtBot: Entering: get_updates
+2025-07-06 23:47:57,828 DEBUG:telegram.ext.Application: Processing update Update(callback_query=CallbackQuery(chat_instance='-197365410636071226', data='menu:open', from_user=User(first_name='Александр', id=5840537467, is_bot=False, language_code='ru', username='CheAAlex'), id='6638173341489435278', message=Message(channel_chat_created=False, chat=Chat(first_name='Александр', id=5840537467, type=<ChatType.PRIVATE>, username='CheAAlex'), date=datetime.datetime(2025, 7, 6, 23, 47, 56, tzinfo=<UTC>), delete_chat_photo=False, from_user=User(first_name='MyFinance', id=8194517570, is_bot=True, username='My689FinanceBot'), group_chat_created=False, message_id=5857, reply_markup=InlineKeyboardMarkup(inline_keyboard=((InlineKeyboardButton(callback_data='op_start_add', text='➕ Добавить'), InlineKeyboardButton(callback_data='menu:open', text='📋 Меню')),)), supergroup_chat_created=False, text='✏️ Этап добавления операции: выберите действие')), update_id=10516357)
+2025-07-06 23:47:57,828 DEBUG:telegram.ext.ConversationHandler: Selecting conversation (5840537467, 5840537467) with state None
+2025-07-06 23:47:57,828 DEBUG:telegram.ext.ConversationHandler: Selecting conversation (5840537467, 5840537467) with state None
+2025-07-06 23:47:57,828 DEBUG:telegram.ext.ConversationHandler: Selecting conversation (5840537467, 5840537467) with state None
+2025-07-06 23:47:57,828 DEBUG:telegram.ext.ConversationHandler: Selecting conversation (5840537467, 5840537467) with state None
+2025-07-06 23:47:57,829 DEBUG:telegram.ext.ExtBot: Entering: answer_callback_query
+2025-07-06 23:47:57,829 DEBUG:httpcore.http11: send_request_headers.started request=<Request [b'POST']>
+2025-07-06 23:47:57,830 DEBUG:httpcore.http11: send_request_headers.started request=<Request [b'POST']>
+2025-07-06 23:47:57,830 DEBUG:httpcore.http11: send_request_headers.complete
+2025-07-06 23:47:57,830 DEBUG:httpcore.http11: send_request_body.started request=<Request [b'POST']>
+2025-07-06 23:47:57,830 DEBUG:httpcore.http11: send_request_headers.complete
+2025-07-06 23:47:57,831 DEBUG:httpcore.http11: send_request_body.started request=<Request [b'POST']>
+2025-07-06 23:47:57,831 DEBUG:httpcore.http11: send_request_body.complete
+2025-07-06 23:47:57,831 DEBUG:httpcore.http11: receive_response_headers.started request=<Request [b'POST']>
+2025-07-06 23:47:57,831 DEBUG:httpcore.http11: send_request_body.complete
+2025-07-06 23:47:57,831 DEBUG:httpcore.http11: receive_response_headers.started request=<Request [b'POST']>
+2025-07-06 23:47:57,929 DEBUG:httpcore.http11: receive_response_headers.complete return_value=(b'HTTP/1.1', 200, b'OK', [(b'Server', b'nginx/1.18.0'), (b'Date', b'Sun, 06 Jul 2025 23:47:57 GMT'), (b'Content-Type', b'application/json'), (b'Content-Length', b'25'), (b'Connection', b'keep-alive'), (b'Strict-Transport-Security', b'max-age=31536000; includeSubDomains; preload'), (b'Access-Control-Allow-Origin', b'*'), (b'Access-Control-Allow-Methods', b'GET, POST, OPTIONS'), (b'Access-Control-Expose-Headers', b'Content-Length,Content-Type,Date,Server,Connection')])
+2025-07-06 23:47:57,929 INFO:httpx: HTTP Request: POST https://api.telegram.org/bot8194517570:AAHG80QPShNLSkCCIk15W0BKZw25GSDh610/answerCallbackQuery "HTTP/1.1 200 OK"
+2025-07-06 23:47:57,929 DEBUG:httpcore.http11: receive_response_body.started request=<Request [b'POST']>
+2025-07-06 23:47:57,930 DEBUG:httpcore.http11: receive_response_body.complete
+2025-07-06 23:47:57,930 DEBUG:httpcore.http11: response_closed.started
+2025-07-06 23:47:57,930 DEBUG:httpcore.http11: response_closed.complete
+2025-07-06 23:47:57,930 DEBUG:telegram.ext.ExtBot: True
+2025-07-06 23:47:57,931 DEBUG:telegram.ext.ExtBot: Exiting: answer_callback_query
+2025-07-06 23:47:57,931 DEBUG:handlers.menu: 🏷 handle_menu_selection called, data='menu:open'
+2025-07-06 23:47:57,931 DEBUG:handlers.menu: 🏷 Branch OPEN
+2025-07-06 23:47:57,931 DEBUG:telegram.ext.ExtBot: Entering: edit_message_text
+2025-07-06 23:47:57,932 DEBUG:httpcore.http11: send_request_headers.started request=<Request [b'POST']>
+2025-07-06 23:47:57,933 DEBUG:httpcore.http11: send_request_headers.complete
+2025-07-06 23:47:57,933 DEBUG:httpcore.http11: send_request_body.started request=<Request [b'POST']>
+2025-07-06 23:47:57,933 DEBUG:httpcore.http11: send_request_body.complete
+2025-07-06 23:47:57,933 DEBUG:httpcore.http11: receive_response_headers.started request=<Request [b'POST']>
+2025-07-06 23:47:58,033 DEBUG:httpcore.http11: receive_response_headers.complete return_value=(b'HTTP/1.1', 200, b'OK', [(b'Server', b'nginx/1.18.0'), (b'Date', b'Sun, 06 Jul 2025 23:47:57 GMT'), (b'Content-Type', b'application/json'), (b'Content-Length', b'1782'), (b'Connection', b'keep-alive'), (b'Strict-Transport-Security', b'max-age=31536000; includeSubDomains; preload'), (b'Access-Control-Allow-Origin', b'*'), (b'Access-Control-Allow-Methods', b'GET, POST, OPTIONS'), (b'Access-Control-Expose-Headers', b'Content-Length,Content-Type,Date,Server,Connection')])
+2025-07-06 23:47:58,033 INFO:httpx: HTTP Request: POST https://api.telegram.org/bot8194517570:AAHG80QPShNLSkCCIk15W0BKZw25GSDh610/editMessageText "HTTP/1.1 200 OK"
+2025-07-06 23:47:58,033 DEBUG:httpcore.http11: receive_response_body.started request=<Request [b'POST']>
+2025-07-06 23:47:58,034 DEBUG:httpcore.http11: receive_response_body.complete
+2025-07-06 23:47:58,034 DEBUG:httpcore.http11: response_closed.started
+2025-07-06 23:47:58,034 DEBUG:httpcore.http11: response_closed.complete
+2025-07-06 23:47:58,035 DEBUG:telegram.ext.ExtBot: Message(channel_chat_created=False, chat=Chat(first_name='Александр', id=5840537467, type=<ChatType.PRIVATE>, username='CheAAlex'), date=datetime.datetime(2025, 7, 6, 23, 47, 56, tzinfo=<UTC>), delete_chat_photo=False, edit_date=datetime.datetime(2025, 7, 6, 23, 47, 57, tzinfo=<UTC>), from_user=User(first_name='MyFinance', id=8194517570, is_bot=True, username='My689FinanceBot'), group_chat_created=False, message_id=5857, reply_markup=InlineKeyboardMarkup(inline_keyboard=((InlineKeyboardButton(callback_data='menu:finance', text='💰 Финансы'), InlineKeyboardButton(callback_data='menu:men_oper', text='📝 Операции')), (InlineKeyboardButton(callback_data='menu:classification', text='🏷 Классификация'), InlineKeyboardButton(callback_data='menu:plans', text='🗓 Планы')), (InlineKeyboardButton(callback_data='menu:add_bank', text='➕ Добавить Банк'), InlineKeyboardButton(callback_data='menu:del_bank', text='➖ Удалить Банк')), (InlineKeyboardButton(callback_data='menu:edit_table', text='✏️ Изменить таблицу'), InlineKeyboardButton(callback_data='menu:change_tariff', text='💳 Поменять тариф')), (InlineKeyboardButton(callback_data='menu:show_sheet', text='🔗 Показать таблицу'), InlineKeyboardButton(callback_data='menu:support', text='💬 Поддержка')), (InlineKeyboardButton(callback_data='menu:back', text='🔙 Назад'),))), supergroup_chat_created=False, text='Выберите раздел меню:')
+2025-07-06 23:47:58,035 DEBUG:telegram.ext.ExtBot: Exiting: edit_message_text
+2025-07-06 23:47:58,841 DEBUG:httpcore.http11: receive_response_headers.complete return_value=(b'HTTP/1.1', 200, b'OK', [(b'Server', b'nginx/1.18.0'), (b'Date', b'Sun, 06 Jul 2025 23:47:58 GMT'), (b'Content-Type', b'application/json'), (b'Content-Length', b'2078'), (b'Connection', b'keep-alive'), (b'Strict-Transport-Security', b'max-age=31536000; includeSubDomains; preload'), (b'Access-Control-Allow-Origin', b'*'), (b'Access-Control-Allow-Methods', b'GET, POST, OPTIONS'), (b'Access-Control-Expose-Headers', b'Content-Length,Content-Type,Date,Server,Connection')])
+2025-07-06 23:47:58,841 INFO:httpx: HTTP Request: POST https://api.telegram.org/bot8194517570:AAHG80QPShNLSkCCIk15W0BKZw25GSDh610/getUpdates "HTTP/1.1 200 OK"
+2025-07-06 23:47:58,841 DEBUG:httpcore.http11: receive_response_body.started request=<Request [b'POST']>
+2025-07-06 23:47:58,841 DEBUG:httpcore.http11: receive_response_body.complete
+2025-07-06 23:47:58,842 DEBUG:httpcore.http11: response_closed.started
+2025-07-06 23:47:58,842 DEBUG:httpcore.http11: response_closed.complete
+2025-07-06 23:47:58,842 DEBUG:telegram.ext.ExtBot: Getting updates: [10516358]
+2025-07-06 23:47:58,842 DEBUG:telegram.ext.ExtBot: (Update(callback_query=CallbackQuery(chat_instance='-197365410636071226', data='menu:men_oper', from_user=User(first_name='Александр', id=5840537467, is_bot=False, language_code='ru', username='CheAAlex'), id='6638173340791336392', message=Message(channel_chat_created=False, chat=Chat(first_name='Александр', id=5840537467, type=<ChatType.PRIVATE>, username='CheAAlex'), date=datetime.datetime(2025, 7, 6, 23, 47, 56, tzinfo=<UTC>), delete_chat_photo=False, edit_date=datetime.datetime(2025, 7, 6, 23, 47, 57, tzinfo=<UTC>), from_user=User(first_name='MyFinance', id=8194517570, is_bot=True, username='My689FinanceBot'), group_chat_created=False, message_id=5857, reply_markup=InlineKeyboardMarkup(inline_keyboard=((InlineKeyboardButton(callback_data='menu:finance', text='💰 Финансы'), InlineKeyboardButton(callback_data='menu:men_oper', text='📝 Операции')), (InlineKeyboardButton(callback_data='menu:classification', text='🏷 Классификация'), InlineKeyboardButton(callback_data='menu:plans', text='🗓 Планы')), (InlineKeyboardButton(callback_data='menu:add_bank', text='➕ Добавить Банк'), InlineKeyboardButton(callback_data='menu:del_bank', text='➖ Удалить Банк')), (InlineKeyboardButton(callback_data='menu:edit_table', text='✏️ Изменить таблицу'), InlineKeyboardButton(callback_data='menu:change_tariff', text='💳 Поменять тариф')), (InlineKeyboardButton(callback_data='menu:show_sheet', text='🔗 Показать таблицу'), InlineKeyboardButton(callback_data='menu:support', text='💬 Поддержка')), (InlineKeyboardButton(callback_data='menu:back', text='🔙 Назад'),))), supergroup_chat_created=False, text='Выберите раздел меню:')), update_id=10516358),)
+2025-07-06 23:47:58,843 DEBUG:telegram.ext.ExtBot: Exiting: get_updates
+2025-07-06 23:47:58,843 DEBUG:telegram.ext.ExtBot: Entering: get_updates
+2025-07-06 23:47:58,844 DEBUG:telegram.ext.Application: Processing update Update(callback_query=CallbackQuery(chat_instance='-197365410636071226', data='menu:men_oper', from_user=User(first_name='Александр', id=5840537467, is_bot=False, language_code='ru', username='CheAAlex'), id='6638173340791336392', message=Message(channel_chat_created=False, chat=Chat(first_name='Александр', id=5840537467, type=<ChatType.PRIVATE>, username='CheAAlex'), date=datetime.datetime(2025, 7, 6, 23, 47, 56, tzinfo=<UTC>), delete_chat_photo=False, edit_date=datetime.datetime(2025, 7, 6, 23, 47, 57, tzinfo=<UTC>), from_user=User(first_name='MyFinance', id=8194517570, is_bot=True, username='My689FinanceBot'), group_chat_created=False, message_id=5857, reply_markup=InlineKeyboardMarkup(inline_keyboard=((InlineKeyboardButton(callback_data='menu:finance', text='💰 Финансы'), InlineKeyboardButton(callback_data='menu:men_oper', text='📝 Операции')), (InlineKeyboardButton(callback_data='menu:classification', text='🏷 Классификация'), InlineKeyboardButton(callback_data='menu:plans', text='🗓 Планы')), (InlineKeyboardButton(callback_data='menu:add_bank', text='➕ Добавить Банк'), InlineKeyboardButton(callback_data='menu:del_bank', text='➖ Удалить Банк')), (InlineKeyboardButton(callback_data='menu:edit_table', text='✏️ Изменить таблицу'), InlineKeyboardButton(callback_data='menu:change_tariff', text='💳 Поменять тариф')), (InlineKeyboardButton(callback_data='menu:show_sheet', text='🔗 Показать таблицу'), InlineKeyboardButton(callback_data='menu:support', text='💬 Поддержка')), (InlineKeyboardButton(callback_data='menu:back', text='🔙 Назад'),))), supergroup_chat_created=False, text='Выберите раздел меню:')), update_id=10516358)
+2025-07-06 23:47:58,844 DEBUG:telegram.ext.ConversationHandler: Selecting conversation (5840537467, 5840537467) with state None
+2025-07-06 23:47:58,844 DEBUG:telegram.ext.ConversationHandler: Selecting conversation (5840537467, 5840537467) with state None
+2025-07-06 23:47:58,844 DEBUG:telegram.ext.ConversationHandler: Selecting conversation (5840537467, 5840537467) with state None
+2025-07-06 23:47:58,844 DEBUG:telegram.ext.ConversationHandler: Selecting conversation (5840537467, 5840537467) with state None
+2025-07-06 23:47:58,844 DEBUG:telegram.ext.ExtBot: Entering: answer_callback_query
+2025-07-06 23:47:58,845 DEBUG:httpcore.http11: send_request_headers.started request=<Request [b'POST']>
+2025-07-06 23:47:58,845 DEBUG:httpcore.http11: send_request_headers.started request=<Request [b'POST']>
+2025-07-06 23:47:58,845 DEBUG:httpcore.http11: send_request_headers.complete
+2025-07-06 23:47:58,846 DEBUG:httpcore.http11: send_request_body.started request=<Request [b'POST']>
+2025-07-06 23:47:58,846 DEBUG:httpcore.http11: send_request_headers.complete
+2025-07-06 23:47:58,846 DEBUG:httpcore.http11: send_request_body.started request=<Request [b'POST']>
+2025-07-06 23:47:58,846 DEBUG:httpcore.http11: send_request_body.complete
+2025-07-06 23:47:58,846 DEBUG:httpcore.http11: receive_response_headers.started request=<Request [b'POST']>
+2025-07-06 23:47:58,846 DEBUG:httpcore.http11: send_request_body.complete
+2025-07-06 23:47:58,846 DEBUG:httpcore.http11: receive_response_headers.started request=<Request [b'POST']>
+2025-07-06 23:47:58,940 DEBUG:httpcore.http11: receive_response_headers.complete return_value=(b'HTTP/1.1', 200, b'OK', [(b'Server', b'nginx/1.18.0'), (b'Date', b'Sun, 06 Jul 2025 23:47:58 GMT'), (b'Content-Type', b'application/json'), (b'Content-Length', b'25'), (b'Connection', b'keep-alive'), (b'Strict-Transport-Security', b'max-age=31536000; includeSubDomains; preload'), (b'Access-Control-Allow-Origin', b'*'), (b'Access-Control-Allow-Methods', b'GET, POST, OPTIONS'), (b'Access-Control-Expose-Headers', b'Content-Length,Content-Type,Date,Server,Connection')])
+2025-07-06 23:47:58,940 INFO:httpx: HTTP Request: POST https://api.telegram.org/bot8194517570:AAHG80QPShNLSkCCIk15W0BKZw25GSDh610/answerCallbackQuery "HTTP/1.1 200 OK"
+2025-07-06 23:47:58,940 DEBUG:httpcore.http11: receive_response_body.started request=<Request [b'POST']>
+2025-07-06 23:47:58,940 DEBUG:httpcore.http11: receive_response_body.complete
+2025-07-06 23:47:58,941 DEBUG:httpcore.http11: response_closed.started
+2025-07-06 23:47:58,941 DEBUG:httpcore.http11: response_closed.complete
+2025-07-06 23:47:58,941 DEBUG:telegram.ext.ExtBot: True
+2025-07-06 23:47:58,941 DEBUG:telegram.ext.ExtBot: Exiting: answer_callback_query
+2025-07-06 23:47:58,989 DEBUG:urllib3.util.retry: Converted retries value: 3 -> Retry(total=3, connect=None, read=None, redirect=None, status=None)
+2025-07-06 23:47:58,991 DEBUG:google.auth.transport.requests: Making request: POST https://oauth2.googleapis.com/token
+2025-07-06 23:47:58,992 DEBUG:urllib3.connectionpool: Starting new HTTPS connection (1): oauth2.googleapis.com:443
+2025-07-06 23:47:59,017 DEBUG:urllib3.connectionpool: https://oauth2.googleapis.com:443 "POST /token HTTP/1.1" 200 None
+2025-07-06 23:47:59,018 DEBUG:urllib3.connectionpool: Starting new HTTPS connection (1): sheets.googleapis.com:443
+2025-07-06 23:47:59,180 DEBUG:urllib3.connectionpool: https://sheets.googleapis.com:443 "GET /v4/spreadsheets/15T_gMKgXM5IYO3ty5dQ890tcy4_6tNMnLpysgq1LbOU?includeGridData=false HTTP/1.1" 200 None
+2025-07-06 23:47:59,295 DEBUG:urllib3.connectionpool: https://sheets.googleapis.com:443 "GET /v4/spreadsheets/15T_gMKgXM5IYO3ty5dQ890tcy4_6tNMnLpysgq1LbOU?includeGridData=false HTTP/1.1" 200 None
+2025-07-06 23:47:59,406 DEBUG:urllib3.connectionpool: https://sheets.googleapis.com:443 "GET /v4/spreadsheets/15T_gMKgXM5IYO3ty5dQ890tcy4_6tNMnLpysgq1LbOU?includeGridData=false HTTP/1.1" 200 None
+2025-07-06 23:47:59,516 DEBUG:urllib3.connectionpool: https://sheets.googleapis.com:443 "GET /v4/spreadsheets/15T_gMKgXM5IYO3ty5dQ890tcy4_6tNMnLpysgq1LbOU?includeGridData=false HTTP/1.1" 200 None
+2025-07-06 23:47:59,623 DEBUG:urllib3.connectionpool: https://sheets.googleapis.com:443 "GET /v4/spreadsheets/15T_gMKgXM5IYO3ty5dQ890tcy4_6tNMnLpysgq1LbOU?includeGridData=false HTTP/1.1" 200 None
+2025-07-06 23:47:59,795 DEBUG:urllib3.connectionpool: https://sheets.googleapis.com:443 "POST /v4/spreadsheets/15T_gMKgXM5IYO3ty5dQ890tcy4_6tNMnLpysgq1LbOU:batchUpdate HTTP/1.1" 200 None
+2025-07-06 23:47:59,941 DEBUG:urllib3.connectionpool: https://sheets.googleapis.com:443 "POST /v4/spreadsheets/15T_gMKgXM5IYO3ty5dQ890tcy4_6tNMnLpysgq1LbOU:batchUpdate HTTP/1.1" 200 None
+2025-07-06 23:48:00,069 DEBUG:urllib3.connectionpool: https://sheets.googleapis.com:443 "POST /v4/spreadsheets/15T_gMKgXM5IYO3ty5dQ890tcy4_6tNMnLpysgq1LbOU:batchUpdate HTTP/1.1" 200 None
+2025-07-06 23:48:00,200 DEBUG:urllib3.connectionpool: https://sheets.googleapis.com:443 "POST /v4/spreadsheets/15T_gMKgXM5IYO3ty5dQ890tcy4_6tNMnLpysgq1LbOU:batchUpdate HTTP/1.1" 200 None
+2025-07-06 23:48:00,345 DEBUG:urllib3.connectionpool: https://sheets.googleapis.com:443 "GET /v4/spreadsheets/15T_gMKgXM5IYO3ty5dQ890tcy4_6tNMnLpysgq1LbOU/values/%27%D0%A4%D0%B8%D0%BD%D0%B0%D0%BD%D1%81%D1%8B%27%21A1%3AA?valueRenderOption=FORMATTED_VALUE&majorDimension=COLUMNS HTTP/1.1" 200 None
+2025-07-06 23:48:00,474 DEBUG:urllib3.connectionpool: https://sheets.googleapis.com:443 "POST /v4/spreadsheets/15T_gMKgXM5IYO3ty5dQ890tcy4_6tNMnLpysgq1LbOU:batchUpdate HTTP/1.1" 200 None
+2025-07-06 23:48:00,592 DEBUG:urllib3.connectionpool: https://sheets.googleapis.com:443 "GET /v4/spreadsheets/15T_gMKgXM5IYO3ty5dQ890tcy4_6tNMnLpysgq1LbOU/values/%27%D0%9F%D0%BB%D0%B0%D0%BD%D1%8B%27%21A1%3AA?valueRenderOption=FORMATTED_VALUE&majorDimension=COLUMNS HTTP/1.1" 200 None
+2025-07-06 23:48:00,722 DEBUG:urllib3.connectionpool: https://sheets.googleapis.com:443 "POST /v4/spreadsheets/15T_gMKgXM5IYO3ty5dQ890tcy4_6tNMnLpysgq1LbOU:batchUpdate HTTP/1.1" 200 None
+2025-07-06 23:48:00,843 DEBUG:urllib3.connectionpool: https://sheets.googleapis.com:443 "POST /v4/spreadsheets/15T_gMKgXM5IYO3ty5dQ890tcy4_6tNMnLpysgq1LbOU:batchUpdate HTTP/1.1" 200 None
+2025-07-06 23:48:00,963 DEBUG:urllib3.connectionpool: https://sheets.googleapis.com:443 "POST /v4/spreadsheets/15T_gMKgXM5IYO3ty5dQ890tcy4_6tNMnLpysgq1LbOU:batchUpdate HTTP/1.1" 200 None
+2025-07-06 23:48:01,084 DEBUG:urllib3.connectionpool: https://sheets.googleapis.com:443 "POST /v4/spreadsheets/15T_gMKgXM5IYO3ty5dQ890tcy4_6tNMnLpysgq1LbOU:batchUpdate HTTP/1.1" 200 None
+2025-07-06 23:48:01,228 DEBUG:urllib3.connectionpool: https://sheets.googleapis.com:443 "POST /v4/spreadsheets/15T_gMKgXM5IYO3ty5dQ890tcy4_6tNMnLpysgq1LbOU:batchUpdate HTTP/1.1" 200 None
+2025-07-06 23:48:01,369 DEBUG:urllib3.connectionpool: https://sheets.googleapis.com:443 "POST /v4/spreadsheets/15T_gMKgXM5IYO3ty5dQ890tcy4_6tNMnLpysgq1LbOU:batchUpdate HTTP/1.1" 200 None
+2025-07-06 23:48:01,498 DEBUG:urllib3.connectionpool: https://sheets.googleapis.com:443 "GET /v4/spreadsheets/15T_gMKgXM5IYO3ty5dQ890tcy4_6tNMnLpysgq1LbOU/values/%27%D0%A4%D0%B8%D0%BD%D0%B0%D0%BD%D1%81%D1%8B%27 HTTP/1.1" 200 None
+2025-07-06 23:48:01,499 DEBUG:telegram.ext.ExtBot: Entering: edit_message_text
+2025-07-06 23:48:01,500 DEBUG:httpcore.http11: send_request_headers.started request=<Request [b'POST']>
+2025-07-06 23:48:01,500 DEBUG:httpcore.http11: send_request_headers.complete
+2025-07-06 23:48:01,500 DEBUG:httpcore.http11: send_request_body.started request=<Request [b'POST']>
+2025-07-06 23:48:01,500 DEBUG:httpcore.http11: send_request_body.complete
+2025-07-06 23:48:01,500 DEBUG:httpcore.http11: receive_response_headers.started request=<Request [b'POST']>
+2025-07-06 23:48:01,602 DEBUG:httpcore.http11: receive_response_headers.complete return_value=(b'HTTP/1.1', 200, b'OK', [(b'Server', b'nginx/1.18.0'), (b'Date', b'Sun, 06 Jul 2025 23:48:01 GMT'), (b'Content-Type', b'application/json'), (b'Content-Length', b'2369'), (b'Connection', b'keep-alive'), (b'Strict-Transport-Security', b'max-age=31536000; includeSubDomains; preload'), (b'Access-Control-Allow-Origin', b'*'), (b'Access-Control-Allow-Methods', b'GET, POST, OPTIONS'), (b'Access-Control-Expose-Headers', b'Content-Length,Content-Type,Date,Server,Connection')])
+2025-07-06 23:48:01,603 INFO:httpx: HTTP Request: POST https://api.telegram.org/bot8194517570:AAHG80QPShNLSkCCIk15W0BKZw25GSDh610/editMessageText "HTTP/1.1 200 OK"
+2025-07-06 23:48:01,603 DEBUG:httpcore.http11: receive_response_body.started request=<Request [b'POST']>
+2025-07-06 23:48:01,603 DEBUG:httpcore.http11: receive_response_body.complete
+2025-07-06 23:48:01,603 DEBUG:httpcore.http11: response_closed.started
+2025-07-06 23:48:01,603 DEBUG:httpcore.http11: response_closed.complete
+2025-07-06 23:48:01,604 DEBUG:telegram.ext.ExtBot: Message(channel_chat_created=False, chat=Chat(first_name='Александр', id=5840537467, type=<ChatType.PRIVATE>, username='CheAAlex'), date=datetime.datetime(2025, 7, 6, 23, 47, 56, tzinfo=<UTC>), delete_chat_photo=False, edit_date=datetime.datetime(2025, 7, 6, 23, 48, 1, tzinfo=<UTC>), entities=(MessageEntity(length=22, offset=3, type=<MessageEntityType.BOLD>),), from_user=User(first_name='MyFinance', id=8194517570, is_bot=True, username='My689FinanceBot'), group_chat_created=False, message_id=5857, reply_markup=InlineKeyboardMarkup(inline_keyboard=((InlineKeyboardButton(callback_data='op_select_1', text='1'), InlineKeyboardButton(callback_data='op_select_2', text='2'), InlineKeyboardButton(callback_data='op_select_3', text='3')), (InlineKeyboardButton(callback_data='op_select_4', text='4'), InlineKeyboardButton(callback_data='op_select_5', text='5'), InlineKeyboardButton(callback_data='op_select_6', text='6')), (InlineKeyboardButton(callback_data='op_select_7', text='7'), InlineKeyboardButton(callback_data='op_select_8', text='8'), InlineKeyboardButton(callback_data='op_select_9', text='9')), (InlineKeyboardButton(callback_data='op_select_0', text='0'),), (InlineKeyboardButton(callback_data='menu:open', text='🔙 Назад'),))), supergroup_chat_created=False, text='📝 Последние 10 операций:\n0. Нал  666,74  Раб, 22 июля, вт\n1. Альфа  -100\xa0000,00  Жорик, 20 июля, вс\n2. Альфа  -1\xa0234,00  Перевод, 19 июля, сб\n3. МКБ  1\xa0234,00  Перевод, 19 июля, сб\n4. МКБ  9\xa0683,00  Я в аухе, у меня всё получается, 19 июля, сб\n5. Альфа  123\xa0123,00  жора, 18 июля, пт\n6. МКБ  334,00  ываыва, 17 июля, чт\n7. Альфа  -223,00  Перевод, 13 июля, вс\n8. МКБ  223,00  Перевод, 13 июля, вс\n9. МКБ  333,00  Каааауу, 12 июля, сб')
+2025-07-06 23:48:01,604 DEBUG:telegram.ext.ExtBot: Exiting: edit_message_text
+2025-07-06 23:48:04,844 DEBUG:httpcore.http11: receive_response_headers.complete return_value=(b'HTTP/1.1', 200, b'OK', [(b'Server', b'nginx/1.18.0'), (b'Date', b'Sun, 06 Jul 2025 23:48:04 GMT'), (b'Content-Type', b'application/json'), (b'Content-Length', b'2663'), (b'Connection', b'keep-alive'), (b'Strict-Transport-Security', b'max-age=31536000; includeSubDomains; preload'), (b'Access-Control-Allow-Origin', b'*'), (b'Access-Control-Allow-Methods', b'GET, POST, OPTIONS'), (b'Access-Control-Expose-Headers', b'Content-Length,Content-Type,Date,Server,Connection')])
+2025-07-06 23:48:04,845 INFO:httpx: HTTP Request: POST https://api.telegram.org/bot8194517570:AAHG80QPShNLSkCCIk15W0BKZw25GSDh610/getUpdates "HTTP/1.1 200 OK"
+2025-07-06 23:48:04,845 DEBUG:httpcore.http11: receive_response_body.started request=<Request [b'POST']>
+2025-07-06 23:48:04,845 DEBUG:httpcore.http11: receive_response_body.complete
+2025-07-06 23:48:04,846 DEBUG:httpcore.http11: response_closed.started
+2025-07-06 23:48:04,846 DEBUG:httpcore.http11: response_closed.complete
+2025-07-06 23:48:04,846 DEBUG:telegram.ext.ExtBot: Getting updates: [10516359]
+2025-07-06 23:48:04,847 DEBUG:telegram.ext.ExtBot: (Update(callback_query=CallbackQuery(chat_instance='-197365410636071226', data='op_select_0', from_user=User(first_name='Александр', id=5840537467, is_bot=False, language_code='ru', username='CheAAlex'), id='6638173338769636112', message=Message(channel_chat_created=False, chat=Chat(first_name='Александр', id=5840537467, type=<ChatType.PRIVATE>, username='CheAAlex'), date=datetime.datetime(2025, 7, 6, 23, 47, 56, tzinfo=<UTC>), delete_chat_photo=False, edit_date=datetime.datetime(2025, 7, 6, 23, 48, 1, tzinfo=<UTC>), entities=(MessageEntity(length=22, offset=3, type=<MessageEntityType.BOLD>),), from_user=User(first_name='MyFinance', id=8194517570, is_bot=True, username='My689FinanceBot'), group_chat_created=False, message_id=5857, reply_markup=InlineKeyboardMarkup(inline_keyboard=((InlineKeyboardButton(callback_data='op_select_1', text='1'), InlineKeyboardButton(callback_data='op_select_2', text='2'), InlineKeyboardButton(callback_data='op_select_3', text='3')), (InlineKeyboardButton(callback_data='op_select_4', text='4'), InlineKeyboardButton(callback_data='op_select_5', text='5'), InlineKeyboardButton(callback_data='op_select_6', text='6')), (InlineKeyboardButton(callback_data='op_select_7', text='7'), InlineKeyboardButton(callback_data='op_select_8', text='8'), InlineKeyboardButton(callback_data='op_select_9', text='9')), (InlineKeyboardButton(callback_data='op_select_0', text='0'),), (InlineKeyboardButton(callback_data='menu:open', text='🔙 Назад'),))), supergroup_chat_created=False, text='📝 Последние 10 операций:\n0. Нал  666,74  Раб, 22 июля, вт\n1. Альфа  -100\xa0000,00  Жорик, 20 июля, вс\n2. Альфа  -1\xa0234,00  Перевод, 19 июля, сб\n3. МКБ  1\xa0234,00  Перевод, 19 июля, сб\n4. МКБ  9\xa0683,00  Я в аухе, у меня всё получается, 19 июля, сб\n5. Альфа  123\xa0123,00  жора, 18 июля, пт\n6. МКБ  334,00  ываыва, 17 июля, чт\n7. Альфа  -223,00  Перевод, 13 июля, вс\n8. МКБ  223,00  Перевод, 13 июля, вс\n9. МКБ  333,00  Каааауу, 12 июля, сб')), update_id=10516359),)
+2025-07-06 23:48:04,848 DEBUG:telegram.ext.ExtBot: Exiting: get_updates
+2025-07-06 23:48:04,848 DEBUG:telegram.ext.ExtBot: Entering: get_updates
+2025-07-06 23:48:04,849 DEBUG:telegram.ext.Application: Processing update Update(callback_query=CallbackQuery(chat_instance='-197365410636071226', data='op_select_0', from_user=User(first_name='Александр', id=5840537467, is_bot=False, language_code='ru', username='CheAAlex'), id='6638173338769636112', message=Message(channel_chat_created=False, chat=Chat(first_name='Александр', id=5840537467, type=<ChatType.PRIVATE>, username='CheAAlex'), date=datetime.datetime(2025, 7, 6, 23, 47, 56, tzinfo=<UTC>), delete_chat_photo=False, edit_date=datetime.datetime(2025, 7, 6, 23, 48, 1, tzinfo=<UTC>), entities=(MessageEntity(length=22, offset=3, type=<MessageEntityType.BOLD>),), from_user=User(first_name='MyFinance', id=8194517570, is_bot=True, username='My689FinanceBot'), group_chat_created=False, message_id=5857, reply_markup=InlineKeyboardMarkup(inline_keyboard=((InlineKeyboardButton(callback_data='op_select_1', text='1'), InlineKeyboardButton(callback_data='op_select_2', text='2'), InlineKeyboardButton(callback_data='op_select_3', text='3')), (InlineKeyboardButton(callback_data='op_select_4', text='4'), InlineKeyboardButton(callback_data='op_select_5', text='5'), InlineKeyboardButton(callback_data='op_select_6', text='6')), (InlineKeyboardButton(callback_data='op_select_7', text='7'), InlineKeyboardButton(callback_data='op_select_8', text='8'), InlineKeyboardButton(callback_data='op_select_9', text='9')), (InlineKeyboardButton(callback_data='op_select_0', text='0'),), (InlineKeyboardButton(callback_data='menu:open', text='🔙 Назад'),))), supergroup_chat_created=False, text='📝 Последние 10 операций:\n0. Нал  666,74  Раб, 22 июля, вт\n1. Альфа  -100\xa0000,00  Жорик, 20 июля, вс\n2. Альфа  -1\xa0234,00  Перевод, 19 июля, сб\n3. МКБ  1\xa0234,00  Перевод, 19 июля, сб\n4. МКБ  9\xa0683,00  Я в аухе, у меня всё получается, 19 июля, сб\n5. Альфа  123\xa0123,00  жора, 18 июля, пт\n6. МКБ  334,00  ываыва, 17 июля, чт\n7. Альфа  -223,00  Перевод, 13 июля, вс\n8. МКБ  223,00  Перевод, 13 июля, вс\n9. МКБ  333,00  Каааауу, 12 июля, сб')), update_id=10516359)
+2025-07-06 23:48:04,849 DEBUG:telegram.ext.ConversationHandler: Selecting conversation (5840537467, 5840537467) with state None
+2025-07-06 23:48:04,850 DEBUG:telegram.ext.ConversationHandler: Selecting conversation (5840537467, 5840537467) with state None
+2025-07-06 23:48:04,850 DEBUG:telegram.ext.ConversationHandler: Selecting conversation (5840537467, 5840537467) with state None
+2025-07-06 23:48:04,850 DEBUG:telegram.ext.ConversationHandler: Selecting conversation (5840537467, 5840537467) with state 21
+2025-07-06 23:48:04,850 DEBUG:telegram.ext.ExtBot: Entering: answer_callback_query
+2025-07-06 23:48:04,851 DEBUG:httpcore.http11: send_request_headers.started request=<Request [b'POST']>
+2025-07-06 23:48:04,851 DEBUG:httpcore.http11: send_request_headers.started request=<Request [b'POST']>
+2025-07-06 23:48:04,851 DEBUG:httpcore.http11: send_request_headers.complete
+2025-07-06 23:48:04,852 DEBUG:httpcore.http11: send_request_body.started request=<Request [b'POST']>
+2025-07-06 23:48:04,852 DEBUG:httpcore.http11: send_request_headers.complete
+2025-07-06 23:48:04,852 DEBUG:httpcore.http11: send_request_body.started request=<Request [b'POST']>
+2025-07-06 23:48:04,852 DEBUG:httpcore.http11: send_request_body.complete
+2025-07-06 23:48:04,852 DEBUG:httpcore.http11: receive_response_headers.started request=<Request [b'POST']>
+2025-07-06 23:48:04,853 DEBUG:httpcore.http11: send_request_body.complete
+2025-07-06 23:48:04,853 DEBUG:httpcore.http11: receive_response_headers.started request=<Request [b'POST']>
+2025-07-06 23:48:04,944 DEBUG:httpcore.http11: receive_response_headers.complete return_value=(b'HTTP/1.1', 200, b'OK', [(b'Server', b'nginx/1.18.0'), (b'Date', b'Sun, 06 Jul 2025 23:48:04 GMT'), (b'Content-Type', b'application/json'), (b'Content-Length', b'25'), (b'Connection', b'keep-alive'), (b'Strict-Transport-Security', b'max-age=31536000; includeSubDomains; preload'), (b'Access-Control-Allow-Origin', b'*'), (b'Access-Control-Allow-Methods', b'GET, POST, OPTIONS'), (b'Access-Control-Expose-Headers', b'Content-Length,Content-Type,Date,Server,Connection')])
+2025-07-06 23:48:04,944 INFO:httpx: HTTP Request: POST https://api.telegram.org/bot8194517570:AAHG80QPShNLSkCCIk15W0BKZw25GSDh610/answerCallbackQuery "HTTP/1.1 200 OK"
+2025-07-06 23:48:04,945 DEBUG:httpcore.http11: receive_response_body.started request=<Request [b'POST']>
+2025-07-06 23:48:04,945 DEBUG:httpcore.http11: receive_response_body.complete
+2025-07-06 23:48:04,945 DEBUG:httpcore.http11: response_closed.started
+2025-07-06 23:48:04,945 DEBUG:httpcore.http11: response_closed.complete
+2025-07-06 23:48:04,945 DEBUG:telegram.ext.ExtBot: True
+2025-07-06 23:48:04,945 DEBUG:telegram.ext.ExtBot: Exiting: answer_callback_query
+2025-07-06 23:48:04,945 ERROR:telegram.ext.Application: No error handlers are registered, logging exception.
+Traceback (most recent call last):
+  File "/usr/local/lib/python3.11/dist-packages/telegram/ext/_application.py", line 1234, in process_update
+    await coroutine
+  File "/usr/local/lib/python3.11/dist-packages/telegram/ext/_conversationhandler.py", line 857, in handle_update
+    new_state: object = await handler.handle_update(
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dist-packages/telegram/ext/_basehandler.py", line 157, in handle_update
+    return await self.callback(update, context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/content/Finance-Bot2/handlers/men_oper.py", line 118, in handle_op_select
+    f"Операция: {row['Операция']}\n"
+                 ~~~^^^^^^^^^^^^
+KeyError: 'Операция'
+2025-07-06 23:48:13,431 DEBUG:httpcore.http11: receive_response_headers.complete return_value=(b'HTTP/1.1', 200, b'OK', [(b'Server', b'nginx/1.18.0'), (b'Date', b'Sun, 06 Jul 2025 23:48:13 GMT'), (b'Content-Type', b'application/json'), (b'Content-Length', b'2663'), (b'Connection', b'keep-alive'), (b'Strict-Transport-Security', b'max-age=31536000; includeSubDomains; preload'), (b'Access-Control-Allow-Origin', b'*'), (b'Access-Control-Allow-Methods', b'GET, POST, OPTIONS'), (b'Access-Control-Expose-Headers', b'Content-Length,Content-Type,Date,Server,Connection')])
+2025-07-06 23:48:13,431 INFO:httpx: HTTP Request: POST https://api.telegram.org/bot8194517570:AAHG80QPShNLSkCCIk15W0BKZw25GSDh610/getUpdates "HTTP/1.1 200 OK"
+2025-07-06 23:48:13,431 DEBUG:httpcore.http11: receive_response_body.started request=<Request [b'POST']>
+2025-07-06 23:48:13,432 DEBUG:httpcore.http11: receive_response_body.complete
+2025-07-06 23:48:13,432 DEBUG:httpcore.http11: response_closed.started
+2025-07-06 23:48:13,432 DEBUG:httpcore.http11: response_closed.complete
+2025-07-06 23:48:13,432 DEBUG:telegram.ext.ExtBot: Getting updates: [10516360]
+2025-07-06 23:48:13,433 DEBUG:telegram.ext.ExtBot: (Update(callback_query=CallbackQuery(chat_instance='-197365410636071226', data='op_select_0', from_user=User(first_name='Александр', id=5840537467, is_bot=False, language_code='ru', username='CheAAlex'), id='6638173342185309884', message=Message(channel_chat_created=False, chat=Chat(first_name='Александр', id=5840537467, type=<ChatType.PRIVATE>, username='CheAAlex'), date=datetime.datetime(2025, 7, 6, 23, 47, 56, tzinfo=<UTC>), delete_chat_photo=False, edit_date=datetime.datetime(2025, 7, 6, 23, 48, 1, tzinfo=<UTC>), entities=(MessageEntity(length=22, offset=3, type=<MessageEntityType.BOLD>),), from_user=User(first_name='MyFinance', id=8194517570, is_bot=True, username='My689FinanceBot'), group_chat_created=False, message_id=5857, reply_markup=InlineKeyboardMarkup(inline_keyboard=((InlineKeyboardButton(callback_data='op_select_1', text='1'), InlineKeyboardButton(callback_data='op_select_2', text='2'), InlineKeyboardButton(callback_data='op_select_3', text='3')), (InlineKeyboardButton(callback_data='op_select_4', text='4'), InlineKeyboardButton(callback_data='op_select_5', text='5'), InlineKeyboardButton(callback_data='op_select_6', text='6')), (InlineKeyboardButton(callback_data='op_select_7', text='7'), InlineKeyboardButton(callback_data='op_select_8', text='8'), InlineKeyboardButton(callback_data='op_select_9', text='9')), (InlineKeyboardButton(callback_data='op_select_0', text='0'),), (InlineKeyboardButton(callback_data='menu:open', text='🔙 Назад'),))), supergroup_chat_created=False, text='📝 Последние 10 операций:\n0. Нал  666,74  Раб, 22 июля, вт\n1. Альфа  -100\xa0000,00  Жорик, 20 июля, вс\n2. Альфа  -1\xa0234,00  Перевод, 19 июля, сб\n3. МКБ  1\xa0234,00  Перевод, 19 июля, сб\n4. МКБ  9\xa0683,00  Я в аухе, у меня всё получается, 19 июля, сб\n5. Альфа  123\xa0123,00  жора, 18 июля, пт\n6. МКБ  334,00  ываыва, 17 июля, чт\n7. Альфа  -223,00  Перевод, 13 июля, вс\n8. МКБ  223,00  Перевод, 13 июля, вс\n9. МКБ  333,00  Каааауу, 12 июля, сб')), update_id=10516360),)
+2025-07-06 23:48:13,433 DEBUG:telegram.ext.ExtBot: Exiting: get_updates
+2025-07-06 23:48:13,434 DEBUG:telegram.ext.ExtBot: Entering: get_updates
+2025-07-06 23:48:13,434 DEBUG:telegram.ext.Application: Processing update Update(callback_query=CallbackQuery(chat_instance='-197365410636071226', data='op_select_0', from_user=User(first_name='Александр', id=5840537467, is_bot=False, language_code='ru', username='CheAAlex'), id='6638173342185309884', message=Message(channel_chat_created=False, chat=Chat(first_name='Александр', id=5840537467, type=<ChatType.PRIVATE>, username='CheAAlex'), date=datetime.datetime(2025, 7, 6, 23, 47, 56, tzinfo=<UTC>), delete_chat_photo=False, edit_date=datetime.datetime(2025, 7, 6, 23, 48, 1, tzinfo=<UTC>), entities=(MessageEntity(length=22, offset=3, type=<MessageEntityType.BOLD>),), from_user=User(first_name='MyFinance', id=8194517570, is_bot=True, username='My689FinanceBot'), group_chat_created=False, message_id=5857, reply_markup=InlineKeyboardMarkup(inline_keyboard=((InlineKeyboardButton(callback_data='op_select_1', text='1'), InlineKeyboardButton(callback_data='op_select_2', text='2'), InlineKeyboardButton(callback_data='op_select_3', text='3')), (InlineKeyboardButton(callback_data='op_select_4', text='4'), InlineKeyboardButton(callback_data='op_select_5', text='5'), InlineKeyboardButton(callback_data='op_select_6', text='6')), (InlineKeyboardButton(callback_data='op_select_7', text='7'), InlineKeyboardButton(callback_data='op_select_8', text='8'), InlineKeyboardButton(callback_data='op_select_9', text='9')), (InlineKeyboardButton(callback_data='op_select_0', text='0'),), (InlineKeyboardButton(callback_data='menu:open', text='🔙 Назад'),))), supergroup_chat_created=False, text='📝 Последние 10 операций:\n0. Нал  666,74  Раб, 22 июля, вт\n1. Альфа  -100\xa0000,00  Жорик, 20 июля, вс\n2. Альфа  -1\xa0234,00  Перевод, 19 июля, сб\n3. МКБ  1\xa0234,00  Перевод, 19 июля, сб\n4. МКБ  9\xa0683,00  Я в аухе, у меня всё получается, 19 июля, сб\n5. Альфа  123\xa0123,00  жора, 18 июля, пт\n6. МКБ  334,00  ываыва, 17 июля, чт\n7. Альфа  -223,00  Перевод, 13 июля, вс\n8. МКБ  223,00  Перевод, 13 июля, вс\n9. МКБ  333,00  Каааауу, 12 июля, сб')), update_id=10516360)
+2025-07-06 23:48:13,435 DEBUG:telegram.ext.ConversationHandler: Selecting conversation (5840537467, 5840537467) with state None
+2025-07-06 23:48:13,435 DEBUG:telegram.ext.ConversationHandler: Selecting conversation (5840537467, 5840537467) with state None
+2025-07-06 23:48:13,435 DEBUG:telegram.ext.ConversationHandler: Selecting conversation (5840537467, 5840537467) with state None
+2025-07-06 23:48:13,435 DEBUG:telegram.ext.ConversationHandler: Selecting conversation (5840537467, 5840537467) with state 21
+2025-07-06 23:48:13,435 DEBUG:telegram.ext.ExtBot: Entering: answer_callback_query
+2025-07-06 23:48:13,436 DEBUG:httpcore.connection: close.started
+2025-07-06 23:48:13,436 DEBUG:httpcore.connection: close.complete
+2025-07-06 23:48:13,436 DEBUG:httpcore.http11: send_request_headers.started request=<Request [b'POST']>
+2025-07-06 23:48:13,436 DEBUG:httpcore.connection: connect_tcp.started host='api.telegram.org' port=443 local_address=None timeout=5.0 socket_options=None
+2025-07-06 23:48:13,437 DEBUG:httpcore.http11: send_request_headers.complete
+2025-07-06 23:48:13,437 DEBUG:httpcore.http11: send_request_body.started request=<Request [b'POST']>
+2025-07-06 23:48:13,437 DEBUG:httpcore.http11: send_request_body.complete
+2025-07-06 23:48:13,437 DEBUG:httpcore.http11: receive_response_headers.started request=<Request [b'POST']>
+2025-07-06 23:48:13,526 DEBUG:httpcore.connection: connect_tcp.complete return_value=<httpcore._backends.anyio.AnyIOStream object at 0x7f6727624750>
+2025-07-06 23:48:13,526 DEBUG:httpcore.connection: start_tls.started ssl_context=<ssl.SSLContext object at 0x7f6727303f50> server_hostname='api.telegram.org' timeout=5.0
+2025-07-06 23:48:13,618 DEBUG:httpcore.connection: start_tls.complete return_value=<httpcore._backends.anyio.AnyIOStream object at 0x7f6727626b50>
+2025-07-06 23:48:13,618 DEBUG:httpcore.http11: send_request_headers.started request=<Request [b'POST']>
+2025-07-06 23:48:13,618 DEBUG:httpcore.http11: send_request_headers.complete
+2025-07-06 23:48:13,619 DEBUG:httpcore.http11: send_request_body.started request=<Request [b'POST']>
+2025-07-06 23:48:13,619 DEBUG:httpcore.http11: send_request_body.complete
+2025-07-06 23:48:13,619 DEBUG:httpcore.http11: receive_response_headers.started request=<Request [b'POST']>
+2025-07-06 23:48:13,726 DEBUG:httpcore.http11: receive_response_headers.complete return_value=(b'HTTP/1.1', 200, b'OK', [(b'Server', b'nginx/1.18.0'), (b'Date', b'Sun, 06 Jul 2025 23:48:13 GMT'), (b'Content-Type', b'application/json'), (b'Content-Length', b'25'), (b'Connection', b'keep-alive'), (b'Strict-Transport-Security', b'max-age=31536000; includeSubDomains; preload'), (b'Access-Control-Allow-Origin', b'*'), (b'Access-Control-Allow-Methods', b'GET, POST, OPTIONS'), (b'Access-Control-Expose-Headers', b'Content-Length,Content-Type,Date,Server,Connection')])
+2025-07-06 23:48:13,727 INFO:httpx: HTTP Request: POST https://api.telegram.org/bot8194517570:AAHG80QPShNLSkCCIk15W0BKZw25GSDh610/answerCallbackQuery "HTTP/1.1 200 OK"
+2025-07-06 23:48:13,727 DEBUG:httpcore.http11: receive_response_body.started request=<Request [b'POST']>
+2025-07-06 23:48:13,727 DEBUG:httpcore.http11: receive_response_body.complete
+2025-07-06 23:48:13,727 DEBUG:httpcore.http11: response_closed.started
+2025-07-06 23:48:13,727 DEBUG:httpcore.http11: response_closed.complete
+2025-07-06 23:48:13,728 DEBUG:telegram.ext.ExtBot: True
+2025-07-06 23:48:13,728 DEBUG:telegram.ext.ExtBot: Exiting: answer_callback_query
+2025-07-06 23:48:13,728 ERROR:telegram.ext.Application: No error handlers are registered, logging exception.
+Traceback (most recent call last):
+  File "/usr/local/lib/python3.11/dist-packages/telegram/ext/_application.py", line 1234, in process_update
+    await coroutine
+  File "/usr/local/lib/python3.11/dist-packages/telegram/ext/_conversationhandler.py", line 857, in handle_update
+    new_state: object = await handler.handle_update(
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dist-packages/telegram/ext/_basehandler.py", line 157, in handle_update
+    return await self.callback(update, context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/content/Finance-Bot2/handlers/men_oper.py", line 118, in handle_op_select
+    f"Операция: {row['Операция']}\n"
+                 ~~~^^^^^^^^^^^^
+KeyError: 'Операция'
+2025-07-06 23:48:23,531 DEBUG:httpcore.http11: receive_response_headers.complete return_value=(b'HTTP/1.1', 200, b'OK', [(b'Server', b'nginx/1.18.0'), (b'Date', b'Sun, 06 Jul 2025 23:48:23 GMT'), (b'Content-Type', b'application/json'), (b'Content-Length', b'23'), (b'Connection', b'keep-alive'), (b'Strict-Transport-Security', b'max-age=31536000; includeSubDomains; preload'), (b'Access-Control-Allow-Origin', b'*'), (b'Access-Control-Allow-Methods', b'GET, POST, OPTIONS'), (b'Access-Control-Expose-Headers', b'Content-Length,Content-Type,Date,Server,Connection')])
+2025-07-06 23:48:23,531 INFO:httpx: HTTP Request: POST https://api.telegram.org/bot8194517570:AAHG80QPShNLSkCCIk15W0BKZw25GSDh610/getUpdates "HTTP/1.1 200 OK"
+2025-07-06 23:48:23,531 DEBUG:httpcore.http11: receive_response_body.started request=<Request [b'POST']>
+2025-07-06 23:48:23,531 DEBUG:httpcore.http11: receive_response_body.complete
+2025-07-06 23:48:23,532 DEBUG:httpcore.http11: response_closed.started
+2025-07-06 23:48:23,532 DEBUG:httpcore.http11: response_closed.complete
+2025-07-06 23:48:23,532 DEBUG:telegram.ext.ExtBot: No new updates found.
+2025-07-06 23:48:23,532 DEBUG:telegram.ext.ExtBot: ()
+2025-07-06 23:48:23,532 DEBUG:telegram.ext.ExtBot: Exiting: get_updates
+2025-07-06 23:48:23,532 DEBUG:telegram.ext.ExtBot: Entering: get_updates
+2025-07-06 23:48:23,533 DEBUG:httpcore.http11: send_request_headers.started request=<Request [b'POST']>
+2025-07-06 23:48:23,533 DEBUG:httpcore.http11: send_request_headers.complete
+2025-07-06 23:48:23,533 DEBUG:httpcore.http11: send_request_body.started request=<Request [b'POST']>
+2025-07-06 23:48:23,534 DEBUG:httpcore.http11: send_request_body.complete
+2025-07-06 23:48:23,534 DEBUG:httpcore.http11: receive_response_headers.started request=<Request [b'POST']>
+2025-07-06 23:48:24,528 DEBUG:httpcore.http11: receive_response_headers.complete return_value=(b'HTTP/1.1', 200, b'OK', [(b'Server', b'nginx/1.18.0'), (b'Date', b'Sun, 06 Jul 2025 23:48:24 GMT'), (b'Content-Type', b'application/json'), (b'Content-Length', b'2661'), (b'Connection', b'keep-alive'), (b'Strict-Transport-Security', b'max-age=31536000; includeSubDomains; preload'), (b'Access-Control-Allow-Origin', b'*'), (b'Access-Control-Allow-Methods', b'GET, POST, OPTIONS'), (b'Access-Control-Expose-Headers', b'Content-Length,Content-Type,Date,Server,Connection')])
+2025-07-06 23:48:24,528 INFO:httpx: HTTP Request: POST https://api.telegram.org/bot8194517570:AAHG80QPShNLSkCCIk15W0BKZw25GSDh610/getUpdates "HTTP/1.1 200 OK"
+2025-07-06 23:48:24,529 DEBUG:httpcore.http11: receive_response_body.started request=<Request [b'POST']>
+2025-07-06 23:48:24,529 DEBUG:httpcore.http11: receive_response_body.complete
+2025-07-06 23:48:24,529 DEBUG:httpcore.http11: response_closed.started
+2025-07-06 23:48:24,529 DEBUG:httpcore.http11: response_closed.complete
+2025-07-06 23:48:24,529 DEBUG:telegram.ext.ExtBot: Getting updates: [10516361]
+2025-07-06 23:48:24,530 DEBUG:telegram.ext.ExtBot: (Update(callback_query=CallbackQuery(chat_instance='-197365410636071226', data='menu:open', from_user=User(first_name='Александр', id=5840537467, is_bot=False, language_code='ru', username='CheAAlex'), id='6638173339479903012', message=Message(channel_chat_created=False, chat=Chat(first_name='Александр', id=5840537467, type=<ChatType.PRIVATE>, username='CheAAlex'), date=datetime.datetime(2025, 7, 6, 23, 47, 56, tzinfo=<UTC>), delete_chat_photo=False, edit_date=datetime.datetime(2025, 7, 6, 23, 48, 1, tzinfo=<UTC>), entities=(MessageEntity(length=22, offset=3, type=<MessageEntityType.BOLD>),), from_user=User(first_name='MyFinance', id=8194517570, is_bot=True, username='My689FinanceBot'), group_chat_created=False, message_id=5857, reply_markup=InlineKeyboardMarkup(inline_keyboard=((InlineKeyboardButton(callback_data='op_select_1', text='1'), InlineKeyboardButton(callback_data='op_select_2', text='2'), InlineKeyboardButton(callback_data='op_select_3', text='3')), (InlineKeyboardButton(callback_data='op_select_4', text='4'), InlineKeyboardButton(callback_data='op_select_5', text='5'), InlineKeyboardButton(callback_data='op_select_6', text='6')), (InlineKeyboardButton(callback_data='op_select_7', text='7'), InlineKeyboardButton(callback_data='op_select_8', text='8'), InlineKeyboardButton(callback_data='op_select_9', text='9')), (InlineKeyboardButton(callback_data='op_select_0', text='0'),), (InlineKeyboardButton(callback_data='menu:open', text='🔙 Назад'),))), supergroup_chat_created=False, text='📝 Последние 10 операций:\n0. Нал  666,74  Раб, 22 июля, вт\n1. Альфа  -100\xa0000,00  Жорик, 20 июля, вс\n2. Альфа  -1\xa0234,00  Перевод, 19 июля, сб\n3. МКБ  1\xa0234,00  Перевод, 19 июля, сб\n4. МКБ  9\xa0683,00  Я в аухе, у меня всё получается, 19 июля, сб\n5. Альфа  123\xa0123,00  жора, 18 июля, пт\n6. МКБ  334,00  ываыва, 17 июля, чт\n7. Альфа  -223,00  Перевод, 13 июля, вс\n8. МКБ  223,00  Перевод, 13 июля, вс\n9. МКБ  333,00  Каааауу, 12 июля, сб')), update_id=10516361),)
+2025-07-06 23:48:24,531 DEBUG:telegram.ext.ExtBot: Exiting: get_updates
+2025-07-06 23:48:24,531 DEBUG:telegram.ext.ExtBot: Entering: get_updates
+2025-07-06 23:48:24,532 DEBUG:telegram.ext.Application: Processing update Update(callback_query=CallbackQuery(chat_instance='-197365410636071226', data='menu:open', from_user=User(first_name='Александр', id=5840537467, is_bot=False, language_code='ru', username='CheAAlex'), id='6638173339479903012', message=Message(channel_chat_created=False, chat=Chat(first_name='Александр', id=5840537467, type=<ChatType.PRIVATE>, username='CheAAlex'), date=datetime.datetime(2025, 7, 6, 23, 47, 56, tzinfo=<UTC>), delete_chat_photo=False, edit_date=datetime.datetime(2025, 7, 6, 23, 48, 1, tzinfo=<UTC>), entities=(MessageEntity(length=22, offset=3, type=<MessageEntityType.BOLD>),), from_user=User(first_name='MyFinance', id=8194517570, is_bot=True, username='My689FinanceBot'), group_chat_created=False, message_id=5857, reply_markup=InlineKeyboardMarkup(inline_keyboard=((InlineKeyboardButton(callback_data='op_select_1', text='1'), InlineKeyboardButton(callback_data='op_select_2', text='2'), InlineKeyboardButton(callback_data='op_select_3', text='3')), (InlineKeyboardButton(callback_data='op_select_4', text='4'), InlineKeyboardButton(callback_data='op_select_5', text='5'), InlineKeyboardButton(callback_data='op_select_6', text='6')), (InlineKeyboardButton(callback_data='op_select_7', text='7'), InlineKeyboardButton(callback_data='op_select_8', text='8'), InlineKeyboardButton(callback_data='op_select_9', text='9')), (InlineKeyboardButton(callback_data='op_select_0', text='0'),), (InlineKeyboardButton(callback_data='menu:open', text='🔙 Назад'),))), supergroup_chat_created=False, text='📝 Последние 10 операций:\n0. Нал  666,74  Раб, 22 июля, вт\n1. Альфа  -100\xa0000,00  Жорик, 20 июля, вс\n2. Альфа  -1\xa0234,00  Перевод, 19 июля, сб\n3. МКБ  1\xa0234,00  Перевод, 19 июля, сб\n4. МКБ  9\xa0683,00  Я в аухе, у меня всё получается, 19 июля, сб\n5. Альфа  123\xa0123,00  жора, 18 июля, пт\n6. МКБ  334,00  ываыва, 17 июля, чт\n7. Альфа  -223,00  Перевод, 13 июля, вс\n8. МКБ  223,00  Перевод, 13 июля, вс\n9. МКБ  333,00  Каааауу, 12 июля, сб')), update_id=10516361)
+2025-07-06 23:48:24,532 DEBUG:telegram.ext.ConversationHandler: Selecting conversation (5840537467, 5840537467) with state None
+2025-07-06 23:48:24,532 DEBUG:telegram.ext.ConversationHandler: Selecting conversation (5840537467, 5840537467) with state None
+2025-07-06 23:48:24,532 DEBUG:telegram.ext.ConversationHandler: Selecting conversation (5840537467, 5840537467) with state None
+2025-07-06 23:48:24,532 DEBUG:telegram.ext.ConversationHandler: Selecting conversation (5840537467, 5840537467) with state 21
+2025-07-06 23:48:24,532 DEBUG:telegram.ext.ExtBot: Entering: answer_callback_query
+2025-07-06 23:48:24,533 DEBUG:httpcore.connection: close.started
+2025-07-06 23:48:24,534 DEBUG:httpcore.connection: close.complete
+2025-07-06 23:48:24,534 DEBUG:httpcore.http11: send_request_headers.started request=<Request [b'POST']>
+2025-07-06 23:48:24,534 DEBUG:httpcore.connection: connect_tcp.started host='api.telegram.org' port=443 local_address=None timeout=5.0 socket_options=None
+2025-07-06 23:48:24,535 DEBUG:httpcore.http11: send_request_headers.complete
+2025-07-06 23:48:24,535 DEBUG:httpcore.http11: send_request_body.started request=<Request [b'POST']>
+2025-07-06 23:48:24,535 DEBUG:httpcore.http11: send_request_body.complete
+2025-07-06 23:48:24,535 DEBUG:httpcore.http11: receive_response_headers.started request=<Request [b'POST']>
+2025-07-06 23:48:24,626 DEBUG:httpcore.connection: connect_tcp.complete return_value=<httpcore._backends.anyio.AnyIOStream object at 0x7f67271ec790>
+2025-07-06 23:48:24,627 DEBUG:httpcore.connection: start_tls.started ssl_context=<ssl.SSLContext object at 0x7f6727303f50> server_hostname='api.telegram.org' timeout=5.0
+2025-07-06 23:48:24,718 DEBUG:httpcore.connection: start_tls.complete return_value=<httpcore._backends.anyio.AnyIOStream object at 0x7f67274a82d0>
+2025-07-06 23:48:24,719 DEBUG:httpcore.http11: send_request_headers.started request=<Request [b'POST']>
+2025-07-06 23:48:24,719 DEBUG:httpcore.http11: send_request_headers.complete
+2025-07-06 23:48:24,719 DEBUG:httpcore.http11: send_request_body.started request=<Request [b'POST']>
+2025-07-06 23:48:24,720 DEBUG:httpcore.http11: send_request_body.complete
+2025-07-06 23:48:24,720 DEBUG:httpcore.http11: receive_response_headers.started request=<Request [b'POST']>
+2025-07-06 23:48:24,854 DEBUG:httpcore.http11: receive_response_headers.complete return_value=(b'HTTP/1.1', 200, b'OK', [(b'Server', b'nginx/1.18.0'), (b'Date', b'Sun, 06 Jul 2025 23:48:24 GMT'), (b'Content-Type', b'application/json'), (b'Content-Length', b'25'), (b'Connection', b'keep-alive'), (b'Strict-Transport-Security', b'max-age=31536000; includeSubDomains; preload'), (b'Access-Control-Allow-Origin', b'*'), (b'Access-Control-Allow-Methods', b'GET, POST, OPTIONS'), (b'Access-Control-Expose-Headers', b'Content-Length,Content-Type,Date,Server,Connection')])
+2025-07-06 23:48:24,855 INFO:httpx: HTTP Request: POST https://api.telegram.org/bot8194517570:AAHG80QPShNLSkCCIk15W0BKZw25GSDh610/answerCallbackQuery "HTTP/1.1 200 OK"
+2025-07-06 23:48:24,855 DEBUG:httpcore.http11: receive_response_body.started request=<Request [b'POST']>
+2025-07-06 23:48:24,855 DEBUG:httpcore.http11: receive_response_body.complete
+2025-07-06 23:48:24,855 DEBUG:httpcore.http11: response_closed.started
+2025-07-06 23:48:24,855 DEBUG:httpcore.http11: response_closed.complete
+2025-07-06 23:48:24,856 DEBUG:telegram.ext.ExtBot: True
+2025-07-06 23:48:24,856 DEBUG:telegram.ext.ExtBot: Exiting: answer_callback_query
+2025-07-06 23:48:24,856 DEBUG:telegram.ext.ExtBot: Entering: edit_message_text
+2025-07-06 23:48:24,857 DEBUG:httpcore.http11: send_request_headers.started request=<Request [b'POST']>
+2025-07-06 23:48:24,858 DEBUG:httpcore.http11: send_request_headers.complete
+2025-07-06 23:48:24,858 DEBUG:httpcore.http11: send_request_body.started request=<Request [b'POST']>
+2025-07-06 23:48:24,858 DEBUG:httpcore.http11: send_request_body.complete
+2025-07-06 23:48:24,858 DEBUG:httpcore.http11: receive_response_headers.started request=<Request [b'POST']>
+2025-07-06 23:48:24,980 DEBUG:httpcore.http11: receive_response_headers.complete return_value=(b'HTTP/1.1', 200, b'OK', [(b'Server', b'nginx/1.18.0'), (b'Date', b'Sun, 06 Jul 2025 23:48:24 GMT'), (b'Content-Type', b'application/json'), (b'Content-Length', b'1782'), (b'Connection', b'keep-alive'), (b'Strict-Transport-Security', b'max-age=31536000; includeSubDomains; preload'), (b'Access-Control-Allow-Origin', b'*'), (b'Access-Control-Allow-Methods', b'GET, POST, OPTIONS'), (b'Access-Control-Expose-Headers', b'Content-Length,Content-Type,Date,Server,Connection')])
+2025-07-06 23:48:24,981 INFO:httpx: HTTP Request: POST https://api.telegram.org/bot8194517570:AAHG80QPShNLSkCCIk15W0BKZw25GSDh610/editMessageText "HTTP/1.1 200 OK"
+2025-07-06 23:48:24,981 DEBUG:httpcore.http11: receive_response_body.started request=<Request [b'POST']>
+2025-07-06 23:48:24,981 DEBUG:httpcore.http11: receive_response_body.complete
+2025-07-06 23:48:24,981 DEBUG:httpcore.http11: response_closed.started
+2025-07-06 23:48:24,981 DEBUG:httpcore.http11: response_closed.complete
+2025-07-06 23:48:24,982 DEBUG:telegram.ext.ExtBot: Message(channel_chat_created=False, chat=Chat(first_name='Александр', id=5840537467, type=<ChatType.PRIVATE>, username='CheAAlex'), date=datetime.datetime(2025, 7, 6, 23, 47, 56, tzinfo=<UTC>), delete_chat_photo=False, edit_date=datetime.datetime(2025, 7, 6, 23, 48, 24, tzinfo=<UTC>), from_user=User(first_name='MyFinance', id=8194517570, is_bot=True, username='My689FinanceBot'), group_chat_created=False, message_id=5857, reply_markup=InlineKeyboardMarkup(inline_keyboard=((InlineKeyboardButton(callback_data='menu:finance', text='💰 Финансы'), InlineKeyboardButton(callback_data='menu:men_oper', text='📝 Операции')), (InlineKeyboardButton(callback_data='menu:classification', text='🏷 Классификация'), InlineKeyboardButton(callback_data='menu:plans', text='🗓 Планы')), (InlineKeyboardButton(callback_data='menu:add_bank', text='➕ Добавить Банк'), InlineKeyboardButton(callback_data='menu:del_bank', text='➖ Удалить Банк')), (InlineKeyboardButton(callback_data='menu:edit_table', text='✏️ Изменить таблицу'), InlineKeyboardButton(callback_data='menu:change_tariff', text='💳 Поменять тариф')), (InlineKeyboardButton(callback_data='menu:show_sheet', text='🔗 Показать таблицу'), InlineKeyboardButton(callback_data='menu:support', text='💬 Поддержка')), (InlineKeyboardButton(callback_data='menu:back', text='🔙 Назад'),))), supergroup_chat_created=False, text='Выберите раздел меню:')
+2025-07-06 23:48:24,982 DEBUG:telegram.ext.ExtBot: Exiting: edit_message_text
+/usr/local/lib/python3.11/dist-packages/telegram/ext/_conversationhandler.py:904: PTBUserWarning: 'exit_to_main_menu' returned state 10 which is unknown to the ConversationHandler.
+  self._update_state(new_state, conversation_key, handler)
+2025-07-06 23:48:26,368 DEBUG:httpcore.http11: receive_response_headers.complete return_value=(b'HTTP/1.1', 200, b'OK', [(b'Server', b'nginx/1.18.0'), (b'Date', b'Sun, 06 Jul 2025 23:48:26 GMT'), (b'Content-Type', b'application/json'), (b'Content-Length', b'2078'), (b'Connection', b'keep-alive'), (b'Strict-Transport-Security', b'max-age=31536000; includeSubDomains; preload'), (b'Access-Control-Allow-Origin', b'*'), (b'Access-Control-Allow-Methods', b'GET, POST, OPTIONS'), (b'Access-Control-Expose-Headers', b'Content-Length,Content-Type,Date,Server,Connection')])
+2025-07-06 23:48:26,368 INFO:httpx: HTTP Request: POST https://api.telegram.org/bot8194517570:AAHG80QPShNLSkCCIk15W0BKZw25GSDh610/getUpdates "HTTP/1.1 200 OK"
+2025-07-06 23:48:26,369 DEBUG:httpcore.http11: receive_response_body.started request=<Request [b'POST']>
+2025-07-06 23:48:26,369 DEBUG:httpcore.http11: receive_response_body.complete
+2025-07-06 23:48:26,369 DEBUG:httpcore.http11: response_closed.started
+2025-07-06 23:48:26,369 DEBUG:httpcore.http11: response_closed.complete
+2025-07-06 23:48:26,369 DEBUG:telegram.ext.ExtBot: Getting updates: [10516362]
+2025-07-06 23:48:26,370 DEBUG:telegram.ext.ExtBot: (Update(callback_query=CallbackQuery(chat_instance='-197365410636071226', data='menu:men_oper', from_user=User(first_name='Александр', id=5840537467, is_bot=False, language_code='ru', username='CheAAlex'), id='6638173341646681952', message=Message(channel_chat_created=False, chat=Chat(first_name='Александр', id=5840537467, type=<ChatType.PRIVATE>, username='CheAAlex'), date=datetime.datetime(2025, 7, 6, 23, 47, 56, tzinfo=<UTC>), delete_chat_photo=False, edit_date=datetime.datetime(2025, 7, 6, 23, 48, 24, tzinfo=<UTC>), from_user=User(first_name='MyFinance', id=8194517570, is_bot=True, username='My689FinanceBot'), group_chat_created=False, message_id=5857, reply_markup=InlineKeyboardMarkup(inline_keyboard=((InlineKeyboardButton(callback_data='menu:finance', text='💰 Финансы'), InlineKeyboardButton(callback_data='menu:men_oper', text='📝 Операции')), (InlineKeyboardButton(callback_data='menu:classification', text='🏷 Классификация'), InlineKeyboardButton(callback_data='menu:plans', text='🗓 Планы')), (InlineKeyboardButton(callback_data='menu:add_bank', text='➕ Добавить Банк'), InlineKeyboardButton(callback_data='menu:del_bank', text='➖ Удалить Банк')), (InlineKeyboardButton(callback_data='menu:edit_table', text='✏️ Изменить таблицу'), InlineKeyboardButton(callback_data='menu:change_tariff', text='💳 Поменять тариф')), (InlineKeyboardButton(callback_data='menu:show_sheet', text='🔗 Показать таблицу'), InlineKeyboardButton(callback_data='menu:support', text='💬 Поддержка')), (InlineKeyboardButton(callback_data='menu:back', text='🔙 Назад'),))), supergroup_chat_created=False, text='Выберите раздел меню:')), update_id=10516362),)
+2025-07-06 23:48:26,370 DEBUG:telegram.ext.ExtBot: Exiting: get_updates
+2025-07-06 23:48:26,371 DEBUG:telegram.ext.ExtBot: Entering: get_updates
+2025-07-06 23:48:26,371 DEBUG:telegram.ext.Application: Processing update Update(callback_query=CallbackQuery(chat_instance='-197365410636071226', data='menu:men_oper', from_user=User(first_name='Александр', id=5840537467, is_bot=False, language_code='ru', username='CheAAlex'), id='6638173341646681952', message=Message(channel_chat_created=False, chat=Chat(first_name='Александр', id=5840537467, type=<ChatType.PRIVATE>, username='CheAAlex'), date=datetime.datetime(2025, 7, 6, 23, 47, 56, tzinfo=<UTC>), delete_chat_photo=False, edit_date=datetime.datetime(2025, 7, 6, 23, 48, 24, tzinfo=<UTC>), from_user=User(first_name='MyFinance', id=8194517570, is_bot=True, username='My689FinanceBot'), group_chat_created=False, message_id=5857, reply_markup=InlineKeyboardMarkup(inline_keyboard=((InlineKeyboardButton(callback_data='menu:finance', text='💰 Финансы'), InlineKeyboardButton(callback_data='menu:men_oper', text='📝 Операции')), (InlineKeyboardButton(callback_data='menu:classification', text='🏷 Классификация'), InlineKeyboardButton(callback_data='menu:plans', text='🗓 Планы')), (InlineKeyboardButton(callback_data='menu:add_bank', text='➕ Добавить Банк'), InlineKeyboardButton(callback_data='menu:del_bank', text='➖ Удалить Банк')), (InlineKeyboardButton(callback_data='menu:edit_table', text='✏️ Изменить таблицу'), InlineKeyboardButton(callback_data='menu:change_tariff', text='💳 Поменять тариф')), (InlineKeyboardButton(callback_data='menu:show_sheet', text='🔗 Показать таблицу'), InlineKeyboardButton(callback_data='menu:support', text='💬 Поддержка')), (InlineKeyboardButton(callback_data='menu:back', text='🔙 Назад'),))), supergroup_chat_created=False, text='Выберите раздел меню:')), update_id=10516362)
+2025-07-06 23:48:26,372 DEBUG:telegram.ext.ConversationHandler: Selecting conversation (5840537467, 5840537467) with state None
+2025-07-06 23:48:26,372 DEBUG:telegram.ext.ConversationHandler: Selecting conversation (5840537467, 5840537467) with state None
+2025-07-06 23:48:26,372 DEBUG:telegram.ext.ConversationHandler: Selecting conversation (5840537467, 5840537467) with state None
+2025-07-06 23:48:26,372 DEBUG:telegram.ext.ConversationHandler: Selecting conversation (5840537467, 5840537467) with state 10
+2025-07-06 23:48:26,372 DEBUG:telegram.ext.ExtBot: Entering: answer_callback_query
+2025-07-06 23:48:26,373 DEBUG:httpcore.http11: send_request_headers.started request=<Request [b'POST']>
+2025-07-06 23:48:26,373 DEBUG:httpcore.http11: send_request_headers.started request=<Request [b'POST']>
+2025-07-06 23:48:26,373 DEBUG:httpcore.http11: send_request_headers.complete
+2025-07-06 23:48:26,373 DEBUG:httpcore.http11: send_request_body.started request=<Request [b'POST']>
+2025-07-06 23:48:26,374 DEBUG:httpcore.http11: send_request_headers.complete
+2025-07-06 23:48:26,374 DEBUG:httpcore.http11: send_request_body.started request=<Request [b'POST']>
+2025-07-06 23:48:26,374 DEBUG:httpcore.http11: send_request_body.complete
+2025-07-06 23:48:26,374 DEBUG:httpcore.http11: receive_response_headers.started request=<Request [b'POST']>
+2025-07-06 23:48:26,374 DEBUG:httpcore.http11: send_request_body.complete
+2025-07-06 23:48:26,374 DEBUG:httpcore.http11: receive_response_headers.started request=<Request [b'POST']>
+2025-07-06 23:48:26,468 DEBUG:httpcore.http11: receive_response_headers.complete return_value=(b'HTTP/1.1', 200, b'OK', [(b'Server', b'nginx/1.18.0'), (b'Date', b'Sun, 06 Jul 2025 23:48:26 GMT'), (b'Content-Type', b'application/json'), (b'Content-Length', b'25'), (b'Connection', b'keep-alive'), (b'Strict-Transport-Security', b'max-age=31536000; includeSubDomains; preload'), (b'Access-Control-Allow-Origin', b'*'), (b'Access-Control-Allow-Methods', b'GET, POST, OPTIONS'), (b'Access-Control-Expose-Headers', b'Content-Length,Content-Type,Date,Server,Connection')])
+2025-07-06 23:48:26,468 INFO:httpx: HTTP Request: POST https://api.telegram.org/bot8194517570:AAHG80QPShNLSkCCIk15W0BKZw25GSDh610/answerCallbackQuery "HTTP/1.1 200 OK"
+2025-07-06 23:48:26,469 DEBUG:httpcore.http11: receive_response_body.started request=<Request [b'POST']>
+2025-07-06 23:48:26,469 DEBUG:httpcore.http11: receive_response_body.complete
+2025-07-06 23:48:26,469 DEBUG:httpcore.http11: response_closed.started
+2025-07-06 23:48:26,469 DEBUG:httpcore.http11: response_closed.complete
+2025-07-06 23:48:26,469 DEBUG:telegram.ext.ExtBot: True
+2025-07-06 23:48:26,469 DEBUG:telegram.ext.ExtBot: Exiting: answer_callback_query
+2025-07-06 23:48:26,518 DEBUG:urllib3.util.retry: Converted retries value: 3 -> Retry(total=3, connect=None, read=None, redirect=None, status=None)
+2025-07-06 23:48:26,520 DEBUG:google.auth.transport.requests: Making request: POST https://oauth2.googleapis.com/token
+2025-07-06 23:48:26,521 DEBUG:urllib3.connectionpool: Starting new HTTPS connection (1): oauth2.googleapis.com:443
+2025-07-06 23:48:26,546 DEBUG:urllib3.connectionpool: https://oauth2.googleapis.com:443 "POST /token HTTP/1.1" 200 None
+2025-07-06 23:48:26,548 DEBUG:urllib3.connectionpool: Starting new HTTPS connection (1): sheets.googleapis.com:443
+2025-07-06 23:48:26,728 DEBUG:urllib3.connectionpool: https://sheets.googleapis.com:443 "GET /v4/spreadsheets/15T_gMKgXM5IYO3ty5dQ890tcy4_6tNMnLpysgq1LbOU?includeGridData=false HTTP/1.1" 200 None
+2025-07-06 23:48:26,859 DEBUG:urllib3.connectionpool: https://sheets.googleapis.com:443 "GET /v4/spreadsheets/15T_gMKgXM5IYO3ty5dQ890tcy4_6tNMnLpysgq1LbOU?includeGridData=false HTTP/1.1" 200 None
+2025-07-06 23:48:26,965 DEBUG:urllib3.connectionpool: https://sheets.googleapis.com:443 "GET /v4/spreadsheets/15T_gMKgXM5IYO3ty5dQ890tcy4_6tNMnLpysgq1LbOU?includeGridData=false HTTP/1.1" 200 None
+2025-07-06 23:48:27,061 DEBUG:urllib3.connectionpool: https://sheets.googleapis.com:443 "GET /v4/spreadsheets/15T_gMKgXM5IYO3ty5dQ890tcy4_6tNMnLpysgq1LbOU?includeGridData=false HTTP/1.1" 200 None
+2025-07-06 23:48:27,169 DEBUG:urllib3.connectionpool: https://sheets.googleapis.com:443 "GET /v4/spreadsheets/15T_gMKgXM5IYO3ty5dQ890tcy4_6tNMnLpysgq1LbOU?includeGridData=false HTTP/1.1" 200 None
+2025-07-06 23:48:27,324 DEBUG:urllib3.connectionpool: https://sheets.googleapis.com:443 "POST /v4/spreadsheets/15T_gMKgXM5IYO3ty5dQ890tcy4_6tNMnLpysgq1LbOU:batchUpdate HTTP/1.1" 200 None
+2025-07-06 23:48:27,469 DEBUG:urllib3.connectionpool: https://sheets.googleapis.com:443 "POST /v4/spreadsheets/15T_gMKgXM5IYO3ty5dQ890tcy4_6tNMnLpysgq1LbOU:batchUpdate HTTP/1.1" 200 None
+2025-07-06 23:48:27,615 DEBUG:urllib3.connectionpool: https://sheets.googleapis.com:443 "POST /v4/spreadsheets/15T_gMKgXM5IYO3ty5dQ890tcy4_6tNMnLpysgq1LbOU:batchUpdate HTTP/1.1" 200 None
+2025-07-06 23:48:27,751 DEBUG:urllib3.connectionpool: https://sheets.googleapis.com:443 "POST /v4/spreadsheets/15T_gMKgXM5IYO3ty5dQ890tcy4_6tNMnLpysgq1LbOU:batchUpdate HTTP/1.1" 200 None
+2025-07-06 23:48:27,890 DEBUG:urllib3.connectionpool: https://sheets.googleapis.com:443 "GET /v4/spreadsheets/15T_gMKgXM5IYO3ty5dQ890tcy4_6tNMnLpysgq1LbOU/values/%27%D0%A4%D0%B8%D0%BD%D0%B0%D0%BD%D1%81%D1%8B%27%21A1%3AA?valueRenderOption=FORMATTED_VALUE&majorDimension=COLUMNS HTTP/1.1" 200 None
+2025-07-06 23:48:28,017 DEBUG:urllib3.connectionpool: https://sheets.googleapis.com:443 "POST /v4/spreadsheets/15T_gMKgXM5IYO3ty5dQ890tcy4_6tNMnLpysgq1LbOU:batchUpdate HTTP/1.1" 200 None
+2025-07-06 23:48:28,153 DEBUG:urllib3.connectionpool: https://sheets.googleapis.com:443 "GET /v4/spreadsheets/15T_gMKgXM5IYO3ty5dQ890tcy4_6tNMnLpysgq1LbOU/values/%27%D0%9F%D0%BB%D0%B0%D0%BD%D1%8B%27%21A1%3AA?valueRenderOption=FORMATTED_VALUE&majorDimension=COLUMNS HTTP/1.1" 200 None
+2025-07-06 23:48:28,290 DEBUG:urllib3.connectionpool: https://sheets.googleapis.com:443 "POST /v4/spreadsheets/15T_gMKgXM5IYO3ty5dQ890tcy4_6tNMnLpysgq1LbOU:batchUpdate HTTP/1.1" 200 None
+2025-07-06 23:48:28,483 DEBUG:urllib3.connectionpool: https://sheets.googleapis.com:443 "POST /v4/spreadsheets/15T_gMKgXM5IYO3ty5dQ890tcy4_6tNMnLpysgq1LbOU:batchUpdate HTTP/1.1" 200 None
+2025-07-06 23:48:28,642 DEBUG:urllib3.connectionpool: https://sheets.googleapis.com:443 "POST /v4/spreadsheets/15T_gMKgXM5IYO3ty5dQ890tcy4_6tNMnLpysgq1LbOU:batchUpdate HTTP/1.1" 200 None
+2025-07-06 23:48:28,804 DEBUG:urllib3.connectionpool: https://sheets.googleapis.com:443 "POST /v4/spreadsheets/15T_gMKgXM5IYO3ty5dQ890tcy4_6tNMnLpysgq1LbOU:batchUpdate HTTP/1.1" 200 None
+2025-07-06 23:48:28,943 DEBUG:urllib3.connectionpool: https://sheets.googleapis.com:443 "POST /v4/spreadsheets/15T_gMKgXM5IYO3ty5dQ890tcy4_6tNMnLpysgq1LbOU:batchUpdate HTTP/1.1" 200 None
+2025-07-06 23:48:29,109 DEBUG:urllib3.connectionpool: https://sheets.googleapis.com:443 "POST /v4/spreadsheets/15T_gMKgXM5IYO3ty5dQ890tcy4_6tNMnLpysgq1LbOU:batchUpdate HTTP/1.1" 200 None
+2025-07-06 23:48:29,251 DEBUG:urllib3.connectionpool: https://sheets.googleapis.com:443 "GET /v4/spreadsheets/15T_gMKgXM5IYO3ty5dQ890tcy4_6tNMnLpysgq1LbOU/values/%27%D0%A4%D0%B8%D0%BD%D0%B0%D0%BD%D1%81%D1%8B%27 HTTP/1.1" 200 None
+2025-07-06 23:48:29,252 DEBUG:telegram.ext.ExtBot: Entering: edit_message_text
+2025-07-06 23:48:29,253 DEBUG:httpcore.http11: send_request_headers.started request=<Request [b'POST']>
+2025-07-06 23:48:29,254 DEBUG:httpcore.http11: send_request_headers.complete
+2025-07-06 23:48:29,254 DEBUG:httpcore.http11: send_request_body.started request=<Request [b'POST']>
+2025-07-06 23:48:29,254 DEBUG:httpcore.http11: send_request_body.complete
+2025-07-06 23:48:29,254 DEBUG:httpcore.http11: receive_response_headers.started request=<Request [b'POST']>
+2025-07-06 23:48:29,358 DEBUG:httpcore.http11: receive_response_headers.complete return_value=(b'HTTP/1.1', 200, b'OK', [(b'Server', b'nginx/1.18.0'), (b'Date', b'Sun, 06 Jul 2025 23:48:29 GMT'), (b'Content-Type', b'application/json'), (b'Content-Length', b'2369'), (b'Connection', b'keep-alive'), (b'Strict-Transport-Security', b'max-age=31536000; includeSubDomains; preload'), (b'Access-Control-Allow-Origin', b'*'), (b'Access-Control-Allow-Methods', b'GET, POST, OPTIONS'), (b'Access-Control-Expose-Headers', b'Content-Length,Content-Type,Date,Server,Connection')])
+2025-07-06 23:48:29,359 INFO:httpx: HTTP Request: POST https://api.telegram.org/bot8194517570:AAHG80QPShNLSkCCIk15W0BKZw25GSDh610/editMessageText "HTTP/1.1 200 OK"
+2025-07-06 23:48:29,359 DEBUG:httpcore.http11: receive_response_body.started request=<Request [b'POST']>
+2025-07-06 23:48:29,359 DEBUG:httpcore.http11: receive_response_body.complete
+2025-07-06 23:48:29,359 DEBUG:httpcore.http11: response_closed.started
+2025-07-06 23:48:29,360 DEBUG:httpcore.http11: response_closed.complete
+2025-07-06 23:48:29,361 DEBUG:telegram.ext.ExtBot: Message(channel_chat_created=False, chat=Chat(first_name='Александр', id=5840537467, type=<ChatType.PRIVATE>, username='CheAAlex'), date=datetime.datetime(2025, 7, 6, 23, 47, 56, tzinfo=<UTC>), delete_chat_photo=False, edit_date=datetime.datetime(2025, 7, 6, 23, 48, 29, tzinfo=<UTC>), entities=(MessageEntity(length=22, offset=3, type=<MessageEntityType.BOLD>),), from_user=User(first_name='MyFinance', id=8194517570, is_bot=True, username='My689FinanceBot'), group_chat_created=False, message_id=5857, reply_markup=InlineKeyboardMarkup(inline_keyboard=((InlineKeyboardButton(callback_data='op_select_1', text='1'), InlineKeyboardButton(callback_data='op_select_2', text='2'), InlineKeyboardButton(callback_data='op_select_3', text='3')), (InlineKeyboardButton(callback_data='op_select_4', text='4'), InlineKeyboardButton(callback_data='op_select_5', text='5'), InlineKeyboardButton(callback_data='op_select_6', text='6')), (InlineKeyboardButton(callback_data='op_select_7', text='7'), InlineKeyboardButton(callback_data='op_select_8', text='8'), InlineKeyboardButton(callback_data='op_select_9', text='9')), (InlineKeyboardButton(callback_data='op_select_0', text='0'),), (InlineKeyboardButton(callback_data='menu:open', text='🔙 Назад'),))), supergroup_chat_created=False, text='📝 Последние 10 операций:\n0. Нал  666,74  Раб, 22 июля, вт\n1. Альфа  -100\xa0000,00  Жорик, 20 июля, вс\n2. Альфа  -1\xa0234,00  Перевод, 19 июля, сб\n3. МКБ  1\xa0234,00  Перевод, 19 июля, сб\n4. МКБ  9\xa0683,00  Я в аухе, у меня всё получается, 19 июля, сб\n5. Альфа  123\xa0123,00  жора, 18 июля, пт\n6. МКБ  334,00  ываыва, 17 июля, чт\n7. Альфа  -223,00  Перевод, 13 июля, вс\n8. МКБ  223,00  Перевод, 13 июля, вс\n9. МКБ  333,00  Каааауу, 12 июля, сб')
+2025-07-06 23:48:29,361 DEBUG:telegram.ext.ExtBot: Exiting: edit_message_text
