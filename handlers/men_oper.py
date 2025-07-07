@@ -175,8 +175,10 @@ async def handle_op_confirm(update: Update, context: ContextTypes.DEFAULT_TYPE) 
 
 async def handle_op_delete(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     query = update.callback_query
+
+    await query.answer()
     # показываем пользователю pop-up об удалении
-    await query.answer("🗑 Операция удалена.", show_alert=False)
+    await query.edit_message_text("🗑 Операция удалена.")
 
     # удаляем строку в Google Sheets
     ws, _ = open_finance_and_plans(context.user_data["sheet_url"])
