@@ -68,11 +68,11 @@ async def start_men_oper(update: Update, context: ContextTypes.DEFAULT_TYPE) -> 
             "Год":             row_values[0],
             "Месяц":           row_values[1],
             "Банк":            row_values[2],
-            "Сумма":           row_values[5],  # строка вида "666,74" или "-1 234,00"
-            "Классификация":   row_values[6],
+            "Операция":        row_values[3],
             "Дата":            row_values[4],
-            "Конкретика":       row_values[7] or "",  # если пусто — пусть будет ""
-            
+            "Сумма":           row_values[5],
+            "Классификация":   row_values[6],
+            "Конкретика":      row_values[7] or "",
         })
     context.user_data["last_ops"] = last_ops
 
@@ -170,33 +170,53 @@ async def handle_op_confirm(update: Update, context: ContextTypes.DEFAULT_TYPE) 
 
     await query.edit_message_text("✅ Операция подтверждена.")
     # Возвращаем в главное меню
-    return STATE_OP_MENU
+    return await start_men_oper(update, context)
 
 
 async def handle_op_delete(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
-    query = update.callback_query; await query.answer()
+    query = update.callback_query
+
+    # удаляем строку в Google Sheets
     ws, _ = open_finance_and_plans(context.user_data["sheet_url"])
     row = context.user_data["editing_op"]["data"]
 
-    all_values = ws.get_all_values()
-    for i, values in enumerate(all_values[1:], start=2):
+    # парсим сумму из выбранной операции
+    try:
+        target_sum = float(
+            str(row["Сумма"])
+            .replace("\xa0","")
+            .replace(" ","")
+            .replace(",",".")
+        )
+    except (KeyError, ValueError):
+        target_sum = None  # на всякий случай
+
+    all_vals = ws.get_all_values()
+    for idx, values in enumerate(all_vals[1:], start=2):
         bank_cell = values[2]
         date_cell = values[4]
-        # переведём сумму в float
+        # нормализуем сумму из листа
         try:
-            sum_cell = float(str(values[5])
-                             .replace("\xa0","")
-                             .replace(" ","")
-                             .replace(",","."))
-        except:
+            sum_cell = float(
+                str(values[5])
+                .replace("\xa0","")
+                .replace(" ","")
+                .replace(",",".")
+            )
+        except ValueError:
             continue
-        if (bank_cell == row["Банк"] and
+
+        if (
+            bank_cell == row["Банк"] and
             date_cell == row["Дата"] and
-            sum_cell == float(row["Сумма"])):
-            ws.delete_rows(i)
+            (target_sum is None or sum_cell == target_sum)
+        ):
+            ws.delete_rows(idx)
             break
 
-    await query.edit_message_text("🗑 Операция удалена.")
+    # уведомление в виде небольшого toast’а
+    await query.answer("🗑 Операция удалена.", show_alert=False)
+    # сразу перерисовываем обновлённый список последних 10 операций
     return await start_men_oper(update, context)
 
 

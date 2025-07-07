@@ -150,7 +150,5 @@ async def handle_menu_selection(update: Update, context: ContextTypes.DEFAULT_TY
 def register_menu_handlers(app):
     """Регистрирует глобальный /menu и все menu:* коллбэки."""
     app.add_handler(CommandHandler("menu", show_main_menu))
-    # сначала обрабатываем именно «Операции»
-    app.add_handler(CallbackQueryHandler(start_men_oper, pattern=r"^menu:men_oper$"))
     # потом — общий хэндлер для всех остальных menu:*
     app.add_handler(CallbackQueryHandler(handle_menu_selection, pattern=r"^menu:"))
