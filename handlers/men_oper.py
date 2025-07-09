@@ -13,13 +13,6 @@ from utils.constants import (
     STATE_OP_EDIT_INPUT
 )
 
-import logging #Логи
-
-logger = logging.getLogger(__name__) #Логи
-# Уровень можно опустить до INFO или DEBUG в зависимости от потребностей:
-logger.setLevel(logging.DEBUG) #Логи
-
-
 # — сортировка по дате «Я → А»
 SORT_REQUEST = {
     "requests":[{ "sortRange": {
@@ -35,6 +28,9 @@ SORT_REQUEST = {
 
 # — точные заголовки «Финансы»
 EXPECTED_HEADERS = ["Год","Месяц","Банк","Операция","Дата","Сумма","Классификация","Конкретика"]
+
+import logging
+logger = logging.getLogger(__name__)
 
 
 # Правельный выход в меню
@@ -132,7 +128,11 @@ async def handle_op_select(update: Update, context: ContextTypes.DEFAULT_TYPE) -
 
     # Кнопки
     buttons = []
-    buttons = [
+    # «Подтвердить» — только если нет «Конкретики»
+    required = ["Банк","Операция","Дата","Сумма","Классификация"]
+    if all(row.get(f) for f in required):
+        buttons.append(InlineKeyboardButton("✅ Подтвердить", callback_data="op_confirm"))
+    buttons += [
         InlineKeyboardButton("✏️ Изменить", callback_data="op_edit"),
         InlineKeyboardButton("🗑 Удалить", callback_data="op_delete"),
         InlineKeyboardButton("🔙 Назад",   callback_data="op_back"),
@@ -225,87 +225,111 @@ async def handle_op_delete(update: Update, context: ContextTypes.DEFAULT_TYPE) -
     # сразу перерисовываем обновлённый список последних 10 операций
     return await start_men_oper(update, context)
 
-# 3 — Пользователь нажал «Изменить» — приглашаем к выбору поля и показываем текущее значение
 async def handle_op_edit_choice(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
+    """Пользователь нажал «Изменить» — показываем выбор поля."""
+    logger.debug("🔧 handle_op_edit_choice called (data=%s)", update.callback_query.data) #Логи
     query = update.callback_query
     await query.answer()
-    logger.debug("ENTER handle_op_edit_choice — callback_data=%s user=%s", query.data, update.effective_user.id) #Логи
-    row = context.user_data["editing_op"]["data"]
-
-    # показываем список полей
     kb = [
-        [InlineKeyboardButton("Банк",          callback_data="edit_bank"),
-         InlineKeyboardButton("Операция",      callback_data="edit_operation")],
-        [InlineKeyboardButton("Дата",          callback_data="edit_date"),
-         InlineKeyboardButton("Сумма",         callback_data="edit_sum")],
-        [InlineKeyboardButton("Классификация", callback_data="edit_classification"),
-         InlineKeyboardButton("Конкретика",    callback_data="edit_specific")],
-        [InlineKeyboardButton("✅ Сохранить изменения", callback_data="edit_confirm"),
-        InlineKeyboardButton("🔙 Назад",       callback_data="edit_cancel")],
+        [InlineKeyboardButton("Банк",           callback_data="edit_bank"),
+         InlineKeyboardButton("Операция",       callback_data="edit_operation")],
+        [InlineKeyboardButton("Дата",           callback_data="edit_date"),
+         InlineKeyboardButton("Сумма",          callback_data="edit_sum")],
+        [InlineKeyboardButton("Классификация",  callback_data="edit_classification"),
+         InlineKeyboardButton("Конкретика",     callback_data="edit_specific")],
+        [InlineKeyboardButton("🔙 Назад",        callback_data="op_back")],
     ]
-    # 3.1 Собираем текст текущей операции точно так же, как в handle_op_select
-    row = context.user_data["editing_op"]["data"]
-    detail = (
-        f"*Операция #{context.user_data['editing_op']['index']}:*\n"
-        f"Банк: {row['Банк']}\n"
-        f"Операция: {row['Операция']}\n"
-        f"Дата: {row['Дата']}\n"
-        f"Сумма: {row['Сумма']}\n"
-        f"Классификация: {row['Классификация']}\n"
-        f"Конкретика: {row['Конкретика'] or '—'}\n\n"
-        "❓ *Что вы хотите изменить?*"
-    )
-    await query.edit_message_text(
-        detail,
-        parse_mode="Markdown",
-        reply_markup=InlineKeyboardMarkup(kb)
-    )
-
+    await query.edit_message_text("Выберите поле для редактирования:", reply_markup=InlineKeyboardMarkup(kb))
     return STATE_OP_EDIT_CHOICE
 
 
-# 4 — Пользователь выбрал конкретное поле — сначала показываем prompt с текущим значением,
-# затем передаём управление в существующий ask_*-хендлер
 async def handle_edit_field(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
+    """Пользователь выбрал конкретное поле — перенаправляем на ask_*."""
+    logger.debug("🔧 handle_edit_field called (data=%s)", update.callback_query.data) #Логи
     query = update.callback_query
     await query.answer()
-    logger.debug("handle_edit_field called — callback_data=%s", query.data) #Логи
-    field_key = query.data.split("_", 1)[1]  # e.g. "bank", "date" и т.д.
+    field = query.data.split("_", 1)[1]  # e.g. "bank", "date" и т.д.
+    # Сохраним в user_data, чтобы потом знать, куда возвращаться
+    context.user_data["edit_field"] = field
 
-    # Отображаем человекочитаемое имя поля и текущее значение
+    # Получим текущее значение из saved editing_op
     row = context.user_data["editing_op"]["data"]
-    rev_map = {
-        "bank":           "Банк",
-        "operation":      "Операция",
-        "date":           "Дата",
-        "sum":            "Сумма",
-        "classification": "Классификация",
-        "specific":       "Конкретика"
-    }
-    display_name = rev_map[field_key]
-    current = row.get(display_name) or "—"
-    await query.edit_message_text(
-        f"Как вы хотите поменять поле «{display_name}» — текущее значение: «{current}»?"
-    )
-
-    # Выбираем, в какой ask_* передать управление
     mapping = {
-        "bank":           ask_edit_bank,           # 5.1
-        "operation":      ask_edit_operation,      # 5.2
-        "date":           ask_edit_date,           # 5.3
-        "sum":            ask_edit_sum,            # 5.4
-        "classification": ask_edit_classification, # 5.5
-        "specific":       ask_edit_specific,       # 5.6
+        "bank":           ("Банк",          ask_bank),
+        "operation":      ("Операция",      ask_operation),
+        "date":           ("Дата",          ask_date),
+        "sum":            ("Сумма",         ask_sum),
+        "classification": ("Классификация", ask_classification),
+        "specific":       ("Конкретика",    ask_specific),
     }
-    handler = mapping[field_key]
+    display_name, handler = mapping[field]
+    current = row.get(display_name) or ""
+    # Передадим текущий текст в функцию-опросник
+    # Ваша ask_* умеют принимать (update, context, current_value)
+    return await handler(update, context, current)
 
-    # Передаём текущий value в handler через context.user_data
-    context.user_data["edit_current"] = current
-    return await handler(update, context)
+# ——— Шаг 1: спрашиваем новый Банк ———
+async def ask_bank(update: Update, context: ContextTypes.DEFAULT_TYPE, current_value: str) -> int:
+    """
+    Спрашиваем у пользователя новый Банк, показываем только кнопки из его списка банков.
+    """
+    # Снимаем «часики»
+    if update.callback_query:
+        await update.callback_query.answer()
+        query = update.callback_query
+    else:
+        query = update.message
+
+    logger.debug("🔧 ask_bank called, current_value=%s", current_value) #Логи
+
+    # Загружаем список банков пользователя (кэшируем)
+    banks = context.user_data.get("user_banks")
+    if banks is None:
+        ws, _ = open_finance_and_plans(context.user_data["sheet_url"])
+        rows = ws.get_all_values()[1:]
+        banks = sorted({ row[2] for row in rows if row[2] })
+        context.user_data["user_banks"] = banks
+        
+    logger.debug("🔧 available banks for user: %s", banks) #Логи
+
+    # Строим клавиатуру
+    kb = [[InlineKeyboardButton(b, callback_data=f"edit_bank_choice_{b}")] for b in banks]
+    kb.append([InlineKeyboardButton("❌ Отмена", callback_data="op_back")])
+
+    text = (
+        f"Как вы хотите поменять поле *Банк* — текущее значение: "
+        f"`{current_value or '—'}`?\n\n"
+        "Выберите банк из списка:"
+    )
+    await query.edit_message_text(text, parse_mode="Markdown",
+                                  reply_markup=InlineKeyboardMarkup(kb))
+    # Переходим в состояние ввода (обработаем выбор кнопкой)
+    return STATE_OP_EDIT_INPUT
+
+
+async def handle_bank_choice(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
+    """
+    Обрабатываем выбор банка из списка. 
+    Сохраняем и возвращаемся к карточке операции.
+    """
+    await update.callback_query.answer()
+    # Получаем выбранный банк из callback_data
+    _, _, _, selected = update.callback_query.data.split("_", 3)
+
+    # Проверяем, что выбор допустим
+    banks = context.user_data.get("user_banks", [])
+    if selected not in banks:
+        await update.callback_query.edit_message_text("⚠️ Пожалуйста, выберите банк *только* из списка!", parse_mode="Markdown")
+        return STATE_OP_EDIT_INPUT
+
+    # Сохраняем новый банк в текущей операции
+    context.user_data["editing_op"]["data"]["Банк"] = selected
+
+    # Возвращаемся к просмотру деталей операции (с уже обновлённым банком)
+    return await handle_op_select(update, context)
 
 async def handle_edit_input(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     """Сохраняем введённое поле и возвращаемся к деталям операции."""
-    logger.debug("handle_edit_input called — callback_data=%s", query.data) #Логи
     text = update.message.text
     field = context.user_data["edit_field"]
     # Обратное отображение ключ → ваше поле в row
@@ -325,198 +349,6 @@ async def handle_op_back(update: Update, context: ContextTypes.DEFAULT_TYPE) -> 
     """«Назад» — просто переходим на список последних операций."""
     return await start_men_oper(update, context)
 
-# —━━ 5. Функции запроса новых значений при редактировании ━━—
-
-async def ask_edit_bank(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
-    """5.1 — Запрос нового банка с учётом текущего значения."""
-    query = update.callback_query; await query.answer()
-    logger.debug("ask_edit_bank called — callback_data=%s", query.data) #Логи
-    row = context.user_data["editing_op"]["data"]
-    current = row.get("Банк") or "—"
-    # собираем кнопки банков так же, как в обычном add
-    ws, _ = open_finance_and_plans(context.user_data["sheet_url"])
-    banks = sorted(set(ws.col_values(3)[1:]))
-    kb = InlineKeyboardMarkup([[InlineKeyboardButton(b, callback_data=f"edit_bank|{b}")] for b in banks])
-    await query.edit_message_text(
-        f"Как вы хотите поменять поле «Банк» — текущее значение: «{current}»?\nВыберите новый банк:",
-        reply_markup=kb
-    )
-    return STATE_OP_EDIT_INPUT
-
-async def ask_edit_operation(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
-    """5.2 — Запрос нового типа операции (без Перевода)."""
-    query = update.callback_query; await query.answer()
-    logger.debug("ask_edit_operation called — callback_data=%s", query.data) #Логи
-    row = context.user_data["editing_op"]["data"]
-    current = row.get("Операция") or "—"
-    kb = InlineKeyboardMarkup([[
-        InlineKeyboardButton("Пополнение", callback_data="edit_operation|Пополнение"),
-        InlineKeyboardButton("Трата",      callback_data="edit_operation|Трата"),
-    ]])
-    await query.edit_message_text(
-        f"Как вы хотите поменять поле «Операция» — текущее значение: «{current}»?\nВыберите новый тип:",
-        reply_markup=kb
-    )
-    return STATE_OP_EDIT_INPUT
-
-async def ask_edit_date(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
-    """5.3 — Запрос новой даты через календарь."""
-    query = update.callback_query; await query.answer()
-    logger.debug("ask_edit_date called — callback_data=%s", query.data) #Логи
-    row = context.user_data["editing_op"]["data"]
-    current = row.get("Дата") or "—"
-    now = datetime.now(pytz.timezone("Europe/Moscow"))
-    cal = create_calendar(now.year, now.month)
-    await query.edit_message_text(
-        f"Как вы хотите поменять поле «Дата» — текущее значение: «{current}»?\nВыберите новую дату:",
-        reply_markup=cal
-    )
-    return STATE_SELECT_DATE  # календарь у нас общий
-
-async def ask_edit_sum(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
-    """5.4 — Запрос новой суммы."""
-    query = update.callback_query; await query.answer()
-    logger.debug("ask_edit_sum called — callback_data=%s", query.data) #Логи
-    row = context.user_data["editing_op"]["data"]
-    current = row.get("Сумма") or "—"
-    await query.edit_message_text(
-        f"Как вы хотите поменять поле «Сумма» — текущее значение: «{current}»?\n➖ Введите число:",
-    )
-    return STATE_ENTER_AMOUNT
-
-async def ask_edit_classification(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
-    """5.5 — Запрос новой классификации."""
-    query = update.callback_query; await query.answer()
-    logger.debug("ask_edit_classification called — callback_data=%s", query.data) #Логи
-    row = context.user_data["editing_op"]["data"]
-    current = row.get("Классификация") or "—"
-    await query.edit_message_text(
-        f"Как вы хотите поменять поле «Классификация» — текущее значение: «{current}»?\n🏷️ Введите текст:",
-    )
-    return STATE_ENTER_CLASSIFICATION
-
-async def ask_edit_specific(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
-    """5.6 — Запрос новой конкретики."""
-    query = update.callback_query; await query.answer()
-    logger.debug("ask_edit_specific called — callback_data=%s", query.data) #Логи
-    row = context.user_data["editing_op"]["data"]
-    current = row.get("Конкретика") or "—"
-    await query.edit_message_text(
-        f"Как вы хотите поменять поле «Конкретика» — текущее значение: «{current}»?\n🔍 Введите текст:",
-    )
-    return STATE_ENTER_SPECIFIC
-
-# 5.1 — выбор нового банка
-async def handle_edit_bank_selection(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
-    q = update.callback_query; await q.answer()
-    logger.debug("handle_edit_bank_selection — data=%s", q.data) #Логи
-    # callback_data = "edit_bank|Tinkoff" — вытягиваем новый банк
-    new_bank = q.data.split("|", 1)[1]
-    # сохраняем
-    context.user_data["editing_op"]["data"]["Банк"] = new_bank
-    # возвращаемся к окну предпросмотра
-    return await handle_op_select(update, context)
-
-# 5.2 — выбор новой операции
-async def handle_edit_operation_selection(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
-    q = update.callback_query; await q.answer()
-    logger.debug("handle_edit_operation_selection — data=%s", q.data) #Логи
-    new_op = q.data.split("|", 1)[1]
-    context.user_data["editing_op"]["data"]["Операция"] = new_op
-    return await handle_op_select(update, context)
-
-# 5.3 — выбор даты (переиспользуем calendar из operations)
-async def handle_edit_date_callback(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
-    q = update.callback_query; await q.answer()
-    logger.debug("handle_edit_date_callback — data=%s", q.data) #Логи
-    # data = "select_date|2025-07-08"
-    _, ds = q.data.split("|", 1)
-    context.user_data["editing_op"]["data"]["Дата"] = ds
-    return await handle_op_select(update, context)
-
-# 5.4 — ввод новой суммы
-async def handle_edit_sum_input(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
-    text = update.message.text.strip().replace(",",".")
-    logger.debug("handle_edit_sum_input — text=%r", text) #Логи
-    try:
-        amt = float(text)
-    except ValueError:
-        return await update.message.reply_text("⚠️ Введите корректное число.")
-    context.user_data["editing_op"]["data"]["Сумма"] = amt
-    return await handle_op_select(update, context)
-
-# 5.5 — ввод новой классификации
-async def handle_edit_classification_input(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
-    """
-    5.5 — ввод новой классификации
-    """
-    # 1) Считаем текст, убираем лишние пробелы
-    text = update.message.text.strip()
-    # 2) Логируем для дебага
-    logger.debug("handle_edit_classification_input — text=%r", text)
-    # 3) Сохраняем новое значение в контексте
-    context.user_data["editing_op"]["data"]["Классификация"] = text
-    # 4) Перерисовываем карточку операции с обновлённым полем
-    return await handle_op_select(update, context)
-
-
-# 5.6 — ввод новой конкретики
-async def handle_edit_specific_input(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
-    """
-    5.6 — ввод новой конкретики
-    """
-    # 1) Считаем текст, убираем лишние пробелы
-    text = update.message.text.strip()
-    # 2) Логируем для дебага
-    logger.debug("handle_edit_specific_input — text=%r", text)
-    # 3) Сохраняем новое значение (пустой ввод → "-")
-    context.user_data["editing_op"]["data"]["Конкретика"] = text or "-"
-    # 4) Перерисовываем карточку операции с обновлённым полем
-    return await handle_op_select(update, context)
-
-
-
-# 3.7 — Отмена редактирования поля: возвращаемся в окно предпросмотра
-async def handle_edit_cancel(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
-    query = update.callback_query
-    await query.answer()
-    logger.debug("handle_edit_cancel — callback_data=%s", query.data) #Логи
-    # Показываем опять исходную карточку операции с кнопками ✅ Подтвердить / ✏️ Изменить / 🗑 Удалить / 🔙 Назад
-    return await handle_op_select(update, context)
-
-# 4.7 — Подтверждение всех изменений: удаляем старую строку и записываем новую
-async def handle_edit_confirm(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
-    query = update.callback_query
-    await query.answer("Сохраняю изменения…", show_alert=False)
-    logger.debug("handle_edit_confirm — callback_data=%s", q.data)
-
-    # 1. Получаем данные и таблицу
-    edit = context.user_data["editing_op"]
-    row = edit["data"]
-    url = context.user_data["sheet_url"]
-    ws, _ = open_finance_and_plans(url)
-
-    # 2. Удаляем старую строку по уникальной связке (Банк, Дата, Сумма)
-    all_vals = ws.get_all_values()
-    for i, vals in enumerate(all_vals[1:], start=2):
-        if (vals[2], vals[4], vals[5]) == (row["Банк"], row["Дата"], str(row["Сумма"])):
-            ws.delete_rows(i)
-            break
-
-    # 3. Добавляем обновлённую строку в конец
-    new_row = [
-        row["Год"], row["Месяц"], row["Банк"], row["Операция"],
-        row["Дата"], row["Сумма"], row["Классификация"],
-        row.get("Конкретика") or "-"
-    ]
-    ws.append_row(new_row, value_input_option="USER_ENTERED")
-
-    # 4. Уведомляем пользователя и очищаем контекст
-    await query.edit_message_text("✅ Изменения сохранены.")
-    context.user_data.pop("editing_op", None)
-
-    # 5. Возвращаем к списку последних операций
-    return await start_men_oper(update, context)
 
 # (далее можно добавить handle_op_edit_* точно по той же схеме, что и в /add)
 
@@ -532,37 +364,21 @@ def register_men_oper_handlers(app):
                 CallbackQueryHandler(exit_to_main_menu, pattern=r"^menu:open$")
             ],
             STATE_OP_CONFIRM: [
+                CallbackQueryHandler(handle_op_confirm, pattern=r"^op_confirm$"),
                 CallbackQueryHandler(handle_op_delete,  pattern=r"^op_delete$"),
                 CallbackQueryHandler(handle_op_edit_choice, pattern=r"^op_edit$"),
                 CallbackQueryHandler(handle_op_back,     pattern=r"^op_back$")
             ],
             STATE_OP_EDIT_CHOICE: [
-                # 1) Запрос нового значения поля:
-                CallbackQueryHandler(ask_edit_bank,           pattern=r"^edit_bank$"),
-                CallbackQueryHandler(ask_edit_operation,      pattern=r"^edit_operation$"),
-                CallbackQueryHandler(ask_edit_date,           pattern=r"^edit_date$"),
-                CallbackQueryHandler(ask_edit_sum,            pattern=r"^edit_sum$"),
-                CallbackQueryHandler(ask_edit_classification, pattern=r"^edit_classification$"),
-                CallbackQueryHandler(ask_edit_specific,       pattern=r"^edit_specific$"),
-                # 2) Обработка выбора/ввода нового значения:
-                CallbackQueryHandler(handle_edit_bank_selection,      pattern=r"^edit_bank\|"),
-                CallbackQueryHandler(handle_edit_operation_selection, pattern=r"^edit_operation\|"),
-                CallbackQueryHandler(handle_edit_date_callback,       pattern=r"^select_date\|"),
-                MessageHandler(filters.TEXT & ~filters.COMMAND,       handle_edit_sum_input),
-                MessageHandler(filters.TEXT & ~filters.COMMAND,       handle_edit_classification_input),
-                MessageHandler(filters.TEXT & ~filters.COMMAND,       handle_edit_specific_input),
-                # 3) Сохранить изменения
-                CallbackQueryHandler(handle_edit_confirm,              pattern=r"^edit_confirm$"),
-                # 4) Отмена редактирования — возвращаем в предпросмотр
-                CallbackQueryHandler(handle_edit_cancel,               pattern=r"^edit_cancel$")
-
+                CallbackQueryHandler(handle_edit_field,
+                                     pattern=r"^edit_(bank|operation|date|sum|classification|specific)$"),
+                CallbackQueryHandler(handle_op_back, pattern=r"^op_back$")
             ],
             # этот этап обрабатывают сами ask_* из handlers/operations и они должны вернуть STATE_OP_EDIT_INPUT
             STATE_OP_EDIT_INPUT: [
                 # сюда попадут сообщения-последний ввод пользователя
-                MessageHandler(filters.TEXT & ~filters.COMMAND,
-                               # ваша функция-обработчик, которая сохранит новое значение
-                               handle_edit_input)
+                CallbackQueryHandler(handle_bank_choice, pattern=r"^edit_bank_choice_.+$"),
+                MessageHandler(filters.TEXT & ~filters.COMMAND, handle_edit_input)
             ],
         },
         fallbacks=[ CallbackQueryHandler(exit_to_main_menu, pattern=r"^menu:open$") ],

@@ -8,8 +8,6 @@ from services.sheets_service import open_finance_and_plans
 from utils.constants import STATE_OP_MENU  # ваше состояние после /add
 from handlers.men_oper import start_men_oper  # импорт ветки «Операции»
 
-logger = logging.getLogger(__name__)
-
 
 def _build_main_kb() -> InlineKeyboardMarkup:
     return InlineKeyboardMarkup([
@@ -45,17 +43,14 @@ async def handle_menu_selection(update: Update, context: ContextTypes.DEFAULT_TY
     query = update.callback_query
     await query.answer()
     data = query.data  # например "menu:finance"
-    logger.debug("🏷 handle_menu_selection called, data=%r", data)
 
     # — Открыть / перерисовать меню
     if data == "menu:open":
-        logger.debug("🏷 Branch OPEN")
         await show_main_menu(update, context)
         return STATE_OP_MENU
 
     # — Назад
     if data == "menu:back":
-        logger.debug("🏷 Branch BACK")
         from handlers.operations import go_main_menu
         return await go_main_menu(update, context)
 
@@ -127,11 +122,9 @@ async def handle_menu_selection(update: Update, context: ContextTypes.DEFAULT_TY
 
     # — Операции
     if data == "menu:men_oper":
-        logger.debug("🏷 Branch OPERATIONS")
         return await start_men_oper(update, context)
 
     # остальные пункты — заглушки
-    logger.debug("🏷 Branch OTHER: %r", data)
     responses = {
         "menu:classification": "🏷 Раздел «Классификация» в разработке…",
         "menu:plans":          "🗓 Раздел «Планы» в разработке…",
