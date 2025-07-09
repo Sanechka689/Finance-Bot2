@@ -13,6 +13,13 @@ from utils.constants import (
     STATE_OP_EDIT_INPUT
 )
 
+import logging #Логи
+
+logger = logging.getLogger(__name__) #Логи
+# Уровень можно опустить до INFO или DEBUG в зависимости от потребностей:
+logger.setLevel(logging.DEBUG) #Логи
+
+
 # — сортировка по дате «Я → А»
 SORT_REQUEST = {
     "requests":[{ "sortRange": {
@@ -114,7 +121,7 @@ async def handle_op_select(update: Update, context: ContextTypes.DEFAULT_TYPE) -
 
     # Собираем подробный текст
     detail = (
-      f"*Операция #{idx}:*\n"
+        f"*Операция #{idx}:*\n"
         f"Банк: {row['Банк']}\n"
         f"Операция: {row['Операция']}\n"
         f"Дата: {row['Дата']}\n"
@@ -222,6 +229,7 @@ async def handle_op_delete(update: Update, context: ContextTypes.DEFAULT_TYPE) -
 async def handle_op_edit_choice(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     query = update.callback_query
     await query.answer()
+    logger.debug("ENTER handle_op_edit_choice — callback_data=%s user=%s", query.data, update.effective_user.id) #Логи
     row = context.user_data["editing_op"]["data"]
 
     # показываем список полей
@@ -238,8 +246,8 @@ async def handle_op_edit_choice(update: Update, context: ContextTypes.DEFAULT_TY
     # 3.1 Собираем текст текущей операции точно так же, как в handle_op_select
     row = context.user_data["editing_op"]["data"]
     detail = (
-        f"Банк: {row['Банк']}\n"
         f"*Операция #{context.user_data['editing_op']['index']}:*\n"
+        f"Банк: {row['Банк']}\n"
         f"Операция: {row['Операция']}\n"
         f"Дата: {row['Дата']}\n"
         f"Сумма: {row['Сумма']}\n"
@@ -261,6 +269,7 @@ async def handle_op_edit_choice(update: Update, context: ContextTypes.DEFAULT_TY
 async def handle_edit_field(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     query = update.callback_query
     await query.answer()
+    logger.debug("handle_edit_field called — callback_data=%s", query.data) #Логи
     field_key = query.data.split("_", 1)[1]  # e.g. "bank", "date" и т.д.
 
     # Отображаем человекочитаемое имя поля и текущее значение
@@ -296,6 +305,7 @@ async def handle_edit_field(update: Update, context: ContextTypes.DEFAULT_TYPE) 
 
 async def handle_edit_input(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     """Сохраняем введённое поле и возвращаемся к деталям операции."""
+    logger.debug("handle_edit_input called — callback_data=%s", query.data) #Логи
     text = update.message.text
     field = context.user_data["edit_field"]
     # Обратное отображение ключ → ваше поле в row
@@ -320,6 +330,7 @@ async def handle_op_back(update: Update, context: ContextTypes.DEFAULT_TYPE) -> 
 async def ask_edit_bank(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     """5.1 — Запрос нового банка с учётом текущего значения."""
     query = update.callback_query; await query.answer()
+    logger.debug("ask_edit_bank called — callback_data=%s", query.data) #Логи
     row = context.user_data["editing_op"]["data"]
     current = row.get("Банк") or "—"
     # собираем кнопки банков так же, как в обычном add
@@ -335,6 +346,7 @@ async def ask_edit_bank(update: Update, context: ContextTypes.DEFAULT_TYPE) -> i
 async def ask_edit_operation(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     """5.2 — Запрос нового типа операции (без Перевода)."""
     query = update.callback_query; await query.answer()
+    logger.debug("ask_edit_operation called — callback_data=%s", query.data) #Логи
     row = context.user_data["editing_op"]["data"]
     current = row.get("Операция") or "—"
     kb = InlineKeyboardMarkup([[
@@ -350,6 +362,7 @@ async def ask_edit_operation(update: Update, context: ContextTypes.DEFAULT_TYPE)
 async def ask_edit_date(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     """5.3 — Запрос новой даты через календарь."""
     query = update.callback_query; await query.answer()
+    logger.debug("ask_edit_date called — callback_data=%s", query.data) #Логи
     row = context.user_data["editing_op"]["data"]
     current = row.get("Дата") or "—"
     now = datetime.now(pytz.timezone("Europe/Moscow"))
@@ -363,6 +376,7 @@ async def ask_edit_date(update: Update, context: ContextTypes.DEFAULT_TYPE) -> i
 async def ask_edit_sum(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     """5.4 — Запрос новой суммы."""
     query = update.callback_query; await query.answer()
+    logger.debug("ask_edit_sum called — callback_data=%s", query.data) #Логи
     row = context.user_data["editing_op"]["data"]
     current = row.get("Сумма") or "—"
     await query.edit_message_text(
@@ -373,6 +387,7 @@ async def ask_edit_sum(update: Update, context: ContextTypes.DEFAULT_TYPE) -> in
 async def ask_edit_classification(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     """5.5 — Запрос новой классификации."""
     query = update.callback_query; await query.answer()
+    logger.debug("ask_edit_classification called — callback_data=%s", query.data) #Логи
     row = context.user_data["editing_op"]["data"]
     current = row.get("Классификация") or "—"
     await query.edit_message_text(
@@ -383,6 +398,7 @@ async def ask_edit_classification(update: Update, context: ContextTypes.DEFAULT_
 async def ask_edit_specific(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     """5.6 — Запрос новой конкретики."""
     query = update.callback_query; await query.answer()
+    logger.debug("ask_edit_specific called — callback_data=%s", query.data) #Логи
     row = context.user_data["editing_op"]["data"]
     current = row.get("Конкретика") or "—"
     await query.edit_message_text(
@@ -393,6 +409,7 @@ async def ask_edit_specific(update: Update, context: ContextTypes.DEFAULT_TYPE) 
 # 5.1 — выбор нового банка
 async def handle_edit_bank_selection(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     q = update.callback_query; await q.answer()
+    logger.debug("handle_edit_bank_selection — data=%s", q.data) #Логи
     # callback_data = "edit_bank|Tinkoff" — вытягиваем новый банк
     new_bank = q.data.split("|", 1)[1]
     # сохраняем
@@ -403,6 +420,7 @@ async def handle_edit_bank_selection(update: Update, context: ContextTypes.DEFAU
 # 5.2 — выбор новой операции
 async def handle_edit_operation_selection(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     q = update.callback_query; await q.answer()
+    logger.debug("handle_edit_operation_selection — data=%s", q.data) #Логи
     new_op = q.data.split("|", 1)[1]
     context.user_data["editing_op"]["data"]["Операция"] = new_op
     return await handle_op_select(update, context)
@@ -410,6 +428,7 @@ async def handle_edit_operation_selection(update: Update, context: ContextTypes.
 # 5.3 — выбор даты (переиспользуем calendar из operations)
 async def handle_edit_date_callback(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     q = update.callback_query; await q.answer()
+    logger.debug("handle_edit_date_callback — data=%s", q.data) #Логи
     # data = "select_date|2025-07-08"
     _, ds = q.data.split("|", 1)
     context.user_data["editing_op"]["data"]["Дата"] = ds
@@ -418,6 +437,7 @@ async def handle_edit_date_callback(update: Update, context: ContextTypes.DEFAUL
 # 5.4 — ввод новой суммы
 async def handle_edit_sum_input(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     text = update.message.text.strip().replace(",",".")
+    logger.debug("handle_edit_sum_input — text=%r", text) #Логи
     try:
         amt = float(text)
     except ValueError:
@@ -427,18 +447,40 @@ async def handle_edit_sum_input(update: Update, context: ContextTypes.DEFAULT_TY
 
 # 5.5 — ввод новой классификации
 async def handle_edit_classification_input(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
-    context.user_data["editing_op"]["data"]["Классификация"] = update.message.text.strip()
+    """
+    5.5 — ввод новой классификации
+    """
+    # 1) Считаем текст, убираем лишние пробелы
+    text = update.message.text.strip()
+    # 2) Логируем для дебага
+    logger.debug("handle_edit_classification_input — text=%r", text)
+    # 3) Сохраняем новое значение в контексте
+    context.user_data["editing_op"]["data"]["Классификация"] = text
+    # 4) Перерисовываем карточку операции с обновлённым полем
     return await handle_op_select(update, context)
+
 
 # 5.6 — ввод новой конкретики
 async def handle_edit_specific_input(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
-    context.user_data["editing_op"]["data"]["Конкретика"] = update.message.text.strip() or "-"
+    """
+    5.6 — ввод новой конкретики
+    """
+    # 1) Считаем текст, убираем лишние пробелы
+    text = update.message.text.strip()
+    # 2) Логируем для дебага
+    logger.debug("handle_edit_specific_input — text=%r", text)
+    # 3) Сохраняем новое значение (пустой ввод → "-")
+    context.user_data["editing_op"]["data"]["Конкретика"] = text or "-"
+    # 4) Перерисовываем карточку операции с обновлённым полем
     return await handle_op_select(update, context)
+
+
 
 # 3.7 — Отмена редактирования поля: возвращаемся в окно предпросмотра
 async def handle_edit_cancel(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     query = update.callback_query
     await query.answer()
+    logger.debug("handle_edit_cancel — callback_data=%s", query.data) #Логи
     # Показываем опять исходную карточку операции с кнопками ✅ Подтвердить / ✏️ Изменить / 🗑 Удалить / 🔙 Назад
     return await handle_op_select(update, context)
 
@@ -446,6 +488,7 @@ async def handle_edit_cancel(update: Update, context: ContextTypes.DEFAULT_TYPE)
 async def handle_edit_confirm(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     query = update.callback_query
     await query.answer("Сохраняю изменения…", show_alert=False)
+    logger.debug("handle_edit_confirm — callback_data=%s", q.data)
 
     # 1. Получаем данные и таблицу
     edit = context.user_data["editing_op"]
