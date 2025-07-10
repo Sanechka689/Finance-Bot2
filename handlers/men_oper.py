@@ -284,18 +284,18 @@ async def handle_edit_field(update: Update, context: ContextTypes.DEFAULT_TYPE) 
     # 3) Локально импортируем все нужные ask_* чтобы разорвать циклическую зависимость
     from handlers.operations import (
         ask_operation,
-        ask_amount as ask_sum,
         input_classification as ask_classification,
         input_specific as ask_specific,
-        ask_date,
-    )
+        ask_date,)
+
+    from .men_oper import ask_sum_edit
 
     # 4) Формируем маппинг «ключ → (ОтображаемоеИмя, Функция-опросник)»
     mapping = {
         "bank":           ("Банк",           ask_bank),
         "operation":      ("Операция",       ask_operation_edit),
         "date":           ("Дата",            ask_date_edit),
-        "sum":            ("Сумма",           ask_sum),
+        "sum":            ("Сумма",           ask_sum_edit),
         "classification": ("Классификация",  ask_classification),
         "specific":       ("Конкретика",      ask_specific),
     }
@@ -466,23 +466,100 @@ async def handle_date_choice(update: Update, context: ContextTypes.DEFAULT_TYPE)
     # возвращаемся в меню редактирования деталей (STATE_OP_EDIT_CHOICE)
     return await handle_op_edit_choice(update, context)
 
+# ——— Шаг 4: спрашиваем новую Сумму ———
+async def ask_sum_edit(update: Update, context: ContextTypes.DEFAULT_TYPE, current_value: str) -> int:
+    """
+    Спрашиваем у пользователя новую Сумму.
+    """
+    # Убираем «часики»
+    if update.callback_query:
+        await update.callback_query.answer()
+        query = update.callback_query
+    else:
+        query = update.message
+
+    # 🚀 ЗАПОМИНАЕМ этот message, чтобы потом его отредактировать:
+    context.user_data["last_edit_message"] = query.message
+
+    # Текст с подсказкой
+    text = (
+        f"➖ Введите новую *Сумму* — текущее значение: `{current_value}`\n\n"
+        "Отправьте число, например `1234.56` или `-1234.56`."
+    )
+    await query.edit_message_reply_markup(reply_markup=None)
+    await query.edit_message_text(text, parse_mode="Markdown")
+    # Перехватываем следующий ввод в STATE_OP_EDIT_INPUT
+    return STATE_OP_EDIT_INPUT
+
 
 async def handle_edit_input(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
-    """Сохраняем введённое поле и возвращаемся к деталям операции."""
-    text = update.message.text
+    """
+    Сохраняем ввод пользователя для любого поля, включая Сумму.
+    """
+    text = update.message.text.strip()
     field = context.user_data["edit_field"]
-    # Обратное отображение ключ → ваше поле в row
     rev_map = {
-        "bank": "Банк", "operation": "Операция",
-        "date": "Дата", "sum": "Сумма",
-        "classification": "Классификация", "specific": "Конкретика"
+        "bank":           "Банк",
+        "operation":      "Операция",
+        "date":           "Дата",
+        "sum":            "Сумма",
+        "classification": "Классификация",
+        "specific":       "Конкретика"
     }
-    row = context.user_data["editing_op"]["data"]
-    row[rev_map[field]] = text
+    col = rev_map[field]
 
-    # Перерисуем окно деталей этой же операции с учётом нового значения
-    # Здесь используем тот же handle_op_select, чтобы показать обновлённый вариант
-    return await handle_op_edit_choice(update, context)
+    if field == "sum":
+        # жёсткая проверка ― только число
+        try:
+            val = float(text.replace(",", "."))
+        except ValueError:
+            await update.message.reply_text(
+                "⚠️ Пожалуйста, введите корректное число для суммы, например `1234.56` или `-1234.56`."
+            )
+            return STATE_OP_EDIT_INPUT
+
+        # Сохраняем новое значение
+        context.user_data["editing_op"]["data"][col] = val
+
+        # 🖋️ Ручками «перерисовываем» то же самое сообщение, в котором спрашивали сумму
+        msg = context.user_data.get("last_edit_message")
+        row = context.user_data["editing_op"]["data"]
+
+        # Собираем текст детализации операции
+        detail = (
+            f"*Операция #{context.user_data['editing_op']['index']}:*\n"
+            f"Банк: {row['Банк']}\n"
+            f"Операция: {row['Операция']}\n"
+            f"Дата: {row['Дата']}\n"
+            f"Сумма: {row['Сумма']}\n"
+            f"Классификация: {row['Классификация']}\n"
+            f"Конкретика: {row['Конкретика'] or '—'}"
+        )
+
+        # Кнопки: аналогично STATE_OP_CONFIRM + кнопки «Сохранить» и «Назад»
+        buttons = []
+        # только если все поля заполнены, можно «Подтвердить»
+        required = ["Банк","Операция","Дата","Сумма","Классификация"]
+        if all(row.get(f) for f in required):
+            buttons.append(InlineKeyboardButton("✅ Подтвердить", callback_data="op_confirm"))
+        buttons += [
+            InlineKeyboardButton("✏️ Изменить", callback_data="op_edit"),
+            InlineKeyboardButton("🗑 Удалить", callback_data="op_delete"),
+            InlineKeyboardButton("🔙 Назад",   callback_data="op_back"),
+        ]
+
+        # заменяем текст и клавиатуру в исходном сообщении
+        await msg.edit_text(
+            detail,
+            parse_mode="Markdown",
+            reply_markup=InlineKeyboardMarkup([buttons])
+        )
+        return STATE_OP_CONFIRM
+
+    # для всех остальных полей — просто сохраняем и возвращаемся к карточке:
+    context.user_data["editing_op"]["data"][col] = text
+    return await handle_op_select(update, context)
+
 
 async def handle_op_back(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     """«Назад» — просто переходим на список последних операций."""
@@ -522,13 +599,16 @@ async def handle_save_edit(update: Update, context: ContextTypes.DEFAULT_TYPE) -
         return await start_men_oper(update, context)
 
     # 4) Составляем новый список из 8 значений в порядке столбцов A–H
+    sum_val = new.get("Сумма")
+    if isinstance(sum_val, str):
+        sum_val = float(sum_val.replace(",", "."))
     new_row = [
         new.get("Год"),
         new.get("Месяц"),
         new.get("Банк"),
         new.get("Операция"),
         new.get("Дата"),
-        new.get("Сумма"),
+        sum_val,
         new.get("Классификация"),
         new.get("Конкретика") or "-"
     ]
@@ -572,14 +652,32 @@ def register_men_oper_handlers(app):
             ],
             # этот этап обрабатывают сами ask_* из handlers/operations и они должны вернуть STATE_OP_EDIT_INPUT
             STATE_OP_EDIT_INPUT: [
-                # сюда попадут сообщения-последний ввод пользователя
-                CallbackQueryHandler(handle_bank_choice, pattern=r"^edit_bank_choice_.+$"),
+                # сначала – выбор банка, операции, даты…
+                CallbackQueryHandler(handle_bank_choice,      pattern=r"^edit_bank_choice_.+$"),
                 CallbackQueryHandler(handle_operation_choice, pattern=r"^edit_operation_choice_.+$"),
                 CallbackQueryHandler(handle_date_choice,      pattern=r"^select_date\|[\d\-]+$"),
-                MessageHandler(filters.TEXT & ~filters.COMMAND, handle_edit_input)
+                
+                # 1) Ловим **только число** (с точкой или запятой) — валидируем ввод суммы:
+                MessageHandler(
+                    filters.Regex(r"^-?\d+(?:[.,]\d+)?$"),
+                    handle_edit_input
+                ),
+                # 2) Всё остальное — спрашиваем повторно:
+                MessageHandler(
+                    filters.TEXT & ~filters.COMMAND,
+                    ask_sum_invalid  # ваш небольшой handler, см. ниже
+                ),
             ],
         },
         fallbacks=[ CallbackQueryHandler(exit_to_main_menu, pattern=r"^menu:open$") ],
-        allow_reentry=True, per_message=True,
+        allow_reentry=True,
     )
     app.add_handler(conv)
+
+    # вспомогательный handler, когда пользователь ввёл что-то нечисловое
+async def ask_sum_invalid(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
+    await update.message.reply_text(
+        "⚠️ Пожалуйста, введите корректное число для суммы, "
+        "например `1234.56` или `-1234.56`."
+    )
+    return STATE_OP_EDIT_INPUT
