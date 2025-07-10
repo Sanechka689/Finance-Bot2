@@ -293,8 +293,8 @@ async def handle_edit_field(update: Update, context: ContextTypes.DEFAULT_TYPE) 
     # 4) Формируем маппинг «ключ → (ОтображаемоеИмя, Функция-опросник)»
     mapping = {
         "bank":           ("Банк",           ask_bank),
-        "operation":      ("Операция",       ask_operation),
-        "date":           ("Дата",            ask_date),
+        "operation":      ("Операция",       ask_operation_edit),
+        "date":           ("Дата",            ask_date_edit),
         "sum":            ("Сумма",           ask_sum),
         "classification": ("Классификация",  ask_classification),
         "specific":       ("Конкретика",      ask_specific),
@@ -366,6 +366,107 @@ async def handle_bank_choice(update: Update, context: ContextTypes.DEFAULT_TYPE)
     # Возвращаемся к просмотру деталей операции (с уже обновлённым банком)
     return await handle_op_edit_choice(update, context)
 
+# ——— Шаг 2: спрашиваем новое значение для поля «Операция» — аналогично ask_bank ———
+async def ask_operation_edit(update: Update, context: ContextTypes.DEFAULT_TYPE, current_value: str) -> int:
+    """
+    Спрашиваем у пользователя тип операции, показываем кнопки Пополнение/Трата/Перевод.
+    """
+    # убираем «часики»
+    if update.callback_query:
+        await update.callback_query.answer()
+        query = update.callback_query
+    else:
+        query = update.message
+
+    # строим клавиатуру со списком типов операций
+    kb = [
+        [InlineKeyboardButton("Пополнение", callback_data="edit_operation_choice_Пополнение"),
+         InlineKeyboardButton("Трата",       callback_data="edit_operation_choice_Трата")],
+        [InlineKeyboardButton("❌ Отмена",    callback_data="op_back")],  # вернуться назад
+    ]
+
+    # показываем текущий выбор
+    text = (
+        f"Как вы хотите поменять поле *Операция* — текущее значение: "
+        f"`{current_value or '—'}`?\n\n"
+        "Выберите тип операции:"
+    )
+    await query.edit_message_text(text, parse_mode="Markdown",
+                                  reply_markup=InlineKeyboardMarkup(kb))
+
+    # переходим в состояние ввода/выбора (STATE_OP_EDIT_INPUT)
+    return STATE_OP_EDIT_INPUT
+
+async def handle_operation_choice(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
+    """
+    Обрабатываем выбор типа операции из списка.
+    Сохраняем в editing_op и возвращаемся в меню редактирования.
+    """
+    await update.callback_query.answer()
+    # извлекаем выбранное значение после последнего _
+    selected = update.callback_query.data.rsplit("_", 1)[-1]
+
+    # обновляем поле «Операция» в текущей операции
+    context.user_data["editing_op"]["data"]["Операция"] = selected
+
+    # возвращаемся в меню редактирования (STATE_OP_EDIT_CHOICE)
+    return await handle_op_edit_choice(update, context)
+
+# ——— Шаг 3: спрашиваем новую Дату — аналогично ask_bank и ask_operation_edit ———
+async def ask_date_edit(update: Update, context: ContextTypes.DEFAULT_TYPE, current_value: str) -> int:
+    """
+    Спрашиваем у пользователя новую Дату — показываем мини-календарь.
+    """
+    # убираем «часики»
+    if update.callback_query:
+        await update.callback_query.answer()
+        query = update.callback_query
+    else:
+        query = update.message
+
+    # импортируем локально функцию построения календаря из handlers.operations
+    from handlers.operations import create_calendar
+
+    # парсим текущую дату, чтобы показать её в календаре (если есть)
+    # если current_value в формате "YYYY-MM-DD", возьмём год/месяц, иначе — сегодня
+    try:
+        year, month, _ = map(int, current_value.split("-"))
+    except:
+        from datetime import datetime
+        now = datetime.now()
+        year, month = now.year, now.month
+
+    # строим клавиатуру-календарь
+    cal = create_calendar(year, month)
+
+    # выводим сообщение
+    await query.edit_message_text(
+        "📅 Выберите новую дату:",
+        reply_markup=cal
+    )
+
+    # после выбора календарь отдаёт callback_data вида select_date|YYYY-MM-DD
+    # мы будем обрабатывать это в STATE_OP_EDIT_INPUT
+    return STATE_OP_EDIT_INPUT
+
+async def handle_date_choice(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
+    """
+    Обрабатываем callback_data 'select_date|YYYY-MM-DD' из календаря.
+    Сохраняем дату и возвращаемся в меню редактирования.
+    """
+    q = update.callback_query
+    await q.answer()
+
+    # получаем дата-строку
+    _, ds = q.data.split("|", 1)
+
+    # сохраняем в editing_op
+    context.user_data["editing_op"]["data"]["Дата"] = ds
+
+    # возвращаемся в меню редактирования деталей (STATE_OP_EDIT_CHOICE)
+    return await handle_op_edit_choice(update, context)
+
+
 async def handle_edit_input(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     """Сохраняем введённое поле и возвращаемся к деталям операции."""
     text = update.message.text
@@ -388,25 +489,30 @@ async def handle_op_back(update: Update, context: ContextTypes.DEFAULT_TYPE) -> 
     return await start_men_oper(update, context)
 
 async def handle_save_edit(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
-    """Сохраняем изменённый Банк в Google-Sheets и возвращаемся к списку."""
+    """Сохраняем все изменённые поля операции в Google Sheets и возвращаемся к списку."""
     q = update.callback_query
     await q.answer()
 
-    edit = context.user_data["editing_op"]
-    orig = edit["original"]    # исходные данные
-    new  = edit["data"]        # словарь с (пока что) обновлённым полем 'Банк'
-    url  = context.user_data["sheet_url"]
+    # 1) Достаём оригинальные и новые данные
+    edit = context.user_data.get("editing_op", {})
+    orig = edit.get("original")
+    new  = edit.get("data")
+    url  = context.user_data.get("sheet_url")
+    if not orig or not new or not url:
+        await q.edit_message_text("⚠️ Нет данных для сохранения.")
+        return await start_men_oper(update, context)
 
-    # 1) открыть лист
+    # 2) Открываем лист
     ws, _ = open_finance_and_plans(url)
 
-    # 2) найти номер строки на листе по original
+    # 3) Ищем номер строки по оригинальным данным (банк, дата, сумма)
     all_vals = ws.get_all_values()
     row_number = None
     for i, values in enumerate(all_vals[1:], start=2):
-        # сравниваем банк, дату и сумму из original
-        if (values[2], values[4], values[5]) == (
-            orig["Банк"], orig["Дата"], str(orig["Сумма"])
+        if (
+            values[2] == orig["Банк"] and
+            values[4] == orig["Дата"] and
+            values[5] == str(orig["Сумма"])
         ):
             row_number = i
             break
@@ -415,13 +521,27 @@ async def handle_save_edit(update: Update, context: ContextTypes.DEFAULT_TYPE) -
         await q.edit_message_text("⚠️ Не удалось найти строку для обновления.")
         return await start_men_oper(update, context)
 
-    # 3) обновляем только колонку «Банк» (третья в таблице, индекс 3)
-    ws.update_cell(row_number, 3, new["Банк"])
+    # 4) Составляем новый список из 8 значений в порядке столбцов A–H
+    new_row = [
+        new.get("Год"),
+        new.get("Месяц"),
+        new.get("Банк"),
+        new.get("Операция"),
+        new.get("Дата"),
+        new.get("Сумма"),
+        new.get("Классификация"),
+        new.get("Конкретика") or "-"
+    ]
 
-    # 4) уведомляем и перерисовываем список
-    await q.edit_message_text("✅ Банк успешно обновлён.")
-    # чистим промежуточные данные
+    # 5) Перезаписываем диапазон A{row_number}:H{row_number}
+    cell_range = f"A{row_number}:H{row_number}"
+    ws.update(cell_range, [new_row], value_input_option="USER_ENTERED")
+
+    # 6) Уведомляем пользователя и очищаем временные данные
+    await q.edit_message_text("✅ Операция успешно обновлена.")
     context.user_data.pop("editing_op", None)
+
+    # 7) Возвращаемся к списку последних операций
     return await start_men_oper(update, context)
 
 
@@ -454,6 +574,8 @@ def register_men_oper_handlers(app):
             STATE_OP_EDIT_INPUT: [
                 # сюда попадут сообщения-последний ввод пользователя
                 CallbackQueryHandler(handle_bank_choice, pattern=r"^edit_bank_choice_.+$"),
+                CallbackQueryHandler(handle_operation_choice, pattern=r"^edit_operation_choice_.+$"),
+                CallbackQueryHandler(handle_date_choice,      pattern=r"^select_date\|[\d\-]+$"),
                 MessageHandler(filters.TEXT & ~filters.COMMAND, handle_edit_input)
             ],
         },
