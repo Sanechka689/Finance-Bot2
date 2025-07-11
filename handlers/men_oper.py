@@ -129,7 +129,6 @@ async def handle_op_select(update: Update, context: ContextTypes.DEFAULT_TYPE) -
         "data":     row           # сюда будем записывать изменения
     }
 
-
     # Собираем подробный текст
     detail = (
         f"*Операция #{idx}:*\n"
@@ -161,36 +160,60 @@ async def handle_op_select(update: Update, context: ContextTypes.DEFAULT_TYPE) -
 
 
 async def handle_op_confirm(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
-    """Удаляем старую строку и создаём новую (подтверждение)."""
+    """Сохраняем изменения в той же строке."""
     query = update.callback_query
-    await query.answer("Подтверждаю…", show_alert=False)
+    await query.answer("Сохраняю…", show_alert=False)
 
-    url = context.user_data["sheet_url"]
+    # 1) Достаём URL и данные
+    url = context.user_data.get("sheet_url")
+    edit = context.user_data.get("editing_op", {})
+    orig = edit.get("original")   # СТАРЫЕ значения
+    new  = edit.get("data")       # НОВЫЕ значения
+
+    if not url or not orig or not new:
+        await query.edit_message_text("⚠️ Нет данных для сохранения.")
+        return await start_men_oper(update, context)
+
+    # 2) Открываем таблицу
     ws, _ = open_finance_and_plans(url)
-    edit = context.user_data["editing_op"]
-    row = edit["data"]
 
-    # 1) находим номер строки в листе (по уникальному сочетанию)
-    all_values = ws.get_all_values()
-    # первой строкой — шапка, потом data:
+    # 3) Ищем номер строки по оригинальным Банк/Дата/Сумма
+    all_vals = ws.get_all_values()
     row_number = None
-    for i, values in enumerate(all_values[1:], start=2):
-        if (values[2], values[4], values[5]) == (row["Банк"], row["Дата"], str(row["Сумма"])):
+    for i, values in enumerate(all_vals[1:], start=2):
+        if (
+            values[2] == orig["Банк"] and
+            values[4] == orig["Дата"] and
+            values[5] == str(orig["Сумма"])
+        ):
             row_number = i
             break
-    if row_number:
-        ws.delete_rows(row_number)
-    # 2) дописываем её же
+
+    if not row_number:
+        await query.edit_message_text("⚠️ Не удалось найти строку для обновления.")
+        return await start_men_oper(update, context)
+
+    # 4) Собираем список новых значений по столбцам A–H
     new_row = [
-        row["Год"], row["Месяц"], row["Банк"], row["Операция"],
-        row["Дата"], row["Сумма"], row["Классификация"], row.get("Конкретика") or "-"
+        new.get("Год"),
+        new.get("Месяц"),
+        new.get("Банк"),
+        new.get("Операция"),
+        new.get("Дата"),
+        new.get("Сумма"),
+        new.get("Классификация"),
+        new.get("Конкретика") or "-"
     ]
-    ws.append_row(new_row, value_input_option="USER_ENTERED")
 
-    await query.edit_message_text("✅ Операция подтверждена.")
-    # Возвращаем в главное меню
+    # 5) Перезаписываем эту же строку одним вызовом
+    cell_range = f"A{row_number}:H{row_number}"
+    ws.update(cell_range, [new_row], value_input_option="USER_ENTERED")
+
+    # 6) Уведомляем и возвращаемся к списку операций
+    await query.edit_message_text("✅ Операция успешно обновлена.")
+    context.user_data.pop("editing_op", None)
     return await start_men_oper(update, context)
-
+    
 
 async def handle_op_delete(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     query = update.callback_query
