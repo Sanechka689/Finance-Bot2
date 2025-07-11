@@ -338,10 +338,10 @@ async def handle_edit_field(update: Update, context: ContextTypes.DEFAULT_TYPE) 
     from handlers.operations import (
         ask_operation,
         ask_amount as ask_sum,
-        input_classification as ask_classification,
-        input_specific as ask_specific,
-        ask_date,
-    )
+        ask_date,)
+    from .men_oper import (
+        ask_classification_edit,
+        ask_specific_edit,)
 
     # 4) Формируем маппинг «ключ → (ОтображаемоеИмя, Функция-опросник)»
     mapping = {
@@ -349,8 +349,8 @@ async def handle_edit_field(update: Update, context: ContextTypes.DEFAULT_TYPE) 
         "operation":      ("Операция",       ask_operation_edit),
         "date":           ("Дата",           ask_date_edit),
         "sum":            ("Сумма",          ask_sum_edit),
-        "classification": ("Классификация",  ask_classification),
-        "specific":       ("Конкретика",     ask_specific),
+        "classification": ("Классификация",  ask_classification_edit),
+        "specific":       ("Конкретика",     ask_specific_edit),
     }
     display_name, handler = mapping[field]
 
@@ -543,6 +543,49 @@ async def ask_sum_edit(update: Update, context: ContextTypes.DEFAULT_TYPE, curre
     await query.edit_message_text(text, parse_mode="Markdown")
     return STATE_OP_EDIT_INPUT
 
+# ——— Шаг 5: спрашиваем новую «Классификацию» ———
+async def ask_classification_edit(update: Update, context: ContextTypes.DEFAULT_TYPE, current_value: str) -> int:
+    """
+    Спрашиваем у пользователя новую Классификацию.
+    """
+    if update.callback_query:
+        await update.callback_query.answer()
+        query = update.callback_query
+    else:
+        query = update.message
+    # 🚀 Запомним сообщение, чтобы потом его перерисовать
+    context.user_data["last_edit_message"] = query.message
+
+    text = (
+        f"➖ Введите новую *Классификацию* — текущее значение: `{current_value or '—'}`\n\n"
+        "Отправьте текстовое значение."
+    )
+    await query.edit_message_reply_markup(reply_markup=None)
+    await query.edit_message_text(text, parse_mode="Markdown")
+    return STATE_OP_EDIT_INPUT
+
+# ——— Шаг 6: спрашиваем новую «Конкретику» ———
+async def ask_specific_edit(update: Update, context: ContextTypes.DEFAULT_TYPE, current_value: str) -> int:
+    """
+    Спрашиваем у пользователя новую Конкретику.
+    """
+    if update.callback_query:
+        await update.callback_query.answer()
+        query = update.callback_query
+    else:
+        query = update.message
+    # 🚀 Запомним сообщение, чтобы потом его перерисовать
+    context.user_data["last_edit_message"] = query.message
+
+    text = (
+        f"➖ Введите новую *Конкретику* — текущее значение: `{current_value or '—'}`\n\n"
+        "Отправьте текстовое значение."
+    )
+    await query.edit_message_reply_markup(reply_markup=None)
+    await query.edit_message_text(text, parse_mode="Markdown")
+    return STATE_OP_EDIT_INPUT
+
+
 async def handle_edit_input(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     """
     Сохраняем ввод пользователя для любого поля, включая Сумму.
@@ -604,9 +647,45 @@ async def handle_edit_input(update: Update, context: ContextTypes.DEFAULT_TYPE) 
         )
         return STATE_OP_CONFIRM
 
-    # для всех остальных полей — просто сохраняем и возвращаемся к деталям
+    # —————— новая ветка для «Классификации» и «Конкретики» ——————
+    if field in ("classification", "specific"):
+        # сохраняем введённое
+        context.user_data["editing_op"]["data"][col] = text
+
+        # перерисуем то же сообщение, в котором спрашивали ввод
+        msg = context.user_data["last_edit_message"]
+        row = context.user_data["editing_op"]["data"]
+
+        # собираем detail-карточку так же, как в handle_op_edit_choice
+        detail = (
+            f"*Операция #{context.user_data['editing_op']['index']}:*\n"
+            f"Банк: {row['Банк']}\n"
+            f"Операция: {row['Операция']}\n"
+            f"Дата: {row['Дата']}\n"
+            f"Сумма: {row['Сумма']}\n"
+            f"Классификация: {row['Классификация']}\n"
+            f"Конкретика: {row['Конкретика'] or '—'}\n\n"
+        )
+        kb = [
+            [InlineKeyboardButton("Банк",           callback_data="edit_bank"),
+             InlineKeyboardButton("Операция",       callback_data="edit_operation")],
+            [InlineKeyboardButton("Дата",           callback_data="edit_date"),
+             InlineKeyboardButton("Сумма",          callback_data="edit_sum")],
+            [InlineKeyboardButton("Классификация",  callback_data="edit_classification"),
+             InlineKeyboardButton("Конкретика",     callback_data="edit_specific")],
+            [InlineKeyboardButton("✅ Сохранить",  callback_data="op_save"),
+             InlineKeyboardButton("🔙 Назад",        callback_data="op_back")],
+        ]
+        await msg.edit_text(
+            detail + "Выберите поле для редактирования:",
+            parse_mode="Markdown",
+            reply_markup=InlineKeyboardMarkup(kb)
+        )
+        return STATE_OP_EDIT_CHOICE
+
+    # —————— остальные поля (банк, операция, дата) — возвращаем в меню редактирования ——————
     context.user_data["editing_op"]["data"][col] = text
-    return await handle_op_select(update, context)
+    return await handle_op_edit_choice(update, context)
 
 
 async def handle_op_back(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
