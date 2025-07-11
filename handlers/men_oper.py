@@ -194,12 +194,33 @@ async def handle_op_confirm(update: Update, context: ContextTypes.DEFAULT_TYPE) 
         return await start_men_oper(update, context)
 
     # 4) Собираем список новых значений по столбцам A–H
+    # ——— Нормализация даты в DD.MM.YYYY ———
+    raw_date = new.get("Дата")
+    # если уже в ISO-формате YYYY-MM-DD
+    if re.match(r"^\d{4}-\d{2}-\d{2}$", raw_date):
+        y, m, d = raw_date.split("-")
+        date_for_sheet = f"{d}.{m}.{y}"
+    else:
+        # ожидаем вид "11 июля, пт" или "11 июля"
+        day_month = raw_date.split(",", 1)[0].strip()   # "11 июля"
+        parts = day_month.split()
+        try:
+            day = int(parts[0])
+            gen_month = parts[1].lower()
+            month = GENITIVE_MONTHS.get(gen_month, 0)
+            year = int(new.get("Год"))
+            date_for_sheet = f"{day:02d}.{month:02d}.{year}"
+        except Exception:
+            # не удалось распарсить — оставляем как есть
+            date_for_sheet = raw_date
+            
+    # 5) Собираем список новых значений по столбцам A–H        
     new_row = [
         new.get("Год"),
         new.get("Месяц"),
         new.get("Банк"),
         new.get("Операция"),
-        new.get("Дата"),
+        date_for_sheet,
         new.get("Сумма"),
         new.get("Классификация"),
         new.get("Конкретика") or "-"
@@ -213,7 +234,7 @@ async def handle_op_confirm(update: Update, context: ContextTypes.DEFAULT_TYPE) 
     await query.edit_message_text("✅ Операция успешно обновлена.")
     context.user_data.pop("editing_op", None)
     return await start_men_oper(update, context)
-    
+
 
 async def handle_op_delete(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     query = update.callback_query
