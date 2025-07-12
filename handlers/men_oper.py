@@ -621,6 +621,24 @@ async def handle_edit_input(update: Update, context: ContextTypes.DEFAULT_TYPE) 
                 "например `1234.56` или `-1234.56`."
             )
             return STATE_OP_EDIT_INPUT
+        
+        # 2) Достаем тип операции
+        op_type = row.get("Операция", "")
+        # 3) Специальная валидация по типу
+        if op_type == "Пополнение" and val <= 0:
+            await update.message.reply_text(
+                "⚠️ Для *Пополнения* сумма должна быть положительной."
+                "\n\nВведите число вида `1234.56`."
+                , parse_mode="Markdown"
+            )
+            return STATE_OP_EDIT_INPUT
+        if op_type == "Трата" and val >= 0:
+            await update.message.reply_text(
+                "⚠️ Для *Траты* сумма должна быть отрицательной."
+                "\n\nВведите число вида `-1234.56`."
+                , parse_mode="Markdown"
+            )
+            return STATE_OP_EDIT_INPUT
 
         # сохраняем новое значение
         row[col] = val
