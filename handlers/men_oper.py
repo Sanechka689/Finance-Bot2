@@ -93,7 +93,7 @@ async def start_men_oper(update: Update, context: ContextTypes.DEFAULT_TYPE) -> 
     lines = []
     for i, row in enumerate(last_ops):
         lines.append(
-            f"{i}. 🏦{row['Банк']}   💰{row['Сумма']}   🏷️{row['Классификация']}   📅{row['Дата']}"
+            f"{i}. {row['Банк']}   {row['Сумма']}   {row['Классификация']}   {row['Дата']}"
         )
     text = "📝 *Последние 10 операций:*\n" + "\n".join(lines)
 
@@ -594,15 +594,11 @@ async def ask_specific_edit(update: Update, context: ContextTypes.DEFAULT_TYPE, 
 async def handle_edit_input(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     """
     Сохраняем ввод пользователя для любого поля, включая Сумму.
+    После изменения Суммы показываем все кнопки редактирования.
     """
     text = update.message.text.strip()
     field = context.user_data["edit_field"]
-        # если ожидается выбор через кнопки, а не свободный ввод
-    if field in ("bank", "operation"):
-        await update.message.reply_text(
-            "⚠️ Пожалуйста, выбирайте только из предложенных кнопок!"
-        )
-        return STATE_OP_EDIT_INPUT
+    # Соответствие состояния → имя столбца
     rev_map = {
         "bank":           "Банк",
         "operation":      "Операция",
@@ -612,9 +608,11 @@ async def handle_edit_input(update: Update, context: ContextTypes.DEFAULT_TYPE) 
         "specific":       "Конкретика"
     }
     col = rev_map[field]
+    row = context.user_data["editing_op"]["data"]
 
+    # ====== СУММА ======
     if field == "sum":
-        # жёсткая проверка — только число
+        # валидация числа
         try:
             val = float(text.replace(",", "."))
         except ValueError:
@@ -625,12 +623,9 @@ async def handle_edit_input(update: Update, context: ContextTypes.DEFAULT_TYPE) 
             return STATE_OP_EDIT_INPUT
 
         # сохраняем новое значение
-        context.user_data["editing_op"]["data"][col] = val
+        row[col] = val
 
-        # перерисовываем карточку РЕДАКТИРОВАНИЯ на том же сообщении
-        msg = context.user_data["last_edit_message"]
-        row = context.user_data["editing_op"]["data"]
-
+        # формируем текст карточки
         detail = (
             f"📋 *Операция #{context.user_data['editing_op']['index']}:*\n"
             f"🏦 Банк: {row['Банк']}\n"
@@ -638,11 +633,10 @@ async def handle_edit_input(update: Update, context: ContextTypes.DEFAULT_TYPE) 
             f"📅 Дата: {row['Дата']}\n"
             f"💰 Сумма: {row['Сумма']}\n"
             f"🏷️ Классификация: {row['Классификация']}\n"
-            f"📄 Конкретика: {row['Конкретика'] or '—'}\n\n"
-            "Выберите поле для редактирования:"
+            f"📄 Конкретика: {row.get('Конкретика') or '—'}\n\n"
         )
 
-        # клавиатура редактирования
+        # собираем те же кнопки, что и в STATE_OP_EDIT_CHOICE
         kb = [
             [InlineKeyboardButton("🏦 Банк",           callback_data="edit_bank"),
              InlineKeyboardButton("⚙️ Операция",       callback_data="edit_operation")],
@@ -659,24 +653,20 @@ async def handle_edit_input(update: Update, context: ContextTypes.DEFAULT_TYPE) 
         last_row.append(InlineKeyboardButton("🔙 Назад", callback_data="op_back"))
         kb.append(last_row)
 
-        await msg.edit_text(
-            detail,
+        # отправляем под вводом пользователя
+        await update.message.reply_text(
+            detail + "Выберите поле для редактирования:",
             parse_mode="Markdown",
             reply_markup=InlineKeyboardMarkup(kb)
         )
         return STATE_OP_EDIT_CHOICE
 
-
-    # —————— новая ветка для «Классификации» и «Конкретики» ——————
+    # ——— Обработка «Классификации» и «Конкретики» ———
     if field in ("classification", "specific"):
-        # сохраняем введённое
-        context.user_data["editing_op"]["data"][col] = text
+        # Сохраняем новый текст
+        row[col] = text
 
-        # перерисуем то же сообщение, в котором спрашивали ввод
-        msg = context.user_data["last_edit_message"]
-        row = context.user_data["editing_op"]["data"]
-
-        # собираем detail-карточку так же, как в handle_op_edit_choice
+        # Собираем карточку и клавиатуру
         detail = (
             f"📋 *Операция #{context.user_data['editing_op']['index']}:*\n"
             f"🏦 Банк: {row['Банк']}\n"
@@ -684,28 +674,39 @@ async def handle_edit_input(update: Update, context: ContextTypes.DEFAULT_TYPE) 
             f"📅 Дата: {row['Дата']}\n"
             f"💰 Сумма: {row['Сумма']}\n"
             f"🏷️ Классификация: {row['Классификация']}\n"
-            f"📄 Конкретика: {row['Конкретика'] or '—'}\n\n"
+            f"📄 Конкретика: {row.get('Конкретика') or '—'}\n\n"
         )
         kb = [
-             [InlineKeyboardButton("🏦 Банк",            callback_data="edit_bank"),
-              InlineKeyboardButton("⚙️ Операция",        callback_data="edit_operation")],
-             [InlineKeyboardButton("📅  Дата",           callback_data="edit_date"),
-              InlineKeyboardButton("💰 Сумма",           callback_data="edit_sum")],
-             [InlineKeyboardButton("🏷️  Классификация",  callback_data="edit_classification"),
-              InlineKeyboardButton("📄 Конкретика",      callback_data="edit_specific")],
-             [InlineKeyboardButton("✅ Сохранить",       callback_data="op_save"),
-              InlineKeyboardButton("🔙 Назад",           callback_data="op_back")],
+            [InlineKeyboardButton("🏦 Банк",           callback_data="edit_bank"),
+             InlineKeyboardButton("⚙️ Операция",       callback_data="edit_operation")],
+            [InlineKeyboardButton("📅 Дата",           callback_data="edit_date"),
+             InlineKeyboardButton("💰 Сумма",          callback_data="edit_sum")],
+            [InlineKeyboardButton("🏷️ Классификация",  callback_data="edit_classification"),
+             InlineKeyboardButton("📄 Конкретика",     callback_data="edit_specific")],
         ]
-        await msg.edit_text(
+        # Сохраняем/Назад
+        required = ["Банк", "Операция", "Дата", "Сумма", "Классификация"]
+        last_row = []
+        if all(row.get(f) for f in required):
+            last_row.append(InlineKeyboardButton("✅ Сохранить", callback_data="op_save"))
+        last_row.append(InlineKeyboardButton("🔙 Назад", callback_data="op_back"))
+        kb.append(last_row)
+
+        await update.message.reply_text(
             detail + "Выберите поле для редактирования:",
             parse_mode="Markdown",
             reply_markup=InlineKeyboardMarkup(kb)
         )
         return STATE_OP_EDIT_CHOICE
 
-    # —————— остальные поля (банк, операция, дата) — возвращаем в меню редактирования ——————
-    context.user_data["editing_op"]["data"][col] = text
+    # ——— Остальные поля (банк, операция, дата) — просто обновляем и показываем меню редактирования ———
+    row[col] = text
     return await handle_op_edit_choice(update, context)
+
+    # ——— Остальные поля (банк, операция, дата) — просто обновляем и показываем меню редактирования ———
+    row[col] = text
+    return await handle_op_edit_choice(update, context)
+
 
 
 async def handle_op_back(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
