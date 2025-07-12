@@ -131,7 +131,7 @@ async def handle_op_select(update: Update, context: ContextTypes.DEFAULT_TYPE) -
 
     # Собираем подробный текст
     detail = (
-        f"*Операция #{idx}:*\n"
+        f"📋 *Операция #{idx}:*\n"
         f"Банк: {row['Банк']}\n"
         f"Операция: {row['Операция']}\n"
         f"Дата: {row['Дата']}\n"
@@ -142,10 +142,6 @@ async def handle_op_select(update: Update, context: ContextTypes.DEFAULT_TYPE) -
 
     # Кнопки
     buttons = []
-    # «Подтвердить» — только если нет «Конкретики»
-    required = ["Банк","Операция","Дата","Сумма","Классификация"]
-    if all(row.get(f) for f in required):
-        buttons.append(InlineKeyboardButton("✅ Подтвердить", callback_data="op_confirm"))
     buttons += [
         InlineKeyboardButton("✏️ Изменить", callback_data="op_edit"),
         InlineKeyboardButton("🗑 Удалить", callback_data="op_delete"),
@@ -293,7 +289,7 @@ async def handle_op_edit_choice(update: Update, context: ContextTypes.DEFAULT_TY
 
     # Собираем detail-card так же, как в handle_op_select
     detail = (
-        f"*Операция #{idx}:*\n"
+        f"📋 *Операция #{idx}:*\n"
         f"Банк: {row['Банк']}\n"
         f"Операция: {row['Операция']}\n"
         f"Дата: {row['Дата']}\n"
@@ -304,15 +300,21 @@ async def handle_op_edit_choice(update: Update, context: ContextTypes.DEFAULT_TY
 
     # Кнопки редактирования
     kb = [
-        [InlineKeyboardButton("Банк",           callback_data="edit_bank"),
-         InlineKeyboardButton("Операция",       callback_data="edit_operation")],
-        [InlineKeyboardButton("Дата",           callback_data="edit_date"),
-         InlineKeyboardButton("Сумма",          callback_data="edit_sum")],
-        [InlineKeyboardButton("Классификация",  callback_data="edit_classification"),
-         InlineKeyboardButton("Конкретика",     callback_data="edit_specific")],
-        [InlineKeyboardButton("✅ Сохранить",  callback_data="op_save"),
-        InlineKeyboardButton("🔙 Назад",        callback_data="op_back")],
+    [InlineKeyboardButton("🏦 Банк",           callback_data="edit_bank"),
+     InlineKeyboardButton("⚙️ Операция",       callback_data="edit_operation")],
+    [InlineKeyboardButton("📅 Дата",           callback_data="edit_date"),
+     InlineKeyboardButton("💰 Сумма",          callback_data="edit_sum")],
+    [InlineKeyboardButton("🏷️ Классификация",  callback_data="edit_classification"),
+     InlineKeyboardButton("📄 Конкретика",     callback_data="edit_specific")],
     ]
+
+    # ——— строка «Сохранить» + «Назад»:
+    required = ["Банк", "Операция", "Дата", "Сумма", "Классификация"]
+    last_row = []
+    if all(row.get(f) for f in required):
+        last_row.append(InlineKeyboardButton("✅ Сохранить", callback_data="op_save"))
+    last_row.append(InlineKeyboardButton("🔙 Назад", callback_data="op_back"))
+    kb.append(last_row)
 
     await update.callback_query.edit_message_text(
         detail + "Выберите поле для редактирования:",
@@ -385,7 +387,6 @@ async def ask_bank(update: Update, context: ContextTypes.DEFAULT_TYPE, current_v
 
     # Строим клавиатуру
     kb = [[InlineKeyboardButton(b, callback_data=f"edit_bank_choice_{b}")] for b in banks]
-    kb.append([InlineKeyboardButton("❌ Отмена", callback_data="op_back")])
 
     text = (
         f"Как вы хотите поменять поле *Банк* — текущее значение: "
@@ -433,9 +434,8 @@ async def ask_operation_edit(update: Update, context: ContextTypes.DEFAULT_TYPE,
 
     # строим клавиатуру со списком типов операций
     kb = [
-        [InlineKeyboardButton("Пополнение", callback_data="edit_operation_choice_Пополнение"),
-         InlineKeyboardButton("Трата",       callback_data="edit_operation_choice_Трата")],
-        [InlineKeyboardButton("❌ Отмена",    callback_data="op_back")],  # вернуться назад
+        InlineKeyboardButton("Пополнение", callback_data="edit_operation_choice_Пополнение"),
+         InlineKeyboardButton("Трата",       callback_data="edit_operation_choice_Трата"),
     ]
 
     # показываем текущий выбор
@@ -616,36 +616,45 @@ async def handle_edit_input(update: Update, context: ContextTypes.DEFAULT_TYPE) 
         # сохраняем новое значение
         context.user_data["editing_op"]["data"][col] = val
 
-        # перерисовываем карточку на том же сообщении
-        msg = context.user_data.get("last_edit_message")
+        # перерисовываем карточку РЕДАКТИРОВАНИЯ на том же сообщении
+        msg = context.user_data["last_edit_message"]
         row = context.user_data["editing_op"]["data"]
 
         detail = (
             f"*Операция #{context.user_data['editing_op']['index']}:*\n"
-            f"Банк: {row['Банк']}\n"
-            f"Операция: {row['Операция']}\n"
-            f"Дата: {row['Дата']}\n"
-            f"Сумма: {row['Сумма']}\n"
-            f"Классификация: {row['Классификация']}\n"
-            f"Конкретика: {row['Конкретика'] or '—'}"
+            f"🏦 Банк: {row['Банк']}\n"
+            f"⚙️ Операция: {row['Операция']}\n"
+            f"📅 Дата: {row['Дата']}\n"
+            f"💰 Сумма: {row['Сумма']}\n"
+            f"🏷️ Классификация: {row['Классификация']}\n"
+            f"📄 Конкретика: {row['Конкретика'] or '—'}\n\n"
+            "Выберите поле для редактирования:"
         )
 
-        buttons = []
-        required = ["Банк", "Операция", "Дата", "Сумма", "Классификация"]
-        if all(row.get(f) for f in required):
-            buttons.append(InlineKeyboardButton("✅ Подтвердить", callback_data="op_confirm"))
-        buttons += [
-            InlineKeyboardButton("✏️ Изменить", callback_data="op_edit"),
-            InlineKeyboardButton("🗑 Удалить", callback_data="op_delete"),
-            InlineKeyboardButton("🔙 Назад",   callback_data="op_back"),
+        # клавиатура редактирования
+        kb = [
+            [InlineKeyboardButton("🏦 Банк",           callback_data="edit_bank"),
+             InlineKeyboardButton("⚙️ Операция",       callback_data="edit_operation")],
+            [InlineKeyboardButton("📅 Дата",           callback_data="edit_date"),
+             InlineKeyboardButton("💰 Сумма",          callback_data="edit_sum")],
+            [InlineKeyboardButton("🏷️ Классификация",  callback_data="edit_classification"),
+             InlineKeyboardButton("📄 Конкретика",     callback_data="edit_specific")],
         ]
+        # строка «Сохранить» + «Назад»
+        required = ["Банк", "Операция", "Дата", "Сумма", "Классификация"]
+        last_row = []
+        if all(row.get(f) for f in required):
+            last_row.append(InlineKeyboardButton("✅ Сохранить", callback_data="op_save"))
+        last_row.append(InlineKeyboardButton("🔙 Назад", callback_data="op_back"))
+        kb.append(last_row)
 
         await msg.edit_text(
             detail,
             parse_mode="Markdown",
-            reply_markup=InlineKeyboardMarkup([buttons])
+            reply_markup=InlineKeyboardMarkup(kb)
         )
-        return STATE_OP_CONFIRM
+        return STATE_OP_EDIT_CHOICE
+
 
     # —————— новая ветка для «Классификации» и «Конкретики» ——————
     if field in ("classification", "specific"):
@@ -667,14 +676,14 @@ async def handle_edit_input(update: Update, context: ContextTypes.DEFAULT_TYPE) 
             f"Конкретика: {row['Конкретика'] or '—'}\n\n"
         )
         kb = [
-            [InlineKeyboardButton("Банк",           callback_data="edit_bank"),
-             InlineKeyboardButton("Операция",       callback_data="edit_operation")],
-            [InlineKeyboardButton("Дата",           callback_data="edit_date"),
-             InlineKeyboardButton("Сумма",          callback_data="edit_sum")],
-            [InlineKeyboardButton("Классификация",  callback_data="edit_classification"),
-             InlineKeyboardButton("Конкретика",     callback_data="edit_specific")],
-            [InlineKeyboardButton("✅ Сохранить",  callback_data="op_save"),
-             InlineKeyboardButton("🔙 Назад",        callback_data="op_back")],
+             [InlineKeyboardButton("🏦 Банк",            callback_data="edit_bank"),
+              InlineKeyboardButton("⚙️ Операция",        callback_data="edit_operation")],
+             [InlineKeyboardButton("📅  Дата",           callback_data="edit_date"),
+              InlineKeyboardButton("💰 Сумма",           callback_data="edit_sum")],
+             [InlineKeyboardButton("🏷️  Классификация",  callback_data="edit_classification"),
+              InlineKeyboardButton("📄 Конкретика",      callback_data="edit_specific")],
+             [InlineKeyboardButton("✅ Сохранить",       callback_data="op_save"),
+              InlineKeyboardButton("🔙 Назад",           callback_data="op_back")],
         ]
         await msg.edit_text(
             detail + "Выберите поле для редактирования:",
@@ -780,7 +789,6 @@ def register_men_oper_handlers(app):
                 CallbackQueryHandler(exit_to_main_menu, pattern=r"^menu:open$")
             ],
             STATE_OP_CONFIRM: [
-                CallbackQueryHandler(handle_op_confirm, pattern=r"^op_confirm$"),
                 CallbackQueryHandler(handle_op_delete,  pattern=r"^op_delete$"),
                 CallbackQueryHandler(handle_op_edit_choice, pattern=r"^op_edit$"),
                 CallbackQueryHandler(handle_op_back,     pattern=r"^op_back$")
