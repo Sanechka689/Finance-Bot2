@@ -38,9 +38,6 @@ GENITIVE_MONTHS = {
     "сентября":9, "октября":10, "ноября":11, "декабря":12,
 }
 
-import logging
-logger = logging.getLogger(__name__)
-
 
 # Правельный выход в меню
 async def exit_to_main_menu(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
@@ -325,7 +322,6 @@ async def handle_op_edit_choice(update: Update, context: ContextTypes.DEFAULT_TY
 
 async def handle_edit_field(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     """Пользователь выбрал конкретное поле — перенаправляем на ask_*."""
-    logger.debug("🔧 handle_edit_field called (data=%s)", update.callback_query.data)
     query = update.callback_query
     await query.answer()
 
@@ -373,8 +369,6 @@ async def ask_bank(update: Update, context: ContextTypes.DEFAULT_TYPE, current_v
     else:
         query = update.message
 
-    logger.debug("🔧 ask_bank called, current_value=%s", current_value) #Логи
-
     # Загружаем список банков пользователя (кэшируем)
     banks = context.user_data.get("user_banks")
     if banks is None:
@@ -382,8 +376,6 @@ async def ask_bank(update: Update, context: ContextTypes.DEFAULT_TYPE, current_v
         rows = ws.get_all_values()[1:]
         banks = sorted({ row[2] for row in rows if row[2] })
         context.user_data["user_banks"] = banks
-        
-    logger.debug("🔧 available banks for user: %s", banks) #Логи
 
     # Строим клавиатуру
     kb = [[InlineKeyboardButton(b, callback_data=f"edit_bank_choice_{b}")] for b in banks]
