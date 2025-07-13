@@ -12,6 +12,8 @@ from handlers.classification import (
   start_classification, handle_class_period, handle_class_back
 )
 from utils.constants import STATE_CLASS_MENU
+from handlers.plans import start_plans
+
 
 def _build_main_kb() -> InlineKeyboardMarkup:
     return InlineKeyboardMarkup([
@@ -128,14 +130,16 @@ async def handle_menu_selection(update: Update, context: ContextTypes.DEFAULT_TY
     if data == "menu:men_oper":
         return await start_men_oper(update, context)
 
+    # - Классификация
     if data == "menu:classification":
         return await start_classification(update, context)
 
-
+    # — Планы
+    if data == "menu:plans":
+        return await start_plans(update, context)
 
     # остальные пункты — заглушки
     responses = {
-        "menu:plans":          "🗓 Раздел «Планы» в разработке…",
         "menu:add_bank":       "➕ Раздел «Добавить Банк» в разработке…",
         "menu:del_bank":       "➖ Раздел «Удалить Банк» в разработке…",
         "menu:edit_table":     "✏️ Раздел «Изменить таблицу» в разработке…",
@@ -157,6 +161,9 @@ def register_menu_handlers(app):
     app.add_handler(CallbackQueryHandler(start_classification,pattern=r"^menu:classification$"))
     app.add_handler(CallbackQueryHandler(handle_class_period,pattern=r"^class_(prev|year|all)$"))
     app.add_handler(CallbackQueryHandler(handle_class_back,pattern=r"^class_back$"))
+
+    # 3) Раздел «Планы»
+    app.add_handler(CallbackQueryHandler(start_plans,pattern=r"^menu:plans$"))
 
     # 3) Общий хендлер для остальных пунктов menu:*
     app.add_handler(CallbackQueryHandler(handle_menu_selection,pattern=r"^menu:"))
