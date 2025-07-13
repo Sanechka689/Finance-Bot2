@@ -8,6 +8,10 @@ from services.sheets_service import open_finance_and_plans
 from utils.constants import STATE_OP_MENU  # ваше состояние после /add
 from handlers.men_oper import start_men_oper  # импорт ветки «Операции»
 
+from handlers.classification import (
+  start_classification, handle_class_period, handle_class_back
+)
+from utils.constants import STATE_CLASS_MENU
 
 def _build_main_kb() -> InlineKeyboardMarkup:
     return InlineKeyboardMarkup([
@@ -124,9 +128,13 @@ async def handle_menu_selection(update: Update, context: ContextTypes.DEFAULT_TY
     if data == "menu:men_oper":
         return await start_men_oper(update, context)
 
+    if data == "menu:classification":
+        return await start_classification(update, context)
+
+
+
     # остальные пункты — заглушки
     responses = {
-        "menu:classification": "🏷 Раздел «Классификация» в разработке…",
         "menu:plans":          "🗓 Раздел «Планы» в разработке…",
         "menu:add_bank":       "➕ Раздел «Добавить Банк» в разработке…",
         "menu:del_bank":       "➖ Раздел «Удалить Банк» в разработке…",
@@ -142,6 +150,13 @@ async def handle_menu_selection(update: Update, context: ContextTypes.DEFAULT_TY
 
 def register_menu_handlers(app):
     """Регистрирует глобальный /menu и все menu:* коллбэки."""
+    # 1) Команда /menu
     app.add_handler(CommandHandler("menu", show_main_menu))
-    # потом — общий хэндлер для всех остальных menu:*
-    app.add_handler(CallbackQueryHandler(handle_menu_selection, pattern=r"^menu:"))
+
+    # 2) Раздел «Классификация»
+    app.add_handler(CallbackQueryHandler(start_classification,pattern=r"^menu:classification$"))
+    app.add_handler(CallbackQueryHandler(handle_class_period,pattern=r"^class_(prev|year|all)$"))
+    app.add_handler(CallbackQueryHandler(handle_class_back,pattern=r"^class_back$"))
+
+    # 3) Общий хендлер для остальных пунктов menu:*
+    app.add_handler(CallbackQueryHandler(handle_menu_selection,pattern=r"^menu:"))

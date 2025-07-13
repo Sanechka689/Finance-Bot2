@@ -434,8 +434,8 @@ async def ask_operation_edit(update: Update, context: ContextTypes.DEFAULT_TYPE,
 
     # Клавиатура: две кнопки в одном ряду
     kb = [[
-        InlineKeyboardButton("🔼 Пополнение", callback_data="edit_operation_choice_Пополнение"),
-        InlineKeyboardButton("🔽 Трата",       callback_data="edit_operation_choice_Трата"),
+        InlineKeyboardButton("➕ Пополнение", callback_data="edit_operation_choice_Пополнение"),
+        InlineKeyboardButton("➖ Трата",       callback_data="edit_operation_choice_Трата"),
     ]]
 
     # Рисуем сообщение с клавиатурой
@@ -871,7 +871,7 @@ async def handle_op_bank_choice(update: Update, context: ContextTypes.DEFAULT_TY
     if last_ops:
         kb.append([InlineKeyboardButton("0", callback_data="op_select_0")])
     kb.append([InlineKeyboardButton("💳 Операции по Банку", callback_data="op_bank")])
-    kb.append([InlineKeyboardButton("🔙 Назад",               callback_data="op_back_to_list")])
+    kb.append([InlineKeyboardButton("🔙 Назад",             callback_data="op_back_to_list")])
     await query.edit_message_text(
         text,
         parse_mode="Markdown",
