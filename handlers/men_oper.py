@@ -104,6 +104,7 @@ async def start_men_oper(update: Update, context: ContextTypes.DEFAULT_TYPE) -> 
     if len(last_ops) > 0:
         kb.append([InlineKeyboardButton("0", callback_data="op_select_0")])
     # в самом низу большая кнопка «Назад»
+    kb.append([InlineKeyboardButton("💳 Операции по Банку", callback_data="op_bank")])
     kb.append([InlineKeyboardButton("🔙 Назад", callback_data="menu:open")])
 
     await query.edit_message_text(
@@ -721,41 +722,23 @@ async def handle_edit_input(update: Update, context: ContextTypes.DEFAULT_TYPE) 
 
 async def handle_op_back(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     """
-    «🔙 Назад» — если мы в меню редактирования поля, то возвращаемся к карточке
-    текущей операции, иначе — к списку операций.
+    «🔙 Назад» —
+    • если мы редактировали поле (есть edit_field) → вернуть на карточку операции 
+    • иначе (мы на карточке) → вернуть к списку последних 10 операций
     """
     q = update.callback_query
     await q.answer()  # убираем часики
 
-    edit = context.user_data.get("editing_op")
-    if edit:
-        idx = edit["index"]
-        row = edit["data"]
-        # Собираем текст карточки точно как в handle_op_select
-        text = (
-            f"📋 *Операция #{idx}:*\n"
-            f"🏦 Банк: {row['Банк']}\n"
-            f"⚙️ Операция: {row['Операция']}\n"
-            f"📅 Дата: {row['Дата']}\n"
-            f"💰 Сумма: {row['Сумма']}\n"
-            f"🏷️ Классификация: {row['Классификация']}\n"
-            f"📄 Конкретика: {row['Конкретика'] or '—'}"
-        )
-        # Кнопки те же, что и при первом показе карточки
-        buttons = [
-            InlineKeyboardButton("✏️ Изменить", callback_data="op_edit"),
-            InlineKeyboardButton("🗑 Удалить",  callback_data="op_delete"),
-            InlineKeyboardButton("🔙 Назад",    callback_data="op_back"),
-        ]
-        await q.edit_message_text(
-            text,
-            parse_mode="Markdown",
-            reply_markup=InlineKeyboardMarkup([buttons])
-        )
-        return STATE_OP_CONFIRM
+    # 1) если мы в режиме редактирования поля — идём назад на карточку
+    if context.user_data.get("edit_field"):
+        # убираем флаг редактирования
+        context.user_data.pop("edit_field", None)
+        # переиспользуем логику handle_op_select, чтобы показать карточку заново
+        return await handle_op_select(update, context)
 
-    # если editing_op нет — возвращаемся к списку операций
+    # 2) иначе — мы на карточке, поэтому «Назад» ведёт к списку операций
     return await start_men_oper(update, context)
+
 
 
 async def handle_save_edit(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
@@ -833,7 +816,70 @@ async def handle_save_edit(update: Update, context: ContextTypes.DEFAULT_TYPE) -
     return await start_men_oper(update, context)
 
 
+# ——— Новый хендлер: показать список банков ———
+async def handle_op_by_bank(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
+    query = update.callback_query
+    await query.answer()
+    banks = context.user_data.get("user_banks")
+    if banks is None:
+        ws, _ = open_finance_and_plans(context.user_data["sheet_url"])
+        rows = ws.get_all_values()[1:]
+        banks = sorted({row[2] for row in rows if row[2]})
+        context.user_data["user_banks"] = banks
+    kb = [[InlineKeyboardButton(b, callback_data=f"op_bank_choice_{b}")] for b in banks]
+    kb.append([InlineKeyboardButton("🔙 Назад", callback_data="op_back_to_list")])
+    await query.edit_message_text(
+        "💳 *Выберите банк:*",
+        parse_mode="Markdown",
+        reply_markup=InlineKeyboardMarkup(kb)
+    )
+    return STATE_OP_SELECT
 
+# ——— Новый хендлер: фильтрация по выбранному банку ———
+async def handle_op_bank_choice(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
+    query = update.callback_query
+    await query.answer()
+    _, _, _, bank = query.data.split("_", 3)
+    context.user_data["filter_bank"] = bank
+    url = context.user_data.get("sheet_url")
+    if not url:
+        return await query.edit_message_text("⚠️ Сначала подключите таблицу: /setup")
+    ws, _ = open_finance_and_plans(url)
+    sheet_id = ws._properties["sheetId"]
+    SORT_REQUEST["requests"][0]["sortRange"]["range"]["sheetId"] = sheet_id
+    ws.spreadsheet.batch_update(SORT_REQUEST)
+    all_rows = ws.get_all_values()[1:]
+    filtered = [r for r in all_rows if r[2] == bank]
+    data_rows = filtered[:10]
+    last_ops = [{
+        "Год": r[0], "Месяц": r[1], "Банк": r[2],
+        "Операция": r[3], "Дата": r[4],
+        "Сумма": r[5], "Классификация": r[6],
+        "Конкретика": r[7] or ""
+    } for r in data_rows]
+    context.user_data["last_ops"] = last_ops
+    lines = [
+        f"{i}. {row['Банк']}   {row['Сумма']}   {row['Классификация']}   {row['Дата']}"
+        for i, row in enumerate(last_ops)
+    ]
+    text = f"📝 *Последние 10 операций по банку «{bank}»:*\n" + "\n".join(lines)
+    kb = [
+        [InlineKeyboardButton(str(i), callback_data=f"op_select_{i}") for i in [1,2,3] if i < len(last_ops)],
+        [InlineKeyboardButton(str(i), callback_data=f"op_select_{i}") for i in [4,5,6] if i < len(last_ops)],
+        [InlineKeyboardButton(str(i), callback_data=f"op_select_{i}") for i in [7,8,9] if i < len(last_ops)],
+    ]
+    if last_ops:
+        kb.append([InlineKeyboardButton("0", callback_data="op_select_0")])
+    kb.append([InlineKeyboardButton("💳 Операции по Банку", callback_data="op_bank")])
+    kb.append([InlineKeyboardButton("🔙 Назад",               callback_data="op_back_to_list")])
+    await query.edit_message_text(
+        text,
+        parse_mode="Markdown",
+        reply_markup=InlineKeyboardMarkup(kb)
+    )
+    return STATE_OP_SELECT
+
+# ——— Обновлённая регистрация handlers ———
 def register_men_oper_handlers(app):
     conv = ConversationHandler(
         entry_points=[ CallbackQueryHandler(start_men_oper, pattern=r"^menu:men_oper$") ],
@@ -842,24 +888,24 @@ def register_men_oper_handlers(app):
                 CallbackQueryHandler(start_men_oper, pattern=r"^menu:men_oper$")
             ],
             STATE_OP_SELECT: [
-                CallbackQueryHandler(handle_op_select, pattern=r"^op_select_\d+$"),
-                CallbackQueryHandler(exit_to_main_menu, pattern=r"^menu:open$")
+                CallbackQueryHandler(handle_op_select,      pattern=r"^op_select_\d+$"),
+                CallbackQueryHandler(handle_op_by_bank,     pattern=r"^op_bank$"),
+                CallbackQueryHandler(handle_op_bank_choice, pattern=r"^op_bank_choice_.+$"),
+                CallbackQueryHandler(start_men_oper,        pattern=r"^op_back_to_list$"),
+                CallbackQueryHandler(exit_to_main_menu,     pattern=r"^menu:open$")
             ],
             STATE_OP_CONFIRM: [
-                CallbackQueryHandler(handle_op_delete,  pattern=r"^op_delete$"),
+                CallbackQueryHandler(handle_op_delete,      pattern=r"^op_delete$"),
                 CallbackQueryHandler(handle_op_edit_choice, pattern=r"^op_edit$"),
-                CallbackQueryHandler(handle_op_back,     pattern=r"^op_back$")
+                CallbackQueryHandler(handle_op_back,        pattern=r"^op_back$")
             ],
             STATE_OP_EDIT_CHOICE: [
-                CallbackQueryHandler(handle_edit_field,
-                                     pattern=r"^edit_(bank|operation|date|sum|classification|specific)$"),
-                CallbackQueryHandler(handle_save_edit, pattern=r"^op_save$"),                     
-                CallbackQueryHandler(handle_op_back, pattern=r"^op_back$")
+                CallbackQueryHandler(handle_edit_field,     pattern=r"^edit_(bank|operation|date|sum|classification|specific)$"),
+                CallbackQueryHandler(handle_save_edit,      pattern=r"^op_save$"),
+                CallbackQueryHandler(handle_op_back,        pattern=r"^op_back$")
             ],
-            # этот этап обрабатывают сами ask_* из handlers/operations и они должны вернуть STATE_OP_EDIT_INPUT
             STATE_OP_EDIT_INPUT: [
-                # сюда попадут сообщения-последний ввод пользователя
-                CallbackQueryHandler(handle_bank_choice, pattern=r"^edit_bank_choice_.+$"),
+                CallbackQueryHandler(handle_bank_choice,      pattern=r"^edit_bank_choice_.+$"),
                 CallbackQueryHandler(handle_operation_choice, pattern=r"^edit_operation_choice_.+$"),
                 CallbackQueryHandler(handle_date_choice,      pattern=r"^select_date\|[\d\-]+$"),
                 MessageHandler(filters.TEXT & ~filters.COMMAND, handle_edit_input),
