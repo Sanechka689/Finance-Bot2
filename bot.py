@@ -36,7 +36,7 @@ def main():
     register_sheet_handlers(app)        # /setup
     register_banks_handlers(app)        # /banks
     register_men_oper_handlers(app)     # /Операции
-    register_menu_handlers(app)         # /menu
+    register_menu_handlers(app)         # /menu    
     register_plans_handlers(app)        # /Планы
     register_operations_handlers(app)   # /add  
     register_fallback_handler(app)      # всё остальное

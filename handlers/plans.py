@@ -284,42 +284,39 @@ async def handle_plan_back(update: Update, context: ContextTypes.DEFAULT_TYPE) -
     return await show_main_menu(update, context)
 
 
+from telegram.ext import ConversationHandler
+
 def register_plans_handlers(app):
-    """
-    Регистрируем хендлеры для раздела «Планы».
-    """
-    # Вход в раздел «Планы»
-    app.add_handler(
-        CallbackQueryHandler(start_plans, pattern=r"^menu:plans$")
+    """Регистрирует раздел «Планы» полноценным ConversationHandler."""
+    conv = ConversationHandler(
+        entry_points=[
+            CallbackQueryHandler(start_plans, pattern=r"^menu:plans$")
+        ],
+        states={
+            STATE_PLAN_MENU: [
+                CallbackQueryHandler(handle_plan_add,   pattern=r"^plans:add$"),
+                CallbackQueryHandler(handle_plan_copy,  pattern=r"^plans:copy$"),
+                CallbackQueryHandler(handle_plan_back,  pattern=r"^plans:back$")
+            ],
+            STATE_PLAN_DATE: [
+                CallbackQueryHandler(handle_plan_date, pattern=r"^select_date\|\d{4}-\d{2}-\d{2}$")
+            ],
+            STATE_PLAN_AMOUNT: [
+                MessageHandler(filters.TEXT & ~filters.COMMAND, handle_plan_amount)
+            ],
+            STATE_PLAN_CLASSIFICATION: [
+                CallbackQueryHandler(handle_plan_class_choice, pattern=r"^plans:class_.+$")
+            ],
+            STATE_PLAN_SPECIFIC: [
+                MessageHandler(filters.TEXT & ~filters.COMMAND, handle_plan_specific)
+            ],
+            STATE_PLAN_CONFIRM: [
+                CallbackQueryHandler(handle_plan_confirm, pattern=r"^plans:confirm$")
+            ],
+        },
+        fallbacks=[
+            CallbackQueryHandler(handle_plan_back, pattern=r"^plans:back$")
+        ],
+        allow_reentry=True,
     )
-    # Добавить план
-    app.add_handler(
-        CallbackQueryHandler(handle_plan_add, pattern=r"^plans:add$")
-    )
-    # Обработка клика по календарю
-    app.add_handler(
-        CallbackQueryHandler(handle_plan_date, pattern=r"^select_date\|\d{4}-\d{2}-\d{2}$")
-    )
-    # Ввод суммы для плана
-    app.add_handler(
-        MessageHandler(filters.TEXT & ~filters.COMMAND, handle_plan_amount)
-    )
-    # Классифкация и Конкретика
-    app.add_handler(
-        CallbackQueryHandler(handle_plan_class_choice, pattern=r"^plans:class_(.+)$")
-    )
-    app.add_handler(
-        MessageHandler(filters.TEXT & ~filters.COMMAND, handle_plan_specific)
-    )
-    # Подтверждение записи
-    app.add_handler(
-        CallbackQueryHandler(handle_plan_confirm, pattern=r"^plans:confirm$")
-    )
-    # Копировать прошлые планы
-    app.add_handler(
-        CallbackQueryHandler(handle_plan_copy, pattern=r"^plans:copy$")
-    )
-    # Назад в главное меню
-    app.add_handler(
-        CallbackQueryHandler(handle_plan_back, pattern=r"^plans:back$")
-    )
+    app.add_handler(conv)
