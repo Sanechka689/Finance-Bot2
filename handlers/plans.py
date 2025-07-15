@@ -3,6 +3,7 @@
 import calendar
 from datetime import date, datetime
 from typing import Optional, Dict
+from utils.constants import STATE_PLAN_DATE
 
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup, Update
 from telegram.ext import ContextTypes, CallbackQueryHandler, MessageHandler, filters
@@ -68,23 +69,34 @@ async def handle_plan_fill_amount(update: Update, context: ContextTypes.DEFAULT_
     return STATE_PLAN_AMOUNT
 
 
-async def handle_plan_fill_classification(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
+async def handle_plan_fill_classification(
+    update: Update,
+    context: ContextTypes.DEFAULT_TYPE
+) -> int:
     """
-    Пользователь нажал «🏷️ Классификация» — показываем топ-10 и ручной ввод.
+    Пользователь нажал «🏷️ Классификация» — показываем топ-10 популярных
+    классификаций из листа «Планы» или даём возможность ввести своё значение.
     """
     q = update.callback_query
     await q.answer()
-    banksheet = open_finance_and_plans(context.user_data["sheet_url"])[0]
-    rows = banksheet.get_all_values()[1:]
-    popular = []
+
+    # 1) Берём второй лист ("Планы") из открытия Google Sheets
+    _, ws_plans = open_finance_and_plans(context.user_data["sheet_url"])
+    rows = ws_plans.get_all_values()[1:]  # пропускаем заголовок
+
+    # 2) Собираем уникальные классификации из столбца 8 (индекс 7)
+    popular: list[str] = []
     for r in rows:
-        cls = r[6]
+        cls = r[7]  # здесь именно индекс 7 для "Классификация"
         if cls and cls not in popular:
             popular.append(cls)
-        if len(popular) >= 10:
-            break
+            if len(popular) >= 10:
+                break
+
+    # 3) Формируем клавиатуру: кнопки по popular + кнопка ручного ввода
     kb = [[InlineKeyboardButton(c, callback_data=f"plans:class_{c}")] for c in popular]
     kb.append([InlineKeyboardButton("Впишите своё", callback_data="plans:class_other")])
+
     await q.edit_message_text(
         "🏷️ *Выберите классификацию* из списка или впишите своё:",
         parse_mode="Markdown",
@@ -228,22 +240,29 @@ async def handle_plan_date(update: Update, context: ContextTypes.DEFAULT_TYPE) -
     pending["Месяц"] = dt.strftime("%B")
     return await show_plan_card(update, context)
 
-async def change_plan_calendar_month(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
+# Календарь
+async def change_plan_calendar_month(update: Update,context: ContextTypes.DEFAULT_TYPE) -> int:
     """
-    Обрабатывает стрелки < и > в календаре плана.
+    Обрабатывает нажатие на стрелки < и > в календаре плана.
+    Ожидает callback_data вида 'calendar|YYYY|M' или 'calendar|YYYY|MM'.
     """
     q = update.callback_query
     await q.answer()
-    action, ym = q.data.split("|", 1)       # e.g. "prev_month|2025-07"
-    y, m = map(int, ym.split("-"))
+
+    # q.data: 'calendar|2025|6' или 'calendar|2025|12'
+    _, year_str, month_str = q.data.split("|")
+    year, month = int(year_str), int(month_str)
+
     from handlers.operations import create_calendar
-    kb = create_calendar(y, m)
+    kb = create_calendar(year, month)
+
     await q.edit_message_text(
         "📅 *Выберите дату плана:*",
         parse_mode="Markdown",
         reply_markup=kb
     )
     return STATE_PLAN_DATE
+
 
 
 # Сумма
@@ -388,7 +407,7 @@ def register_plans_handlers(app):
                 CallbackQueryHandler(handle_plan_cancel,              pattern=r"^plans:cancel$")
             ],
             STATE_PLAN_DATE: [
-                CallbackQueryHandler(change_plan_calendar_month,pattern=r"^(prev_month|next_month)\|\d{4}-\d{2}$"),
+                CallbackQueryHandler(change_plan_calendar_month, pattern=r"^calendar\|\d{4}\|\d{1,2}$"),
                 CallbackQueryHandler(handle_plan_date, pattern=r"^select_date\|\d{4}-\d{2}-\d{2}$")
             ],
             STATE_PLAN_AMOUNT: [
