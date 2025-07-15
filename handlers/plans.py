@@ -166,7 +166,9 @@ async def handle_plan_cancel(update: Update, context: ContextTypes.DEFAULT_TYPE)
 
 async def start_plans(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     """
-    Шаг 1: показываем пользователю планы на текущий месяц.
+    Шаг 1: показываем пользователю планы на текущий месяц
+    в формате «Классификация — Сумма — Остаток».
+    Остаток = фактические операции минус плановая сумма.
     """
     q = update.callback_query
     await q.answer()
@@ -175,43 +177,66 @@ async def start_plans(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int
     if not url:
         return await q.edit_message_text("⚠️ Сначала подключите таблицу: /setup")
 
-    # Открываем лист «Планы»
-    _, ws_plans = open_finance_and_plans(url)
-    rows = ws_plans.get_all_values()[1:]
+    # Открываем оба листа: Финансы и Планы
+    ws_finance, ws_plans = open_finance_and_plans(url)
+    finances = ws_finance.get_all_values()[1:]  # все операции
+    plans    = ws_plans.get_all_values()[1:]    # все планы
 
     today = date.today()
-    # Фильтруем по текущему месяцу/году
-    plans = []
-    for r in rows:
-        dt = parse_sheet_date(r[4])
-        if dt and dt.year == today.year and dt.month == today.month:
-            plans.append({
-                "Сумма":         r[5],
-                "Классификация": r[7] or "—",
-                "Конкретика":    r[8] or "—"
-            })
+    year  = today.year
+    month = today.month
 
-    if not plans:
+    # Собираем только планы на текущий месяц/год
+    display_rows = []
+    for r in plans:
+        dt = parse_sheet_date(r[4])
+        if not (dt and dt.year == year and dt.month == month):
+            continue
+
+        cls = r[7] or "—"                # классификация
+        # плановая сумма
+        plan_amt = float(r[5].replace(",", "."))
+
+        # считаем факт по этой классификации
+        total_fact = 0.0
+        for f in finances:
+            dtf = parse_sheet_date(f[4])
+            # совпадает год, месяц и классификация?
+            if dtf and dtf.year == year and dtf.month == month and f[6] == cls:
+                total_fact += float(f[5].replace(",", "."))
+
+        # остаток = факт минус план
+        remainder = total_fact - plan_amt
+
+        display_rows.append({
+            "Классификация": cls,
+            "План":          plan_amt,
+            "Остаток":       remainder
+        })
+
+    # Формируем тело сообщения
+    if not display_rows:
         body = "— нет планов на этот месяц —"
     else:
-        body = "\n".join(
-            f"{i+1}. {p['Сумма']} — {p['Классификация']} — {p['Конкретика']}"
-            for i, p in enumerate(plans)
-        )
+        lines = []
+        for idx, p in enumerate(display_rows, 1):
+            lines.append(f"{idx}. {p['Классификация']} | {p['План']} | {p['Остаток']}")
+        body = "\n".join(lines)
 
-    text = f"🗓 *Планы на {RU_MONTHS[today.month]} {today.year}:*\n{body}"
+    # Заголовок с русским месяцем
+    header = f"🗓 *Планы на {RU_MONTHS[month]} {year}:*\n{body}"
 
+    # Кнопки управления
     kb = [
-        # Кнопка «Добавить» запускает STATE_PLAN_ADD
         [InlineKeyboardButton("➕ Добавить",        callback_data="plans:add")],
-        # Кнопка «Перенести планы» запускает STATE_PLAN_COPY
         [InlineKeyboardButton("🔄 Перенести планы", callback_data="plans:copy")],
-        # Кнопка «Назад» должна совпадать с plans:cancel, а не plans:back
         [InlineKeyboardButton("🔙 Назад",           callback_data="plans:cancel")],
     ]
-    await q.edit_message_text(text, parse_mode="Markdown",
+
+    await q.edit_message_text(header, parse_mode="Markdown",
                               reply_markup=InlineKeyboardMarkup(kb))
     return STATE_PLAN_MENU
+
 
 # Добавление
 async def handle_plan_add(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
