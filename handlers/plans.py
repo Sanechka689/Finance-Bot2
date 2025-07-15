@@ -21,7 +21,7 @@ from utils.constants import (
     STATE_OP_MENU,
 )
 from handlers.classification import parse_sheet_date
-
+from handlers.operations import RU_MONTHS
 
 def init_pending_plan(context):
     """
@@ -63,16 +63,13 @@ async def handle_plan_fill_amount(update: Update, context: ContextTypes.DEFAULT_
     q = update.callback_query
     await q.answer()
     await q.edit_message_text(
-        "💰 *Введите сумму плана* (только положительное число):",
+        "💰 *Введите сумму плана* :",
         parse_mode="Markdown"
     )
     return STATE_PLAN_AMOUNT
 
 
-async def handle_plan_fill_classification(
-    update: Update,
-    context: ContextTypes.DEFAULT_TYPE
-) -> int:
+async def handle_plan_fill_classification(update: Update,context: ContextTypes.DEFAULT_TYPE) -> int:
     """
     Пользователь нажал «🏷️ Классификация» — показываем топ-10 популярных
     классификаций из листа «Планы» или даём возможность ввести своё значение.
@@ -202,7 +199,7 @@ async def start_plans(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int
             for i, p in enumerate(plans)
         )
 
-    text = f"🗓 *Планы на {today.strftime('%B %Y').lower()}:*\n{body}"
+    text = f"🗓 *Планы на {RU_MONTHS[today.month]} {today.year}:*\n{body}"
 
     kb = [
         # Кнопка «Добавить» запускает STATE_PLAN_ADD
@@ -237,7 +234,7 @@ async def handle_plan_date(update: Update, context: ContextTypes.DEFAULT_TYPE) -
     pending = context.user_data["pending_plan"]
     pending["Дата"]  = f"{dt.day:02d}.{dt.month:02d}.{dt.year}"
     pending["Год"]   = str(dt.year)
-    pending["Месяц"] = dt.strftime("%B")
+    pending["Месяц"] = RU_MONTHS[dt.month]
     return await show_plan_card(update, context)
 
 # Календарь
@@ -264,38 +261,69 @@ async def change_plan_calendar_month(update: Update,context: ContextTypes.DEFAUL
     return STATE_PLAN_DATE
 
 
-
 # Сумма
 async def handle_plan_amount(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     """
-    После ввода суммы сохраняем её и возвращаем карточку.
+    После ввода суммы сохраняем её (любое число: + или -) и возвращаем карточку.
+    Если введено не число — остаёмся в этом же шаге и просим повторить ввод.
     """
     text = update.message.text.strip()
     try:
+        # конвертируем ввод в число, допускаем запятую
         amt = float(text.replace(",", "."))
-        if amt <= 0:
-            raise ValueError
     except ValueError:
-        return await update.message.reply_text(
-            "⚠️ Пожалуйста, введите *положительное* число, например `5000`.",
+        # если не получилось — уведомляем и остаёмся в STATE_PLAN_AMOUNT
+        await update.message.reply_text(
+            "⚠️ Введите **корректное число** (например `-5000` или `2500`).",
             parse_mode="Markdown"
         )
-    context.user_data["pending_plan"]["Сумма"] = str(amt)
+        return STATE_PLAN_AMOUNT
+
+    # сохраняем как число (для вычислений в дальнейшем)
+    context.user_data["pending_plan"]["Сумма"] = amt
+
+    # показываем обновлённую карточку
     return await show_plan_card(update, context)
+
 
 
 # Классификация
 async def handle_plan_class_choice(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
+    """
+    Обрабатывает нажатие на одну из кнопок «plans:class_<значение>»:
+    - Если выбран 'other' — просим текстовый ввод классификации.
+    - Иначе сохраняем выбранную и возвращаем карточку.
+    """
     q = update.callback_query
     await q.answer()
-    data = q.data.split("_", 2)[2]  # после "plans:class_"
-    pending = context.user_data["pending_plan"]
-    if data == "other":
-        await q.edit_message_text("📄 Введите *конкретику* для новой классификации:", parse_mode="Markdown")
-        return STATE_PLAN_SPECIFIC
-    pending["Классификация"] = data
+
+    # извлекаем часть после "plans:class_"
+    _, cls = q.data.split("_", 1)  
+
+    if cls == "other":
+        # Просим пользователя вписать свою классификацию
+        await q.edit_message_text(
+            "🏷️ *Введите свою классификацию* для плана:",
+            parse_mode="Markdown"
+        )
+        # остаться в том же состоянии, чтобы поймать текстовый ввод
+        return STATE_PLAN_CLASSIFICATION
+
+    # Сохраняем выбранную классификацию
+    context.user_data["pending_plan"]["Классификация"] = cls
+    # Показываем обновлённую карточку
     return await show_plan_card(update, context)
 
+async def handle_plan_custom_class(update: Update,context: ContextTypes.DEFAULT_TYPE) -> int:
+    """
+    Пользователь ввёл свою классификацию — сохраняем и возвращаем карточку.
+    """
+    text = update.message.text.strip() or "-"
+    context.user_data["pending_plan"]["Классификация"] = text
+    return await show_plan_card(update, context)
+
+
+# Конкретика
 async def handle_plan_specific(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     """
     Сохраняем введённую конкретику и возвращаем карточку.
@@ -313,12 +341,22 @@ async def handle_plan_save(update: Update, context: ContextTypes.DEFAULT_TYPE) -
     _, ws_plans = open_finance_and_plans(url)
 
     row = context.user_data["pending_plan"]
+
+    # 1) Собираем текст формулы для колонки "Остаток":
+    formula = (
+    f'=SUMIFS(Финансы!$F:$F;Финансы!$G:$G;INDIRECT("H"&ROW());'
+    f'Финансы!$B:$B;INDIRECT("B"&ROW());Финансы!$A:$A;INDIRECT("A"&ROW()))'
+    f'-INDIRECT("F"&ROW())'
+    )
+
+    # 2) Формируем новую строку с этой формулой
     new_row = [
         row["Год"], row["Месяц"], row["Банк"],
         row["Операция"], row["Дата"], row["Сумма"],
-        "",  # Остаток — формула листа
+        formula,                          # ← здесь вместо пустой строки
         row["Классификация"], row["Конкретика"]
     ]
+
     ws_plans.append_row(new_row, value_input_option="USER_ENTERED")
 
     await q.edit_message_text("✅ План успешно добавлен.")
@@ -414,7 +452,8 @@ def register_plans_handlers(app):
                 MessageHandler(filters.TEXT & ~filters.COMMAND, handle_plan_amount)
             ],
             STATE_PLAN_CLASSIFICATION: [
-                CallbackQueryHandler(handle_plan_class_choice, pattern=r"^plans:class_.+$")
+                CallbackQueryHandler(handle_plan_class_choice, pattern=r"^plans:class_.+$"),
+                MessageHandler(filters.TEXT & ~filters.COMMAND, handle_plan_custom_class)
             ],
             STATE_PLAN_SPECIFIC: [
                 MessageHandler(filters.TEXT & ~filters.COMMAND, handle_plan_specific)
