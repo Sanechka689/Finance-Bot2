@@ -7,6 +7,7 @@ from utils.constants import STATE_PLAN_DATE
 
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup, Update
 from telegram.ext import ContextTypes, CallbackQueryHandler, MessageHandler, filters
+import math
 
 from services.sheets_service import open_finance_and_plans
 from utils.constants import (
@@ -168,7 +169,7 @@ async def start_plans(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int
     """
     Шаг 1: показываем пользователю планы на текущий месяц
     в формате «Классификация — Сумма — Остаток».
-    Остаток = фактические операции минус плановая сумма.
+    Остаток берётся из уже посчитанной формулы в таблице.
     """
     q = update.callback_query
     await q.answer()
@@ -177,56 +178,39 @@ async def start_plans(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int
     if not url:
         return await q.edit_message_text("⚠️ Сначала подключите таблицу: /setup")
 
-    # Открываем оба листа: Финансы и Планы
-    ws_finance, ws_plans = open_finance_and_plans(url)
-    finances = ws_finance.get_all_values()[1:]  # все операции
-    plans    = ws_plans.get_all_values()[1:]    # все планы
+    # 1) Открываем лист «Планы» (он второй в кортеже)
+    _, ws_plans = open_finance_and_plans(url)
+    all_plans = ws_plans.get_all_values()[1:]  # пропускаем заголовок
 
     today = date.today()
-    year  = today.year
-    month = today.month
+    year, month = today.year, today.month
 
-    # Собираем только планы на текущий месяц/год
-    display_rows = []
-    for r in plans:
+    # 2) Фильтруем планы по дате; колонки:
+    #    0:Год, 1:Месяц, 4:Дата, 5:Сумма, 6:Остаток, 7:Классификация
+    display = []
+    for r in all_plans:
         dt = parse_sheet_date(r[4])
-        if not (dt and dt.year == year and dt.month == month):
-            continue
+        if dt and dt.year == year and dt.month == month:
+            display.append({
+                "Классификация": r[7] or "—",
+                "Сумма":          r[5] or "0",
+                "Остаток":        r[6] or "0"
+            })
 
-        cls = r[7] or "—"                # классификация
-        # плановая сумма
-        plan_amt = float(r[5].replace(",", "."))
-
-        # считаем факт по этой классификации
-        total_fact = 0.0
-        for f in finances:
-            dtf = parse_sheet_date(f[4])
-            # совпадает год, месяц и классификация?
-            if dtf and dtf.year == year and dtf.month == month and f[6] == cls:
-                total_fact += float(f[5].replace(",", "."))
-
-        # остаток = факт минус план
-        remainder = total_fact - plan_amt
-
-        display_rows.append({
-            "Классификация": cls,
-            "План":          plan_amt,
-            "Остаток":       remainder
-        })
-
-    # Формируем тело сообщения
-    if not display_rows:
+    # 3) Формируем тело сообщения
+    if not display:
         body = "— нет планов на этот месяц —"
     else:
-        lines = []
-        for idx, p in enumerate(display_rows, 1):
-            lines.append(f"{idx}. {p['Классификация']} | {p['План']} | {p['Остаток']}")
+        lines = [
+            f"{i}. {p['Классификация']} — {p['Сумма']} — {p['Остаток']}"
+            for i, p in enumerate(display, 1)
+        ]
         body = "\n".join(lines)
 
-    # Заголовок с русским месяцем
+    # 4) Заголовок с русским месяцем
     header = f"🗓 *Планы на {RU_MONTHS[month]} {year}:*\n{body}"
 
-    # Кнопки управления
+    # 5) Кнопки
     kb = [
         [InlineKeyboardButton("➕ Добавить",        callback_data="plans:add")],
         [InlineKeyboardButton("🔄 Перенести планы", callback_data="plans:copy")],
