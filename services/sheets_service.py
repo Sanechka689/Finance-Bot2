@@ -106,8 +106,55 @@ def open_finance_and_plans(url: str):
             "pattern": "d mmmm, ddd"
         }
     })
+    # ─── форматируем колонки F(5) и G(6) как числа с двумя десятичными ───
+    for ws in (finance_ws, plans_ws):
+        sheet_id = ws._properties["sheetId"]
+        requests = [{
+            "repeatCell": {
+                "range": {
+                    "sheetId":           sheet_id,
+                    "startRowIndex":     1,    # пропускаем заголовок
+                    "startColumnIndex":  5,    # колонка F (0‑based индекс)
+                    "endColumnIndex":    7     # до G включительно
+                },
+                "cell": {
+                    "userEnteredFormat": {
+                        "numberFormat": {
+                            "type":    "NUMBER",
+                            "pattern": "#,##0.00"
+                        }
+                    }
+                },
+                "fields": "userEnteredFormat.numberFormat"
+            }
+        }]
+        ws.spreadsheet.batch_update({"requests": requests})
 
+    # ─── сортировка по дате (E) по убыванию ───
+    for ws in (finance_ws, plans_ws):
+        sheet_id = ws._properties["sheetId"]
+        sort_request = {
+            "requests": [{
+                "sortRange": {
+                    "range": {
+                        "sheetId":           sheet_id,
+                        "startRowIndex":     1,            # пропускаем заголовок
+                        "startColumnIndex":  0,            # от колонки A
+                        "endColumnIndex":    ws.col_count, # до последней колонки
+                        "endRowIndex":       ws.row_count  # до последней строки
+                    },
+                    "sortSpecs": [{
+                        "dimensionIndex": 4,           # колонка E (0‑based)
+                        "sortOrder":      "DESCENDING" # от новых к старым
+                    }]
+                }
+            }]
+        }
+        ws.spreadsheet.batch_update(sort_request)
+
+    # Возвращаем обработанные листы
     return finance_ws, plans_ws
+
 
 def _ensure_capacity_and_filter(ws, min_remaining: int = 20, add_rows: int = 500, max_col: str = 'H'):
     """
