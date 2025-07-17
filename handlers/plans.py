@@ -7,6 +7,7 @@ from utils.constants import STATE_PLAN_DATE
 
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup, Update
 from telegram.ext import ContextTypes, CallbackQueryHandler, MessageHandler, filters
+from telegram.ext import ConversationHandler
 import math
 
 from services.sheets_service import open_finance_and_plans
@@ -371,10 +372,11 @@ async def handle_plan_save(update: Update, context: ContextTypes.DEFAULT_TYPE) -
     await q.edit_message_text("✅ План успешно добавлен.")
     return await start_plans(update, context)
 
-
+# Копирвание Планов
 async def handle_plan_copy(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     """
-    Шаг 3: копируем планы прошлого месяца на текущий.
+    Шаг 3: копируем планы прошлого месяца на текущий,
+    обновляем год/месяц и вбрасываем формулу остатка.
     """
     q = update.callback_query
     await q.answer()
@@ -384,35 +386,55 @@ async def handle_plan_copy(update: Update, context: ContextTypes.DEFAULT_TYPE) -
     rows = ws_plans.get_all_values()[1:]
 
     today = date.today()
-    pm = today.month - 1 or 12
-    py = today.year if today.month > 1 else today.year - 1
+    prev_month = today.month - 1 or 12
+    prev_year  = today.year if today.month > 1 else today.year - 1
+
+    # дата нового плана — последний день текущего месяца
     last_day = calendar.monthrange(today.year, today.month)[1]
     new_date = f"{last_day:02d}.{today.month:02d}.{today.year}"
+    new_year  = str(today.year)
+    new_month = RU_MONTHS[today.month]  # по‑русски
 
     to_copy = []
     for r in rows:
-        dt = parse_sheet_date(r[4])
-        if dt and dt.year == py and dt.month == pm:
-            new_row = [
-                r[0],  # Год
-                r[1],  # Месяц
-                r[2],  # Банк
-                r[3],  # Операция ("План")
-                new_date,
-                r[5],  # Сумма
-                "",    # Остаток (формула на листе)
-                r[7],  # Классификация
-                r[8],  # Конкретика
-            ]
-            to_copy.append(new_row)
+        old_dt = parse_sheet_date(r[4])
+        if not (old_dt and old_dt.year == prev_year and old_dt.month == prev_month):
+            continue
+
+        cls   = r[7]  # классификация
+        plan  = r[5]  # плановая сумма как строка
+        spec  = r[8]  # конкретика
+
+        # Формула остатка: SUMIFS по "Финансы" минус INDIRECT("F"&ROW())
+        formula = (
+            f'=SUMIFS(Финансы!$F:$F;Финансы!$G:$G;INDIRECT("H"&ROW());'
+            f'Финансы!$B:$B;INDIRECT("B"&ROW());Финансы!$A:$A;INDIRECT("A"&ROW()))'
+            f'-INDIRECT("F"&ROW())'
+        )
+
+        new_row = [
+            new_year,         # год текущего месяца
+            new_month,        # месяц текущего месяца
+            r[2],             # банк
+            r[3],             # Операция ("План")
+            new_date,         # дата — последний день текущего месяца
+            plan,             # сумма (строка или число)
+            formula,          # остаток — динамическая формула
+            cls,              # классификация
+            spec,             # конкретика
+        ]
+        to_copy.append(new_row)
 
     if to_copy:
         ws_plans.append_rows(to_copy, value_input_option="USER_ENTERED")
-        await q.edit_message_text("🔄 Планы скопированы на текущий месяц.")
+        # краткое уведомление (можно опустить, если не нужно)
+        await q.edit_message_text("🔄 Планы перенесены на текущий месяц.")
     else:
         await q.edit_message_text("ℹ️ Нет прошлых планов для копирования.")
 
+    # и сразу показываем обновлённую карточку «Планы на …»
     return await start_plans(update, context)
+
 
 
 async def handle_plan_back(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
@@ -423,11 +445,6 @@ async def handle_plan_back(update: Update, context: ContextTypes.DEFAULT_TYPE) -
     await q.answer()
     from handlers.menu import show_main_menu
     return await show_main_menu(update, context)
-
-
-from telegram.ext import ConversationHandler
-
-from telegram.ext import ConversationHandler
 
 def register_plans_handlers(app):
     conv = ConversationHandler(
