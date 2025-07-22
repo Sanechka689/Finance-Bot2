@@ -22,37 +22,68 @@ from utils.constants import (
 )
 from services.sheets_service import open_finance_and_plans
 
+
 # —————— 3.1 Главное меню банков ——————
 
 async def show_banks_menu(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     """
     Показывает текущее состояние банков и кнопки для добавления/пропуска.
     """
+    # 1) Инициализируем кэш отложенных банков
+    context.user_data.setdefault("pending_banks", [])
+
+    # 2) Поддержка редактирования при callback_query
+    query = update.callback_query
+    if query:
+        await query.answer()
+
+    # 3) Проверяем подключение таблицы
     if "sheet_url" not in context.user_data:
-        await update.effective_message.reply_text("⚠️ Сначала подключите таблицу — /setup")
+        if query:
+            await query.edit_message_text("⚠️ Сначала подключите таблицу — /setup")
+        else:
+            await update.effective_message.reply_text("⚠️ Сначала подключите таблицу — /setup")
         return ConversationHandler.END
 
+    # 4) Читаем уже добавленные в таблицу банки
     finance_ws, _ = open_finance_and_plans(context.user_data["sheet_url"])
     existing = finance_ws.col_values(3)[1:]
     unique = sorted(set(existing))
-    current = ", ".join(unique) if unique else "нет"
 
-    text = (
-        f"🏦 Ваши текущие банки: {current}\n\n"
-        "Выберите банк или нажмите «▶️ Продолжить без заполнения банков»:"
-    )
+    # 5) Готовим список новых (отложенных) банков с суммами
+    pending = context.user_data["pending_banks"]
+    pending_names = [e["bank"] for e in pending]
+    pending_lines = [f"• {e['bank']}: {e['amount']:.2f}" for e in pending]
+
+    # 6) Собираем текст сообщения
+    text = f"🏦 Ваши текущие банки: {', '.join(unique) if unique else 'нет'}"
+    if pending:
+        text += "\n\nНовые Банки:\n" + "\n".join(pending_lines)
+    text += "\n\nВыберите банк или нажмите «▶️ Продолжить без заполнения банков»:"
+
+    # 7) Клавиатура
     keyboard = [
         [InlineKeyboardButton("Сбер",     callback_data="bank_Сбер"),
          InlineKeyboardButton("Тинькофф", callback_data="bank_Тинькофф")],
-        [InlineKeyboardButton("Альфа", callback_data="bank_Альфа"),
-         InlineKeyboardButton("МКБ",   callback_data="bank_МКБ")],
-        [InlineKeyboardButton("Нал", callback_data="bank_Нал"),
-         InlineKeyboardButton("ВТБ", callback_data="bank_ВТБ")],
+        [InlineKeyboardButton("Альфа",    callback_data="bank_Альфа"),
+         InlineKeyboardButton("МКБ",      callback_data="bank_МКБ")],
+        [InlineKeyboardButton("Нал",      callback_data="bank_Нал"),
+         InlineKeyboardButton("ВТБ",      callback_data="bank_ВТБ")],
         [InlineKeyboardButton("Свой банк", callback_data="bank_custom")],
         [InlineKeyboardButton("▶️ Продолжить без заполнения банков", callback_data="skip_add")],
         [InlineKeyboardButton("📞 Поддержка", callback_data="support")],
     ]
-    await update.effective_message.reply_text(text, reply_markup=InlineKeyboardMarkup(keyboard))
+    # Если есть отложенные — добавляем кнопку "Готово"
+    if pending:
+        keyboard.append([InlineKeyboardButton("✅ Готово", callback_data="finish_setup")])
+
+    # 8) Выводим или редактируем сообщение
+    markup = InlineKeyboardMarkup(keyboard)
+    if query:
+        await query.edit_message_text(text, reply_markup=markup)
+    else:
+        await update.effective_message.reply_text(text, reply_markup=markup)
+
     return STATE_BANK_MENU
 
 
@@ -63,34 +94,58 @@ async def handle_bank_menu(update: Update, context: ContextTypes.DEFAULT_TYPE) -
     await query.answer()
     data = query.data
 
+    # Помощь
     if data == "support":
         await query.message.reply_text("📧 Для поддержки: financebot365@gmail.com")
         return STATE_BANK_MENU
 
+    # Пропустить добавление
     if data == "skip_add":
         ws, _ = open_finance_and_plans(context.user_data["sheet_url"])
-        if len(ws.col_values(3)) > 1:
+        # Если уже есть записи в таблице или отложенные банки — завершаем
+        if len(ws.col_values(3)) > 1 or context.user_data.get("pending_banks"):
             await query.edit_message_text(
                 "▶️ Продолжаем без заполнения банков.\n\n"
                 "Теперь вы можете вводить операции командой /add"
             )
+            # Очищаем отложенные (если были)
+            context.user_data["pending_banks"].clear()
             return ConversationHandler.END
         else:
             await query.message.reply_text("⚠️ Добавьте хотя бы один банк.")
             return STATE_BANK_MENU
 
+    # Финиш: записать все отложенные банки
+    if data == "finish_setup":
+        ws, _ = open_finance_and_plans(context.user_data["sheet_url"])
+        pending = context.user_data.get("pending_banks", [])
+        for entry in pending:
+            ws.append_row(entry["row_data"], value_input_option="USER_ENTERED")
+        lines = [f"• {e['bank']}: {e['amount']:.2f}" for e in pending] or ["– ничего –"]
+        summary = "\n".join(lines)
+        await query.edit_message_text(
+            "🎉 Банки успешно добавлены:\n" + summary + "\n\n"
+            "Теперь вы можете вводить операции командой /add"
+        )
+        context.user_data["pending_banks"].clear()
+        return ConversationHandler.END
+
+    # Пользовательский банк
     if data == "bank_custom":
         await query.edit_message_text("✏️ Введите название вашего банка:")
         return STATE_BANK_CUSTOM
 
+    # Выбор одного из популярных
     if data.startswith("bank_"):
         bank = data.split("_", 1)[1]
         context.user_data["bank_entry"] = {"bank": bank}
         await query.edit_message_text(f"💰 Введите баланс для <b>{bank}</b>:", parse_mode="HTML")
         return STATE_BANK_AMOUNT
 
+    # Любая другая ситуация
     await query.message.reply_text("⚠️ Пожалуйста, используйте кнопки.")
     return STATE_BANK_MENU
+
 
 
 # —————— 3.3 Обработка ввода названия своего банка ——————
@@ -115,7 +170,7 @@ async def handle_bank_amount(update: Update, context: ContextTypes.DEFAULT_TYPE)
     entry = context.user_data["bank_entry"]
     entry["amount"] = amount
 
-    ws, _ = open_finance_and_plans(context.user_data["sheet_url"])
+        # Собираем данные операции
     now = datetime.now(pytz.timezone("Europe/Moscow"))
     year = now.year
     month = {
@@ -130,10 +185,15 @@ async def handle_bank_amount(update: Update, context: ContextTypes.DEFAULT_TYPE)
         year, month, entry["bank"], operation,
         date_str, f"{amount:.2f}".replace(".", ","), "Старт", "-"
     ]
-    ws.append_row(row, value_input_option="USER_ENTERED")
-    entry_row = len(ws.col_values(1))
-    context.user_data["bank_entry"]["row"] = entry_row
-    context.user_data.setdefault("new_banks", []).append(entry.copy())
+    # Вместо прямой записи — кладём в кэш
+    pending = context.user_data["pending_banks"]
+    pending.append({
+        "bank": entry["bank"],
+        "amount": amount,
+        "row_data": row
+    })
+    # Запоминаем индекс этой записи для будущего редактирования
+    context.user_data["bank_entry"]["index"] = len(pending) - 1
 
     keyboard = [
         [InlineKeyboardButton("➕ Добавить ещё банк",    callback_data="add_more"),
@@ -167,16 +227,23 @@ async def handle_bank_option(update: Update, context: ContextTypes.DEFAULT_TYPE)
         return STATE_BANK_EDIT_CHOICE
 
     if data == "finish_setup":
-        lines = []
-        for e in context.user_data.get("new_banks", []):
-            amt = f"{e['amount']:.2f}"
-            lines.append(f"• {e['bank']}: {amt}")
-        summary = "\n".join(lines) or "– ничего –"
+        # 3.1 Получаем ссылку на Google Sheets
+        ws, _ = open_finance_and_plans(context.user_data["sheet_url"])
+        # 3.2 Записываем в таблицу все отложенные банки
+        pending = context.user_data.get("pending_banks", [])
+        for entry in pending:
+           ws.append_row(entry["row_data"], value_input_option="USER_ENTERED")
+        # 3.3 Формируем текст-отчёт
+        lines = [f"• {e['bank']}: {e['amount']:.2f}" for e in pending] or ["– ничего –"]
+        summary = "\n".join(lines)
+        # 3.4 Отправляем пользователю результат и закрываем Conversation
         await query.edit_message_text(
             "🎉 Банки успешно добавлены:\n" + summary + "\n\n"
-            "Теперь вы можете вводить операции командой /add"
-        )
+            "Теперь вы можете вводить операции командой /add")
+        # 3.5 Очищаем кэш
+        context.user_data["pending_banks"].clear()
         return ConversationHandler.END
+
 
     if data == "skip_add":
         return await handle_bank_option(update, context)
@@ -211,12 +278,18 @@ async def handle_bank_edit_input(update: Update, context: ContextTypes.DEFAULT_T
     text = update.message.text.strip()
     field = context.user_data.get("editing_field")
     entry = context.user_data["bank_entry"]
-    ws, _ = open_finance_and_plans(context.user_data["sheet_url"])
-    row = entry["row"]
+    
+    # Работаем с последней отложенной записью в кэше
+    pending = context.user_data["pending_banks"]
+    index = context.user_data["bank_entry"]["index"]
+    entry_cache = pending[index]
 
     if field == "bank":
-        entry["bank"] = text
-        ws.update_cell(row, 3, text)
+        entry_cache["bank"] = text
+        # столбец 3 в row_data
+        entry_cache["row_data"][2] = text
+        # Обновляем контекст для consistency
+        context.user_data["bank_entry"]["bank"] = text
 
     elif field == "amount":
         try:
@@ -224,8 +297,34 @@ async def handle_bank_edit_input(update: Update, context: ContextTypes.DEFAULT_T
         except ValueError:
             await update.message.reply_text("⚠️ Введите число, например: 1000 или -456,67")
             return STATE_BANK_EDIT_INPUT
-        entry["amount"] = amount
-        ws.update_cell(row, 6, amount)
+        entry_cache["amount"] = amount
+        # Обновляем сумму в кэше
+        entry_cache["amount"] = amount
+        # Пересчитываем тип операции: Пополнение или Трата
+        operation = "Пополнение" if amount >= 0 else "Трата"
+        entry_cache["row_data"][3] = operation  # индекс 3 — это столбец "Операция"
+        # Обновляем форматированную сумму в кэше
+        formatted = f"{amount:.2f}".replace(".", ",")
+        entry_cache["row_data"][5] = formatted  # индекс 5 — это столбец "Сумма"
+        # Обновляем контекстовую запись тоже
+        context.user_data["bank_entry"]["amount"] = amount
+
+    # Убираем флаг редактирования
+    context.user_data.pop("editing_field", None)
+
+    # Ответ пользователю и возвращение меню опций
+    formatted_amount = f"{entry_cache['amount']:.2f}".replace(".", ",")
+    keyboard = [
+        [InlineKeyboardButton("➕ Добавить ещё банк",    callback_data="add_more"),
+         InlineKeyboardButton("✏️ Изменить последнюю", callback_data="edit_entry")],
+        [InlineKeyboardButton("✅ Готово",               callback_data="finish_setup")],
+    ]
+    await update.message.reply_text(
+        f"✅ Запись обновлена: {entry_cache['bank']} — {formatted_amount}"
+    )
+    await update.message.reply_text("Что дальше?", reply_markup=InlineKeyboardMarkup(keyboard))
+    return STATE_BANK_OPTION
+
 
     for e in context.user_data.get("new_banks", []):
         if e.get("row") == row:
