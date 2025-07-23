@@ -21,12 +21,11 @@ def _build_main_kb() -> InlineKeyboardMarkup:
         [InlineKeyboardButton("🏷 Классификация", callback_data="menu:classification"),
          InlineKeyboardButton("🗓 Планы",         callback_data="menu:plans")],
         [InlineKeyboardButton("➕ Добавить Банк", callback_data="menu:add_bank"),
-         InlineKeyboardButton("➖ Удалить Банк",  callback_data="menu:del_bank")],
+         InlineKeyboardButton("🔗 Показать таблицу", callback_data="menu:show_sheet")],
         [InlineKeyboardButton("✏️ Изменить таблицу", callback_data="menu:edit_table"),
          InlineKeyboardButton("💳 Поменять тариф",   callback_data="menu:change_tariff")],
-        [InlineKeyboardButton("🔗 Показать таблицу", callback_data="menu:show_sheet"),
-         InlineKeyboardButton("💬 Поддержка",        callback_data="menu:support")],
-        [InlineKeyboardButton("🔙 Назад",            callback_data="menu:back")],
+        [InlineKeyboardButton("💬 Поддержка",        callback_data="menu:support"),
+         InlineKeyboardButton("🔙 Назад",            callback_data="menu:back")],
     ])
 
 
@@ -133,14 +132,9 @@ async def handle_menu_selection(update: Update, context: ContextTypes.DEFAULT_TY
     if data == "menu:classification":
         return await start_classification(update, context)
 
-    # — Планы
-    #if data == "menu:plans":
-        #return await start_plans(update, context)
 
     # остальные пункты — заглушки
     responses = {
-        "menu:add_bank":       "➕ Раздел «Добавить Банк» в разработке…",
-        "menu:del_bank":       "➖ Раздел «Удалить Банк» в разработке…",
         "menu:edit_table":     "✏️ Раздел «Изменить таблицу» в разработке…",
         "menu:change_tariff":  "💳 Раздел «Поменять тариф» в разработке…",
         "menu:show_sheet":     "🔗 Раздел «Показать таблицу» в разработке…",

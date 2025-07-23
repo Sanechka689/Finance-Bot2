@@ -24,6 +24,8 @@ from handlers.menu import register_menu_handlers
 from handlers.men_oper import start_men_oper, register_men_oper_handlers
 # Этап 5.2 - Меню - Планы
 from handlers.plans import register_plans_handlers
+# Этап 5.3 - Меню - Добавить Банк
+from handlers.menu_banks import register_menu_banks_handlers
 # Ловим всё остальное
 from handlers.fallback import register_fallback_handler
 
@@ -37,6 +39,7 @@ def main():
     register_banks_handlers(app)        # /banks
     register_men_oper_handlers(app)     # /Операции
     register_plans_handlers(app)        # /Планы
+    register_menu_banks_handlers(app) # / Добавить Банк
     register_menu_handlers(app)         # /menu
     register_operations_handlers(app)   # /add  
     register_fallback_handler(app)      # всё остальное
