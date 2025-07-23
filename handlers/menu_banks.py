@@ -92,53 +92,56 @@ async def show_banks_menu(update: Update, context: ContextTypes.DEFAULT_TYPE) ->
 # —————— 3.2 Обработка выбора из главного меню ——————
 
 async def handle_bank_menu(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
+    from handlers.menu import show_main_menu
+
     query = update.callback_query
     await query.answer()
     data = query.data
 
-    # — Назад: возвращаем в главное меню и закрываем этот Conversation
+    # Назад → в главное меню
     if data == "menu:open":
-        from handlers.menu import show_main_menu
         await show_main_menu(update, context)
         return ConversationHandler.END
 
-    # — Готово: записываем отложенные банки и возвращаем в главное меню
+    # Поддержка
+    if data == "support":
+        await query.edit_message_text("📧 Для поддержки: financebot365@gmail.com")
+        return STATE_BANK_MENU
+
+    # Готово → записываем все pending, закрываем текущее окно и открываем главное меню
     if data == "finish_setup":
-        # 1) Записываем все pending в Google Sheets
+        # 1) Записываем в Google Sheets
         ws, _ = open_finance_and_plans(context.user_data["sheet_url"])
         pending = context.user_data.get("pending_banks", [])
         for entry in pending:
             ws.append_row(entry["row_data"], value_input_option="USER_ENTERED")
 
-        # 2) Формируем текст-отчёт
-        lines = [f"• {e['bank']}: {e['amount']:.2f}" for e in pending] or ["– ничего –"]
-        summary = "\n".join(lines)
+        # 2) Формируем отчёт по всем добавленным банкам
+        summary = "\n".join(f"• {e['bank']}: {e['amount']:.2f}" for e in pending) or "– ничего –"
 
-        # 3) Отправляем отчёт отдельным сообщением
-        await query.message.reply_text(f"🎉 Банки успешно добавлены:\n{summary}")
+        # 3) Затираем меню банков и выводим отчёт
+        await query.edit_message_text(f"🎉 Банки успешно добавлены:\n{summary}")
 
         # 4) Очищаем кэш
         context.user_data["pending_banks"].clear()
 
-        # 5) Автоматически возвращаем в главное меню
-        kb = _build_main_kb()
-        await query.message.reply_text("Выберите раздел меню:", reply_markup=kb)
-
+        # 5) Показываем главное меню
+        await show_main_menu(update, context)
         return ConversationHandler.END
 
-    # — Ввод своего банка
+    # Выбор собственного банка
     if data == "bank_custom":
         await query.edit_message_text("✏️ Введите название вашего банка:")
         return STATE_BANK_CUSTOM
 
-    # — Выбор популярного банка
+    # Выбор из популярных
     if data.startswith("bank_"):
         bank = data.split("_", 1)[1]
         context.user_data["bank_entry"] = {"bank": bank}
         await query.edit_message_text(f"💰 Введите баланс для <b>{bank}</b>:", parse_mode="HTML")
         return STATE_BANK_AMOUNT
 
-    # — Любой другой ввод
+    # Любой другой ввод
     await query.message.reply_text("⚠️ Пожалуйста, используйте кнопки.")
     return STATE_BANK_MENU
 
@@ -206,45 +209,61 @@ async def handle_bank_amount(update: Update, context: ContextTypes.DEFAULT_TYPE)
 # —————— 3.5 Обработка нажатий в меню опций ——————
 
 async def handle_bank_option(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
+    from handlers.menu import show_main_menu
+
     query = update.callback_query
     await query.answer()
     data = query.data
 
+    # Добавить ещё банк
     if data == "add_more":
         return await show_banks_menu(update, context)
 
+    # Изменить последнюю запись
     if data == "edit_entry":
         keyboard = [
-            [InlineKeyboardButton("Изменить банк", callback_data="edit_bank"),
+            [InlineKeyboardButton("Изменить банк",  callback_data="edit_bank"),
              InlineKeyboardButton("Изменить сумму", callback_data="edit_amount")],
         ]
         await query.edit_message_text("✏️ Что вы хотите изменить?", reply_markup=InlineKeyboardMarkup(keyboard))
         return STATE_BANK_EDIT_CHOICE
 
+    # Готово — срабатывает и в STATE_BANK_MENU, и в STATE_BANK_OPTION
     if data == "finish_setup":
-        # 3.1 Получаем ссылку на Google Sheets
+        # 1) Пишем все отложенные банки в Google Sheets
         ws, _ = open_finance_and_plans(context.user_data["sheet_url"])
-        # 3.2 Записываем в таблицу все отложенные банки
         pending = context.user_data.get("pending_banks", [])
         for entry in pending:
-           ws.append_row(entry["row_data"], value_input_option="USER_ENTERED")
-        # 3.3 Формируем текст-отчёт
-        lines = [f"• {e['bank']}: {e['amount']:.2f}" for e in pending] or ["– ничего –"]
-        summary = "\n".join(lines)
-        # 3.4 Отправляем пользователю результат и закрываем Conversation
-        await query.edit_message_text(
-            "🎉 Банки успешно добавлены:\n" + summary + "\n\n"
-            "Теперь вы можете вводить операции командой /add")
-        # 3.5 Очищаем кэш
+            ws.append_row(entry["row_data"], value_input_option="USER_ENTERED")
+
+        # 2) Формируем отчёт по всем банкам
+        summary = "\n".join(f"• {e['bank']}: {e['amount']:.2f}" for e in pending) or "– ничего –"
+
+        # 3) Закрываем текущее окно и выводим отчёт
+        await query.edit_message_text(f"🎉 Банки успешно добавлены:\n{summary}")
+
+        # 4) Очищаем кэш
         context.user_data["pending_banks"].clear()
+
+        # 5) Открываем главное меню
+        await show_main_menu(update, context)
         return ConversationHandler.END
 
+    # Ввод своего банка
+    if data == "bank_custom":
+        await query.edit_message_text("✏️ Введите название вашего банка:")
+        return STATE_BANK_CUSTOM
 
-    if data == "skip_add":
-        return await handle_bank_option(update, context)
+    # Выбор популярного банка
+    if data.startswith("bank_"):
+        bank = data.split("_", 1)[1]
+        context.user_data["bank_entry"] = {"bank": bank}
+        await query.edit_message_text(f"💰 Введите баланс для <b>{bank}</b>:", parse_mode="HTML")
+        return STATE_BANK_AMOUNT
 
+    # Всё остальное
     await query.message.reply_text("⚠️ Пожалуйста, используйте кнопки.")
-    return STATE_BANK_OPTION
+    return STATE_BANK_MENU
 
 
 # —————— 3.6 Выбор поля для редактирования ——————
