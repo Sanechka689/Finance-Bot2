@@ -4,6 +4,9 @@ from telegram import Update
 from telegram.ext import MessageHandler, filters, ContextTypes
 
 async def unknown(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    if context.user_data.get("awaiting_sheet_url"):
+        return
+
     await update.message.reply_text(
         "❓ Я не понял. Доступные команды:\n"
         "/start  — выбор тарифа\n"
