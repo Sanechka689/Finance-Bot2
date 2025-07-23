@@ -13,6 +13,11 @@ from handlers.classification import (
 )
 from utils.constants import STATE_CLASS_MENU
 
+from telegram.ext import MessageHandler
+from telegram.ext import filters
+from handlers.menu_banks import show_banks_menu
+from services.sheets_service import open_finance_and_plans
+
 
 def _build_main_kb() -> InlineKeyboardMarkup:
     return InlineKeyboardMarkup([
@@ -119,9 +124,7 @@ async def handle_menu_selection(update: Update, context: ContextTypes.DEFAULT_TY
             text,
             parse_mode="Markdown",
             reply_markup=InlineKeyboardMarkup([
-                [InlineKeyboardButton("🔙 Назад", callback_data="menu:open")]
-            ])
-        )
+                [InlineKeyboardButton("🔙 Назад", callback_data="menu:open")]]))
         return STATE_OP_MENU
 
     # — Операции
@@ -132,17 +135,81 @@ async def handle_menu_selection(update: Update, context: ContextTypes.DEFAULT_TY
     if data == "menu:classification":
         return await start_classification(update, context)
 
+    # — Показать таблицу
+    if data == "menu:show_sheet":
+        url = context.user_data.get("sheet_url")
+        if url:
+            markup = InlineKeyboardMarkup([
+                [InlineKeyboardButton("🔗 Открыть таблицу", url=url)],
+                [InlineKeyboardButton("🔙 Назад", callback_data="menu:open")]])
+            await query.edit_message_text(
+                "Нажмите кнопку ниже, чтобы открыть вашу Google-таблицу:",
+                reply_markup=markup)
+        else:
+            await query.edit_message_text(
+                "⚠️ Сначала подключите таблицу: /setup",
+                reply_markup=_build_main_kb())
+        return STATE_OP_MENU
+   
+    # — Изменить таблицу
+    if data == "menu:edit_table":
+        await query.edit_message_text("✏️ Пожалуйста, отправьте ссылку на новую Google-таблицу:")
+        context.user_data["awaiting_sheet_url"] = True
+        return STATE_OP_MENU
 
     # остальные пункты — заглушки
     responses = {
-        "menu:edit_table":     "✏️ Раздел «Изменить таблицу» в разработке…",
         "menu:change_tariff":  "💳 Раздел «Поменять тариф» в разработке…",
-        "menu:show_sheet":     "🔗 Раздел «Показать таблицу» в разработке…",
         "menu:support":        "💬 Раздел «Поддержка» в разработке…",
     }
     text = responses.get(data, "⚠️ Неизвестный пункт меню.")
     await query.edit_message_text(text, reply_markup=_build_main_kb())
     return STATE_OP_MENU
+
+# Изменить табилцу (кнопка)
+
+async def handle_new_sheet_response(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    """
+    Ловит текстовое сообщение, если мы ждем ссылку на новую таблицу.
+    """
+    if not context.user_data.get("awaiting_sheet_url"):
+        return  # не наше сообщение
+    url = update.message.text.strip()
+
+    # Проверяем только чтение таблицы (без модификаций)
+    import os
+    from gspread import service_account as gspread_sa
+
+    creds = os.getenv("GOOGLE_APPLICATION_CREDENTIALS")
+    try:
+        sa = gspread_sa(filename=creds)
+        sa.open_by_url(url)
+    except Exception as e:
+        await update.message.reply_text(
+            f"❌ Не удалось открыть таблицу на чтение: {e}\n"
+            "Пожалуйста, отправьте корректную ссылку."
+        )
+        return
+
+    # Сохраняем новый URL
+    context.user_data["sheet_url"] = url
+    # Снимаем флаг ожидания
+    context.user_data.pop("awaiting_sheet_url", None)
+    # Подтверждаем пользователю
+    await update.message.reply_text("✅ Таблица успешно подключена!")
+
+    # 1) Предлагаем сразу войти в раздел «Добавить Банк»
+    kb = InlineKeyboardMarkup([
+        [InlineKeyboardButton("➕ Добавить Банк", callback_data="menu:add_bank")],
+    ])
+    await update.message.reply_text(
+        "Теперь нажмите кнопку ниже, чтобы добавить стартовые банки:",
+        reply_markup=kb
+    )
+    # 2) Завершаем обработчик
+    return
+
+
 
 
 def register_menu_handlers(app):
@@ -160,3 +227,9 @@ def register_menu_handlers(app):
 
     # 3) Общий хендлер для остальных пунктов menu:*
     app.add_handler(CallbackQueryHandler(handle_menu_selection,pattern=r"^menu:"))
+
+    # 4) Обработчик текстовых сообщений при ожидании ссылки на новую таблицу
+    app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_new_sheet_response),
+        # группа >0, чтобы этот хендлер сработал после коллбеков меню
+        group=1)
+

@@ -21,7 +21,6 @@ from utils.constants import (
     STATE_BANK_EDIT_INPUT,
 )
 from services.sheets_service import open_finance_and_plans
-from handlers.menu import _build_main_kb
 
 
 # —————— 3.1 Главное меню банков ——————
@@ -124,6 +123,8 @@ async def handle_bank_menu(update: Update, context: ContextTypes.DEFAULT_TYPE) -
 
         # 4) Очищаем кэш
         context.user_data["pending_banks"].clear()
+
+        from handlers.menu import _build_main_kb
 
         # 5) Показываем главное меню
         await show_main_menu(update, context)
