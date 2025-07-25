@@ -30,6 +30,7 @@ from utils.constants import (
 )
 from utils.state import init_user_state
 from services.sheets_service import open_finance_and_plans
+from collections import Counter
 
 # Месяцы по-русски
 RU_MONTHS = {
@@ -47,21 +48,32 @@ def main_menu_kb():
 
 # 1. Формат текста черновика, учитываем Перевод
 def format_op(op: dict) -> str:
+    emoji_map = {
+        "Дата": "📅",
+        "Банк": "🏦",
+        "Банк Отправитель": "➖ 🏦",
+        "Банк Получатель": "➕ 🏦",
+        "Операция": "⚙️",
+        "Сумма": "💸",
+        "Классификация": "🏷️",
+        "Конкретика": "🔍"}
+        
     lines = []
     if op.get("Операция") == "Перевод":
-        for k in ["Дата", "Банк Отправитель", "Банк Получатель", "Сумма"]:
-            v = op.get(k)
-            if k == "Дата" and v:
-                dt = datetime.fromisoformat(v)
-                v = dt.strftime("%d.%m.%Y")
-            lines.append(f"{k}: {v if v is not None else '—'}")
+        fields = ["Дата", "Банк Отправитель", "Банк Получатель", "Сумма"]
     else:
-        for k in ["Дата", "Банк", "Операция", "Сумма", "Классификация", "Конкретика"]:
-            v = op.get(k)
-            if k == "Дата" and v:
-                dt = datetime.fromisoformat(v)
-                v = dt.strftime("%d.%m.%Y")
-            lines.append(f"{k}: {v if v is not None else '—'}")
+        fields = ["Дата", "Банк", "Операция", "Сумма", "Классификация", "Конкретика"]
+
+    for k in fields:
+        v = op.get(k)
+        # для даты форматируем
+        if k == "Дата" and v:
+            dt = datetime.fromisoformat(v)
+            v = dt.strftime("%d.%m.%Y")
+        em = emoji_map.get(k, "")
+        # выводим эмодзи, название поля и значение
+        lines.append(f"{em} {k}: {v if v is not None else '—'}")
+
     return "\n".join(lines)
 
 # 4.1 — команда /add
@@ -105,7 +117,8 @@ async def show_fields_menu(update_or_query, context: ContextTypes.DEFAULT_TYPE) 
              InlineKeyboardButton("🏦 Отправитель",     callback_data="field|Банк Отправитель")],
             [InlineKeyboardButton("🏦 Получатель",      callback_data="field|Банк Получатель"),
              InlineKeyboardButton("➖ Сумма",           callback_data="field|Сумма")],
-            [InlineKeyboardButton("❌ Отмена",          callback_data="op_cancel")],
+            [InlineKeyboardButton("⚙️ Операция",   callback_data="field|Операция"),
+             InlineKeyboardButton("❌ Отмена",          callback_data="op_cancel")],
         ]
         if all(op.get(k) is not None for k in ["Дата","Банк Отправитель","Банк Получатель","Сумма"]):
             keyboard.append([InlineKeyboardButton("✅ Подтвердить", callback_data="confirm_op")])
@@ -149,8 +162,7 @@ async def choose_field(update: Update, context: ContextTypes.DEFAULT_TYPE) -> in
     if field == "Сумма":
         return await ask_amount(update, context)
     if field == "Классификация":
-        await q.edit_message_text("🏷️ Введите классификацию:")
-        return STATE_ENTER_CLASSIFICATION
+        return await ask_classification_menu(update, context)
     if field == "Конкретика":
         await q.edit_message_text("🔍 Введите конкретику:")
         return STATE_ENTER_SPECIFIC
@@ -288,17 +300,69 @@ async def handle_amount_input(update: Update, context: ContextTypes.DEFAULT_TYPE
     context.user_data["pending_op"]["Сумма"]=amt
     return await show_fields_menu(update, context)
 
-# 4.9 — ввод классификации
-async def input_classification(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
-    context.user_data["pending_op"]["Классификация"]=update.message.text.strip()
+# 4.9 — меню топ‑9 популярных классификаций + ввод своей
+async def ask_classification_menu(update_or_query, context: ContextTypes.DEFAULT_TYPE) -> int:
+    # 1) Собираем данные
+    ws, _ = open_finance_and_plans(context.user_data["sheet_url"])
+    raw = ws.col_values(7)[1:]  # столбец G без заголовка
+
+    # 2) Фильтруем и берём топ‑9 по частоте, исключая «Перевод» и «Старт»
+    from collections import Counter
+    popular = [cat for cat, _ in Counter(raw).most_common(20) if cat not in ("Перевод","Старт")]
+    top9 = popular[:9]
+
+    # 3) Строим кнопки по 3 в ряд
+    rows = []
+    for i in range(0, len(top9), 3):
+        chunk = top9[i : i + 3]
+        rows.append([InlineKeyboardButton(c, callback_data=f"select_class|{c}") for c in chunk])
+
+    text = "🏷️ Выберите или введите вашу классификацию:"
+    markup = InlineKeyboardMarkup(rows)
+
+    if update_or_query.callback_query:
+        # редактируем предыдущее сообщение и сохраняем его ID
+        msg = await update_or_query.callback_query.edit_message_text(text, reply_markup=markup)
+        context.user_data["last_class_msg_id"] = msg.message_id
+    else:
+        sent = await update_or_query.message.reply_text(text, reply_markup=markup)
+        context.user_data["last_class_msg_id"] = sent.message_id
+
+    return STATE_ENTER_CLASSIFICATION
+
+
+# 4.9.1 — обработка нажатия кнопки популярной классификации
+async def handle_class_selection(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
+    q = update.callback_query
+    await q.answer()
+    # извлекаем саму категорию
+    _, choice = q.data.split("|", 1)
+    # сохраняем и возвращаемся к меню полей
+    context.user_data["pending_op"]["Классификация"] = choice
     return await show_fields_menu(update, context)
 
-# 4.10 — ввод конкретики
+
+# 4.10 — ввод классификации
+async def input_classification(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
+    # 1) Сохраняем введённую классификацию
+    context.user_data["pending_op"]["Классификация"] = update.message.text.strip()
+
+    # 2) Если был сохранён ID меню классификаций — удаляем его
+    msg_id = context.user_data.pop("last_class_msg_id", None)
+    if msg_id:
+        chat_id = update.effective_chat.id
+        await context.bot.delete_message(chat_id=chat_id, message_id=msg_id)
+
+    # 3) Переходим обратно к общему меню полей
+    return await show_fields_menu(update, context)
+
+
+# 4.11 — ввод конкретики
 async def input_specific(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     context.user_data["pending_op"]["Конкретика"]=update.message.text.strip()
     return await show_fields_menu(update, context)
 
-# 4.11 — запись и возврат, учёт Перевод
+# 4.12 — запись и возврат, учёт Перевод
 async def handle_confirm(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     q=update.callback_query; await q.answer()
     op=context.user_data["pending_op"]
@@ -373,6 +437,7 @@ def register_operations_handlers(app):
                 MessageHandler(filters.TEXT & ~filters.COMMAND, handle_amount_input),
             ],
             STATE_ENTER_CLASSIFICATION: [
+                CallbackQueryHandler(handle_class_selection, pattern="^select_class\\|"),
                 MessageHandler(filters.TEXT & ~filters.COMMAND, input_classification),
             ],
             STATE_ENTER_SPECIFIC: [
