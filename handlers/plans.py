@@ -71,37 +71,37 @@ async def handle_plan_fill_amount(update: Update, context: ContextTypes.DEFAULT_
     return STATE_PLAN_AMOUNT
 
 
-async def handle_plan_fill_classification(update: Update,context: ContextTypes.DEFAULT_TYPE) -> int:
-    """
-    Пользователь нажал «🏷️ Классификация» — показываем топ-10 популярных
-    классификаций из листа «Планы» или даём возможность ввести своё значение.
-    """
+# 3) Обработчик выбора классификации — выводим до 9 кнопок в 3 ряда
+async def handle_plan_fill_classification(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     q = update.callback_query
     await q.answer()
 
-    # 1) Берём второй лист ("Планы") из открытия Google Sheets
+    # Собираем до 9 уникальных классификаций, отсортированных по алфавиту
     _, ws_plans = open_finance_and_plans(context.user_data["sheet_url"])
-    rows = ws_plans.get_all_values()[1:]  # пропускаем заголовок
+    rows = ws_plans.get_all_values()[1:]
+    all_cls = {r[7] for r in rows if r[7]}
+    popular = sorted(all_cls)[:9]  # первые 9
 
-    # 2) Собираем уникальные классификации из столбца 8 (индекс 7)
-    popular: list[str] = []
-    for r in rows:
-        cls = r[7]  # здесь именно индекс 7 для "Классификация"
-        if cls and cls not in popular:
-            popular.append(cls)
-            if len(popular) >= 10:
-                break
+    # Формируем три ряда по 3 кнопки
+    buttons = [
+        InlineKeyboardButton(c, callback_data=f"plans:class_{c}")
+        for c in popular
+    ]
+    kb_rows = [buttons[i:i+3] for i in range(0, len(buttons), 3)]
+    kb = InlineKeyboardMarkup(kb_rows)
 
-    # 3) Формируем клавиатуру: кнопки по popular + кнопка ручного ввода
-    kb = [[InlineKeyboardButton(c, callback_data=f"plans:class_{c}")] for c in popular]
-    kb.append([InlineKeyboardButton("Впишите своё", callback_data="plans:class_other")])
-
+    # Редактируем сообщение и одновременно сохраняем его chat_id/message_id
     await q.edit_message_text(
-        "🏷️ *Выберите классификацию* из списка или впишите своё:",
+        "🏷️ *Выберите классификацию* из списка (или введите свою текстом):",
         parse_mode="Markdown",
-        reply_markup=InlineKeyboardMarkup(kb)
+        reply_markup=kb
     )
+    context.user_data["last_plan_kb"] = {
+        "chat_id": q.message.chat.id,
+        "message_id": q.message.message_id
+    }
     return STATE_PLAN_CLASSIFICATION
+
 
 
 async def handle_plan_fill_specific(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
@@ -143,10 +143,14 @@ async def show_plan_card(update: Update, context: ContextTypes.DEFAULT_TYPE) -> 
         text += f"{emojis[name]} *{name}:* {val}\n"
 
     # Формируем клавиатуру
-    kb = []
-    for name, _, action in fields:
-        label = f"{emojis[name]} {name}"
-        kb.append([InlineKeyboardButton(label, callback_data=f"plans:{action}")])
+    edit_buttons = [
+        InlineKeyboardButton(f"{emojis[name]} {name}", callback_data=f"plans:{action}")
+        for name, _, action in fields
+    ]
+    kb = [
+        edit_buttons[0:2],  # первая пара: Дата + Сумма
+        edit_buttons[2:4],  # вторая пара: Классификация + Конкретика
+    ]
 
     # Кнопки Назад и Сохранить (если заполнены обязательные поля)
     btns = [InlineKeyboardButton("🔙 Назад", callback_data="plans:cancel")]
@@ -193,7 +197,7 @@ async def start_plans(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int
         dt = parse_sheet_date(r[4])
         if dt and dt.year == year and dt.month == month:
             display.append({
-                "Классификация": r[7] or "—",
+                "Классификация":  r[7] or "—",
                 "Сумма":          r[5] or "0",
                 "Остаток":        r[6] or "0"
             })
@@ -324,12 +328,25 @@ async def handle_plan_class_choice(update: Update, context: ContextTypes.DEFAULT
     # Показываем обновлённую карточку
     return await show_plan_card(update, context)
 
-async def handle_plan_custom_class(update: Update,context: ContextTypes.DEFAULT_TYPE) -> int:
-    """
-    Пользователь ввёл свою классификацию — сохраняем и возвращаем карточку.
-    """
+
+# 4) Обработчик текстового ввода своей классификации
+async def handle_plan_custom_class(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
+    # 1) Удаляем старое сообщение‑кнопок (если было)
+    kb = context.user_data.pop("last_plan_kb", None)
+    if kb:
+        try:
+            await context.bot.delete_message(
+                chat_id=kb["chat_id"],
+                message_id=kb["message_id"]
+            )
+        except:
+            pass
+
+    # 2) Сохраняем введённую классификацию
     text = update.message.text.strip() or "-"
     context.user_data["pending_plan"]["Классификация"] = text
+
+    # 3) Показываем обновлённую карточку плана
     return await show_plan_card(update, context)
 
 

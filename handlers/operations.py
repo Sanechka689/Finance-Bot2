@@ -218,7 +218,15 @@ async def handle_calendar_callback(update: Update, context: ContextTypes.DEFAULT
 async def ask_bank(update_or_query, context: ContextTypes.DEFAULT_TYPE) -> int:
     ws,_=open_finance_and_plans(context.user_data["sheet_url"])
     banks=sorted(set(ws.col_values(3)[1:]))
-    kb=InlineKeyboardMarkup([[InlineKeyboardButton(b,callback_data=f"select_bank|{b}")] for b in banks])
+    # Формируем список кнопок банков
+    buttons = [
+        InlineKeyboardButton(b, callback_data=f"select_bank|{b}")
+        for b in banks]
+    # Разбиваем на ряды по 3 кнопки
+    rows = [buttons[i:i+3] for i in range(0, len(buttons), 3)]
+    # Собираем клавиатуру
+    kb = InlineKeyboardMarkup(rows)
+
     if update_or_query.callback_query:
         await update_or_query.callback_query.edit_message_text("🏦 Выберите банк:",reply_markup=kb)
     else:
