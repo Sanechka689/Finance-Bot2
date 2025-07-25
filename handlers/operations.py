@@ -402,13 +402,26 @@ async def handle_confirm(update: Update, context: ContextTypes.DEFAULT_TYPE) -> 
     # 3. Отправляем запрос в API
     ws.spreadsheet.batch_update(sort_request)
 
-    await q.edit_message_text("✅ Операция добавлена в таблицу.")
+    # 1) Формируем текст карточки + подпись
+    card_text = format_op(op)
+    confirmation = "\n\n✅ Операция добавлена в таблицу."
+    new_card = card_text + confirmation
+
+    # 2) Редактируем исходное сообщение‑карточку
+    await q.edit_message_text(new_card)
+
+    # 3) Сбрасываем состояние пользователя под /add
     init_user_state(context)
+
+    # 4) Отправляем новое сообщение с меню /add
     await q.message.reply_text(
         "✏️ Этап добавления операции: выберите действие",
         reply_markup=main_menu_kb()
     )
+
     return STATE_OP_MENU
+
+
 
 # — регистрация этапа 4 —
 def register_operations_handlers(app):
