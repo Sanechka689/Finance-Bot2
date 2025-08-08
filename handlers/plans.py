@@ -25,6 +25,12 @@ from utils.constants import (
 from handlers.classification import parse_sheet_date
 from handlers.operations import RU_MONTHS
 
+import asyncio
+from gspread.exceptions import APIError
+
+import logging #_____Логи
+logger = logging.getLogger(__name__) #_____Логи
+
 def init_pending_plan(context):
     """
     Сбрасывает черновик нового плана.
@@ -172,16 +178,25 @@ async def handle_plan_cancel(update: Update, context: ContextTypes.DEFAULT_TYPE)
 
 async def start_plans(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     """
-    Шаг 1: показываем пользователю планы на текущий месяц
-    в формате «Классификация — Сумма — Остаток».
-    Остаток берётся из уже посчитанной формулы в таблице.
+    Показываем планы на текущий месяц.
     """
     q = update.callback_query
-    await q.answer()
+
+    # ⚠️ Этот вызов часто падает "повторно отвечено".
+    if q:
+        try:
+            await q.answer()
+        except Exception as e:
+            logger.debug("start_plans: q.answer() skipped: %s", e)
 
     url = context.user_data.get("sheet_url")
     if not url:
-        return await q.edit_message_text("⚠️ Сначала подключите таблицу: /setup")
+        # если пришли без callback (редкий случай) — отправим новое сообщение
+        if q:
+            return await q.edit_message_text("⚠️ Сначала подключите таблицу: /setup")
+        else:
+            await update.message.reply_text("⚠️ Сначала подключите таблицу: /setup")
+            return STATE_PLAN_MENU
 
     # 1) Открываем лист «Планы» (он второй в кортеже)
     _, ws_plans = open_finance_and_plans(url)
@@ -215,6 +230,34 @@ async def start_plans(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int
     # 4) Заголовок с русским месяцем
     header = f"🗓 *Планы на {RU_MONTHS[month]} {year}:*\n{body}"
 
+    # —— Сводка по планам и факту для текущего месяца ——
+
+    def fmt(x: float) -> str:
+        s = f"{x:,.2f}"
+        s = s.replace(",", "X").replace(".", ",").replace("X", " ")
+        return s
+
+    # считаем суммы, предобрабатывая пробелы и NBSP
+    def to_float(s: str) -> float:
+        clean = s.replace("\xa0", "").replace(" ", "").replace(",", ".")
+        return float(clean or "0")
+
+    plan_sum  = sum(to_float(p["Сумма"])   for p in display)
+    fact_sum  = sum(to_float(p["Остаток"]) for p in display)
+
+    fin_ws, _   = open_finance_and_plans(url)
+    fin_rows    = fin_ws.get_all_values()[1:]
+    bank_total  = sum(to_float(r[5])      for r in fin_rows if r[5])
+
+    combined = bank_total + fact_sum
+
+    summary = (
+        "\n\n💡 *Сводка по планам и факту:*\n"
+        f"📝 По плану: *{fmt(plan_sum)}* ₽\n"
+        f"📈 По факту: *{fmt(fact_sum)}* ₽\n"
+        f"💰 Итоговый остаток: *{fmt(combined)}* ₽"
+    )
+
     # 5) Кнопки
     kb = [
         [InlineKeyboardButton("➕ Добавить",        callback_data="plans:add")],
@@ -222,8 +265,34 @@ async def start_plans(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int
         [InlineKeyboardButton("🔙 Назад",           callback_data="plans:cancel")],
     ]
 
-    await q.edit_message_text(header, parse_mode="Markdown",
-                              reply_markup=InlineKeyboardMarkup(kb))
+    # 6) Выводим список + сводку + клавиатуру
+    text = header + summary
+    markup = InlineKeyboardMarkup(kb)
+
+    if q:
+        try:
+            await q.edit_message_text(
+                text,
+                parse_mode="Markdown",
+                reply_markup=markup
+            )
+        except Exception as e:
+            # если не получилось отредактировать (например, callback уже "закрыт"),
+            # отправим новую карточку, чтобы пользователь всё равно вернулся к "Планам"
+            logger.warning("start_plans: edit_message_text failed, sending new message: %s", e)
+            await context.bot.send_message(
+                chat_id=update.effective_chat.id,
+                text=text,
+                parse_mode="Markdown",
+                reply_markup=markup
+            )
+    else:
+        await update.message.reply_text(
+            text,
+            parse_mode="Markdown",
+            reply_markup=markup
+        )
+
     return STATE_PLAN_MENU
 
 
@@ -363,31 +432,141 @@ async def handle_plan_specific(update: Update, context: ContextTypes.DEFAULT_TYP
 async def handle_plan_save(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     q = update.callback_query
     await q.answer()
+    logger.info(
+        "handle_plan_save: callback_data=%s, user_data.sheet_url=%s",
+        q.data, context.user_data.get("sheet_url")
+    )
 
     url = context.user_data.get("sheet_url")
     _, ws_plans = open_finance_and_plans(url)
 
     row = context.user_data["pending_plan"]
 
-    # 1) Собираем текст формулы для колонки "Остаток":
+    # 1) Формула для колонки "Остаток"
     formula = (
-    f'=SUMIFS(Финансы!$F:$F;Финансы!$G:$G;INDIRECT("H"&ROW());'
-    f'Финансы!$B:$B;INDIRECT("B"&ROW());Финансы!$A:$A;INDIRECT("A"&ROW()))'
-    f'-INDIRECT("F"&ROW())'
+        f'=SUMIFS(Финансы!$F:$F;Финансы!$G:$G;INDIRECT("H"&ROW());'
+        f'Финансы!$B:$B;INDIRECT("B"&ROW());Финансы!$A:$A;INDIRECT("A"&ROW()))'
+        f'-INDIRECT("F"&ROW())'
     )
 
-    # 2) Формируем новую строку с этой формулой
+    # 2) Новая строка
     new_row = [
         row["Год"], row["Месяц"], row["Банк"],
         row["Операция"], row["Дата"], row["Сумма"],
-        formula,                          # ← здесь вместо пустой строки
+        formula,
         row["Классификация"], row["Конкретика"]
     ]
 
+    # 3) Добавляем и сразу сортируем лист "Планы" по дате (5-й столбец, E)
     ws_plans.append_row(new_row, value_input_option="USER_ENTERED")
+    try:
+        # gspread: сортируем по колонке E (index=5) возрастанию
+        ws_plans.sort((5, 'asc'))
+    except Exception as e:
+        logger.error(f"Ошибка сортировки листа «Планы»: {e}")
 
-    await q.edit_message_text("✅ План успешно добавлен.")
-    return await start_plans(update, context)
+        # 4) Сообщение-подтверждение (отдельное новое сообщение)
+    await q.message.reply_text("✅ План успешно добавлен.")
+
+    # 4.1) Сразу «закрываем» карточку, чтобы убрать клавиатуру
+    try:
+        await q.edit_message_text("⏳ Обновляю планы…")
+    except Exception as e:
+        logger.warning("Не удалось скрыть карточку плана: %s", e)
+
+    # 4.2) Небольшая пауза — даём таблице/сортировке примениться
+    await asyncio.sleep(0.8)
+
+    # 4.3) Отправляем «Планы» ОТДЕЛЬНЫМ сообщением (чтобы оно было ПОСЛЕДНИМ)
+    async def send_plans_fresh():
+        url = context.user_data.get("sheet_url")
+        _, ws_plans = open_finance_and_plans(url)
+        all_plans = ws_plans.get_all_values()[1:]
+
+        today = date.today()
+        year, month = today.year, today.month
+
+        # соберём строки текущего месяца
+        display = []
+        for r in all_plans:
+            dt = parse_sheet_date(r[4])
+            if dt and dt.year == year and dt.month == month:
+                display.append({
+                    "Классификация":  r[7] or "—",
+                    "Сумма":          r[5] or "0",
+                    "Остаток":        r[6] or "0"
+                })
+
+        # тело списка
+        if not display:
+            body = "— нет планов на этот месяц —"
+        else:
+            lines = [
+                f"{i}. {p['Классификация']} — {p['Сумма']} — {p['Остаток']}"
+                for i, p in enumerate(display, 1)
+            ]
+            body = "\n".join(lines)
+
+        # заголовок
+        header = f"🗓 *Планы на {RU_MONTHS[month]} {year}:*\n{body}"
+
+        # сводка
+        def fmt(x: float) -> str:
+            s = f"{x:,.2f}"
+            return s.replace(",", "X").replace(".", ",").replace("X", " ")
+
+        def to_float(s: str) -> float:
+            clean = s.replace("\xa0", "").replace(" ", "").replace(",", ".")
+            return float(clean or "0")
+
+        fin_ws, _ = open_finance_and_plans(url)
+        fin_rows   = fin_ws.get_all_values()[1:]
+        plan_sum   = sum(to_float(p["Сумма"])   for p in display)
+        fact_sum   = sum(to_float(p["Остаток"]) for p in display)
+        bank_total = sum(to_float(r[5]) for r in fin_rows if r[5])
+        combined   = bank_total + fact_sum
+
+        summary = (
+            "\n\n💡 *Сводка по планам и факту:*\n"
+            f"📝 По плану: *{fmt(plan_sum)}* ₽\n"
+            f"📈 По факту: *{fmt(fact_sum)}* ₽\n"
+            f"💰 Итоговый остаток: *{fmt(combined)}* ₽"
+        )
+
+        # клавиатура «Планов»
+        kb = [
+            [InlineKeyboardButton("➕ Добавить",        callback_data="plans:add")],
+            [InlineKeyboardButton("🔄 Перенести планы", callback_data="plans:copy")],
+            [InlineKeyboardButton("🔙 Назад",           callback_data="plans:cancel")],
+        ]
+
+        # отправляем НОВОЕ сообщение (а не редактируем старое)
+        await context.bot.send_message(
+            chat_id=q.message.chat.id,
+            text=header + summary,
+            parse_mode="Markdown",
+            reply_markup=InlineKeyboardMarkup(kb)
+        )
+
+    # Аккуратные ретраи на случай 429 от Google Sheets
+    for delay in (0.0, 1.0, 2.0):
+        try:
+            await send_plans_fresh()
+            break
+        except APIError as e:
+            code = getattr(getattr(e, "response", None), "status_code", None)
+            if code == 429:
+                logger.warning("Sheets 429, повтор через %.1fs", max(delay, 1.0))
+                await asyncio.sleep(max(delay, 1.0))
+                continue
+            raise
+        except Exception as e:
+            logger.exception("Не удалось отправить «Планы»: %s", e)
+            break
+
+    return STATE_PLAN_MENU
+
+
 
 # Копирвание Планов
 async def handle_plan_copy(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
