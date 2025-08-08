@@ -379,15 +379,16 @@ async def ask_bank(update: Update, context: ContextTypes.DEFAULT_TYPE, current_v
         context.user_data["user_banks"] = banks
 
     # Строим клавиатуру
-    kb = [[InlineKeyboardButton(b, callback_data=f"edit_bank_choice_{b}")] for b in banks]
+    buttons = [InlineKeyboardButton(b, callback_data=f"edit_bank_choice_{b}") for b in banks]
+    rows = [buttons[i:i+3] for i in range(0, len(buttons), 3)]
+    kb = InlineKeyboardMarkup(rows)
 
     text = (
         f"Как вы хотите поменять поле *Банк* — текущее значение: "
         f"`{current_value or '—'}`?\n\n"
         "Выберите банк из списка:"
     )
-    await query.edit_message_text(text, parse_mode="Markdown",
-                                  reply_markup=InlineKeyboardMarkup(kb))
+    await query.edit_message_text(text, parse_mode="Markdown", reply_markup=kb)
     # Переходим в состояние ввода (обработаем выбор кнопкой)
     return STATE_OP_EDIT_INPUT
 
@@ -516,6 +517,23 @@ async def handle_date_choice(update: Update, context: ContextTypes.DEFAULT_TYPE)
 
     # возвращаемся в меню редактирования деталей (STATE_OP_EDIT_CHOICE)
     return await handle_op_edit_choice(update, context)
+    
+
+async def handle_calendar_nav_edit(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
+    """
+    Листаем месяцы в календаре при редактировании даты ('calendar|YYYY|M').
+    Полностью перерисовываем сообщение, чтобы шапка месяца обновлялась у всех клиентов.
+    """
+    q = update.callback_query
+    await q.answer()
+    _, y, m = q.data.split("|", 2)
+
+    # импорт локально, как и в ask_date_edit
+    from handlers.operations import create_calendar
+    cal = create_calendar(int(y), int(m))
+
+    await q.edit_message_text("📅 Выберите новую дату:", reply_markup=cal)
+    return STATE_OP_EDIT_INPUT
 
 # ——— Шаг 4: спрашиваем новую Сумму ———
 async def ask_sum_edit(update: Update, context: ContextTypes.DEFAULT_TYPE, current_value: str) -> int:
@@ -905,6 +923,7 @@ def register_men_oper_handlers(app):
                 CallbackQueryHandler(handle_op_back,        pattern=r"^op_back$")
             ],
             STATE_OP_EDIT_INPUT: [
+                CallbackQueryHandler(handle_calendar_nav_edit,  pattern=r"^calendar\|\d{4}\|\d{1,2}$"),
                 CallbackQueryHandler(handle_bank_choice,      pattern=r"^edit_bank_choice_.+$"),
                 CallbackQueryHandler(handle_operation_choice, pattern=r"^edit_operation_choice_.+$"),
                 CallbackQueryHandler(handle_date_choice,      pattern=r"^select_date\|[\d\-]+$"),
