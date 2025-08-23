@@ -24,8 +24,8 @@ async def show_tariff_menu(update: Update, context: ContextTypes.DEFAULT_TYPE) -
     keyboard = [
         [
             InlineKeyboardButton("Бесплатный", callback_data="tariff_free"),
-            InlineKeyboardButton("Тариф 1",    callback_data="tariff_1"),
             InlineKeyboardButton("Тариф 2",    callback_data="tariff_2"),
+            InlineKeyboardButton("Тариф 3",    callback_data="tariff_3"),
         ],
         [
             InlineKeyboardButton("Поддержка",      callback_data="support"),
@@ -48,12 +48,12 @@ async def handle_menu_selection(update: Update, context: ContextTypes.DEFAULT_TY
         )
         return STATE_TARIFF_MENU
 
-    if choice in ("tariff_free", "tariff_1", "tariff_2"):
+    if choice in ("tariff_free", "tariff_2", "tariff_3"):
         # показываем детали выбранного тарифа
         desc = {
             "tariff_free": "✅ Бесплатный тариф: ручной ввод через кнопки, текст и голос.",
-            "tariff_1":     "🔓 Тариф 1: всё из бесплатного + автопарсинг текста и голоса.",
-            "tariff_2":     "🏷️ Тариф 2: всё из Т1 + парсинг фото чеков.",
+            "tariff_2":     "🔓 Тариф 1: всё из бесплатного + автопарсинг текста и голоса.",
+            "tariff_3":     "🏷️ Тариф 2: всё из Т1 + парсинг фото чеков.",
         }[choice]
 
         keyboard = [
@@ -83,8 +83,8 @@ async def handle_detail_selection(update: Update, context: ContextTypes.DEFAULT_
         keyboard = [
             [
                 InlineKeyboardButton("Бесплатный",        callback_data="tariff_free"),
-                InlineKeyboardButton("Тариф 1",           callback_data="tariff_1"),
-                InlineKeyboardButton("Тариф 2",           callback_data="tariff_2"),
+                InlineKeyboardButton("Тариф 1",           callback_data="tariff_2"),
+                InlineKeyboardButton("Тариф 2",           callback_data="tariff_3"),
             ],
             [
                 InlineKeyboardButton("Поддержка",         callback_data="support"),

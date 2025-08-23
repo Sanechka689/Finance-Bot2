@@ -78,15 +78,14 @@ def format_op(op: dict) -> str:
 
 # 4.1 — команда /add
 async def start_op(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
-    tariff = context.user_data.get("tariff", "tariff_free")
-    if tariff != "tariff_free":
-        return await update.message.reply_text("⚠️ Ручной ввод доступен только на бесплатном тарифе.")
+    # Ручной ввод доступен во всех тарифах
     init_user_state(context)
     await update.message.reply_text(
         "✏️ Этап добавления операции: выберите действие",
         reply_markup=main_menu_kb()
     )
     return STATE_OP_MENU
+
 
 # общий хэндлер отмены / возврата в главное меню
 async def go_main_menu(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
