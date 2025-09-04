@@ -8,7 +8,7 @@ logging.basicConfig(
 )
 
 import os
-from telegram.ext import ApplicationBuilder
+from telegram.ext import ApplicationBuilder, PicklePersistence  # ⬅️ добавили PicklePersistence
 
 # Этап 1 — выбор тарифа (/start)
 from handlers.tariff import register_tariff_handlers
@@ -27,13 +27,19 @@ from handlers.plans import register_plans_handlers
 # Этап 5.3 - Меню - Добавить Банк
 from handlers.menu_banks import register_menu_banks_handlers
 # Этап 6 - Тариф 2 - голосовое
-from handlers.tariff2_text_voice import register_tariff2_handlers
+#from handlers.tariff2_text_voice import register_tariff2_handlers
 # Ловим всё остальное
 from handlers.fallback import register_fallback_handler
 
 def main():
     token = os.getenv("TELEGRAM_TOKEN")
-    app = ApplicationBuilder().token(token).build()
+    os.makedirs("data", exist_ok=True)  # ✅ гарантируем папку для файла состояния
+
+    # ✅ Включаем постоянное хранение состояния (user_data/chat_data/conversations)
+    persistence = PicklePersistence(filepath="data/bot_state.pkl")
+
+    # ✅ Передаём persistence в Application
+    app = ApplicationBuilder().token(token).persistence(persistence).build()
 
     # Регистрируем этапы в порядке выполнения
     register_tariff_handlers(app)       # /start
@@ -42,7 +48,7 @@ def main():
     register_men_oper_handlers(app)     # /Операции
     register_plans_handlers(app)        # /Планы
     register_menu_banks_handlers(app)   # /Добавить Банк
-    register_tariff2_handlers(app)      # /Тариф2 голосовое
+    #register_tariff2_handlers(app)      # /Тариф2 голосовое
     register_menu_handlers(app)         # /menu
     register_operations_handlers(app)   # /add  
     register_fallback_handler(app)      # всё остальное
