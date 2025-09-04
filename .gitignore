@@ -1,2 +1,29 @@
-local-passage-*.json
-local-passage-*.json
+# логи и временные файлы
+*.log
+__pycache__/
+.DS_Store
+
+# локальное состояние бота (PicklePersistence)
+data/
+
+# окружение и ключи
+.env
+.env.*
+*.env
+*credentials*.json
+*credential*.json
+*service_account*.json
+*.pem
+*.key
+
+# архивы
+*.zip
+*.rar
+*.7z
+*.tar
+*.tar.gz
+
+# виртуальные окружения (если появятся)
+venv/
+.venv/
+env/
