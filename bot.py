@@ -4,8 +4,22 @@ import logging
 
 logging.basicConfig(
     format="%(asctime)s %(levelname)s:%(name)s: %(message)s",
-    level=logging.DEBUG
-)
+    level=logging.INFO)
+    
+# 1) приглушим болтливые логи httpx (они и печатают URL с токеном)
+logging.getLogger("httpx").setLevel(logging.WARNING)
+
+# 2) на всякий случай: фильтр, который затирает токен в любых сообщениях логов
+import re
+class _RedactTG(logging.Filter):
+    _p = re.compile(r'/bot(\d+):[A-Za-z0-9_\-]+')
+    def filter(self, record):
+        if isinstance(record.msg, str):
+            record.msg = self._p.sub(r'/bot\\1:<REDACTED>', record.msg)
+        return True
+
+logging.getLogger().addFilter(_RedactTG())
+
 
 import os
 from telegram.ext import ApplicationBuilder, PicklePersistence  # ⬅️ добавили PicklePersistence
